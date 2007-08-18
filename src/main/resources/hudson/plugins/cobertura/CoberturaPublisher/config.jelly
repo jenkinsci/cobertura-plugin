@@ -1,0 +1,88 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:entry title="Cobertura report directory"
+           description="
+           Specify the path to the directory that contains the Cobertura.xml report file, relative to
+           &lt;a href='ws/'&gt;the workspace root&lt;/a&gt;.&lt;br/&gt;
+           Cobertura must be configured to generate XML reports for this plugin to function fully.
+           ">
+    <f:textbox name="Cobertura.CoberturaReportDir" value="${instance.CoberturaReportDir}"/>
+  </f:entry>
+    <f:entry title="Coverage Metric Targets"
+             description="
+             Configure health reporting thresholds. &lt;br/&gt;
+             For the &lt;img src='${rootURL}/images/16x16/health-80plus.gif' alt='100%'&gt;
+             row, leave blank to use the default values (i.e. 70, 80, and 80 for methods, conditionals
+             and lines respectively). &lt;br/&gt;
+             For the &lt;img src='${rootURL}/images/16x16/health-00to19.gif' alt='0%'&gt; and
+             &lt;img src='${rootURL}/images/16x16/yellow.gif' alt='0%'&gt; rows, leave blank to
+             use the default values (i.e. 0).
+    ">
+        <table>
+            <thead>
+                <tr>
+                    <td width="20%"></td>
+                    <td width="20%">% Methods</td>
+                    <td width="20%">% Conditionals</td>
+                    <td width="20%">% Lines</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>
+                        <img src="${rootURL}/images/16x16/health-80plus.gif" alt="100%"
+                             title="Report health as 100% when coverage is greater than" />
+                    </th>
+                    <td>
+                        <f:textbox name="CoberturaHealthyTarget.methodCoverage"
+                                   value="${instance.healthyTarget.methodCoverage}" />
+                    </td>
+                    <td>
+                        <f:textbox name="CoberturaHealthyTarget.conditionalCoverage"
+                                   value="${instance.healthyTarget.conditionalCoverage}" />
+                    </td>
+                    <td>
+                        <f:textbox name="CoberturaHealthyTarget.lineCoverage"
+                                   value="${instance.healthyTarget.lineCoverage}" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <img src="${rootURL}/images/16x16/health-00to19.gif" alt="0%"
+                             title="Report health as 0% when coverage is less than" />
+                    </th>
+                    <td>
+                        <f:textbox name="CoberturaUnhealthyTarget.methodCoverage"
+                                   value="${instance.unhealthyTarget.methodCoverage}" />
+                    </td>
+                    <td>
+                        <f:textbox name="CoberturaUnhealthyTarget.conditionalCoverage"
+                                   value="${instance.unhealthyTarget.conditionalCoverage}" />
+                    </td>
+                    <td>
+                        <f:textbox name="CoberturaUnhealthyTarget.lineCoverage"
+                                   value="${instance.unhealthyTarget.lineCoverage}" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <img src="${rootURL}/images/16x16/yellow.gif" alt="0%"
+                             title="Mark the build as unstable when coverage is less than" />
+                    </th>
+                    <td>
+                        <f:textbox name="CoberturaFailingTarget.methodCoverage"
+                                   value="${instance.failingTarget.methodCoverage}" />
+                    </td>
+                    <td>
+                        <f:textbox name="CoberturaFailingTarget.conditionalCoverage"
+                                   value="${instance.failingTarget.conditionalCoverage}" />
+                    </td>
+                    <td>
+                        <f:textbox name="CoberturaFailingTarget.lineCoverage"
+                                   value="${instance.failingTarget.lineCoverage}" />
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </f:entry>
+</j:jelly>
