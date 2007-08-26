@@ -7,9 +7,12 @@ package hudson.plugins.cobertura.targets;
  * @since 10-Jul-2007 14:59:50
  */
 public enum CoverageMetric {
+    PACKAGES("Packages"),
+    CLASSES("Classes"),
     METHOD("Methods"),
     CONDITIONAL("Conditionals"),
-    LINE("Lines");
+    LINE("Lines"),
+    FILES("Files");
 
     private String name;
 

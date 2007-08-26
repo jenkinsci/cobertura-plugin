@@ -1,6 +1,6 @@
 package hudson.plugins.cobertura.targets;
 
-import hudson.plugins.cobertura.results.AbstractCoberturaMetrics;
+import hudson.plugins.cobertura.Ratio;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -16,66 +16,54 @@ import java.util.HashMap;
  */
 public class CoverageTarget implements Serializable {
 
-    private Integer methodCoverage;
-
-    private Integer conditionalCoverage;
-
-    private Integer lineCoverage;
+    private Map<CoverageMetric, Integer> targets = new HashMap<CoverageMetric, Integer>();
 
     public CoverageTarget() {
     }
 
-    public CoverageTarget(Integer methodCoverage, Integer conditionalCoverage, Integer lineCoverage) {
-        this.methodCoverage = methodCoverage;
-        this.conditionalCoverage = conditionalCoverage;
-        this.lineCoverage = lineCoverage;
+    public CoverageTarget(Map<CoverageMetric, Integer> coverage) {
+        this.targets.putAll(coverage);
     }
 
     public boolean isAlwaysMet() {
-        return (methodCoverage == null || methodCoverage < 0) &&
-                (conditionalCoverage == null || conditionalCoverage < 0) &&
-                (lineCoverage == null || lineCoverage < 0);
+        for (Integer target: targets.values()) {
+            if (target != null && target > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean isEmpty() {
-        return methodCoverage == null &&
-                conditionalCoverage == null &&
-                lineCoverage == null;
+        for (Integer target: targets.values()) {
+            if (target != null) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public Set<CoverageMetric> getFailingMetrics(AbstractCoberturaMetrics coverage) {
+    public Set<CoverageMetric> getFailingMetrics(CoverageResult coverage) {
         Set<CoverageMetric> result = new HashSet<CoverageMetric>();
-
-        if (methodCoverage != null && coverage.getMethodCoverage().getPercentage() < methodCoverage) {
-            result.add(CoverageMetric.METHOD);
-        }
-
-        if (conditionalCoverage != null && coverage.getConditionalCoverage().getPercentage() < conditionalCoverage) {
-            result.add(CoverageMetric.CONDITIONAL);
-        }
-
-        if (lineCoverage != null && coverage.getLineCoverage().getPercentage() < lineCoverage) {
-            result.add(CoverageMetric.LINE);
+        for (Map.Entry<CoverageMetric, Integer> target: this.targets.entrySet()) {
+            Ratio observed = coverage.getCoverage(target.getKey());
+            if (observed != null && observed.getPercentage() < target.getValue()) {
+                result.add(target.getKey());
+            }
         }
 
         return result;
     }
 
-    public Map<CoverageMetric, Integer> getRangeScores(CoverageTarget min, AbstractCoberturaMetrics coverage) {
+    public Map<CoverageMetric, Integer> getRangeScores(CoverageTarget min, CoverageResult coverage) {
         Integer j;
         Map<CoverageMetric, Integer> result = new HashMap<CoverageMetric, Integer>();
-
-        j = CoverageTarget.calcRangeScore(methodCoverage, min.methodCoverage, coverage.getMethodCoverage().getPercentage());
-        if (j != null) {
-            result.put(CoverageMetric.METHOD, Integer.valueOf(j));
-        }
-        j = CoverageTarget.calcRangeScore(conditionalCoverage, min.conditionalCoverage, coverage.getConditionalCoverage().getPercentage());
-        if (j != null) {
-            result.put(CoverageMetric.CONDITIONAL, Integer.valueOf(j));
-        }
-        j = CoverageTarget.calcRangeScore(lineCoverage, min.lineCoverage, coverage.getLineCoverage().getPercentage());
-        if (j != null) {
-            result.put(CoverageMetric.LINE, Integer.valueOf(j));
+        for (Map.Entry<CoverageMetric, Integer> target: this.targets.entrySet()) {
+            Ratio observed = coverage.getCoverage(target.getKey());
+            if (observed != null) {
+                j = CoverageTarget.calcRangeScore(target.getValue(), min.targets.get(target.getKey()), observed.getPercentage());
+                result.put(target.getKey(), Integer.valueOf(j));
+            }
         }
         return result;
     }
@@ -90,58 +78,21 @@ public class CoverageTarget implements Serializable {
         return result;
     }
 
-    /**
-     * Getter for property 'methodCoverage'.
-     *
-     * @return Value for property 'methodCoverage'.
-     */
-    public Integer getMethodCoverage() {
-        return methodCoverage;
+    public Set<CoverageMetric> getTargets() {
+        Set<CoverageMetric> targets = new HashSet<CoverageMetric>();
+        for (Map.Entry<CoverageMetric, Integer> target: this.targets.entrySet()) {
+            if (target.getValue() != null) {
+                targets.add(target.getKey());
+            }
+        }
+        return targets;
     }
 
-    /**
-     * Setter for property 'methodCoverage'.
-     *
-     * @param methodCoverage Value to set for property 'methodCoverage'.
-     */
-    public void setMethodCoverage(Integer methodCoverage) {
-        this.methodCoverage = methodCoverage;
+    public void setTarget(CoverageMetric metric, Integer target) {
+        targets.put(metric, target);
     }
 
-    /**
-     * Getter for property 'conditionalCoverage'.
-     *
-     * @return Value for property 'conditionalCoverage'.
-     */
-    public Integer getConditionalCoverage() {
-        return conditionalCoverage;
+    public Integer getTarget(CoverageMetric metric) {
+        return targets.get(metric);
     }
-
-    /**
-     * Setter for property 'conditionalCoverage'.
-     *
-     * @param conditionalCoverage Value to set for property 'conditionalCoverage'.
-     */
-    public void setConditionalCoverage(Integer conditionalCoverage) {
-        this.conditionalCoverage = conditionalCoverage;
-    }
-
-    /**
-     * Getter for property 'lineCoverage'.
-     *
-     * @return Value for property 'lineCoverage'.
-     */
-    public Integer getLineCoverage() {
-        return lineCoverage;
-    }
-
-    /**
-     * Setter for property 'lineCoverage'.
-     *
-     * @param lineCoverage Value to set for property 'lineCoverage'.
-     */
-    public void setLineCoverage(Integer lineCoverage) {
-        this.lineCoverage = lineCoverage;
-    }
-
 }

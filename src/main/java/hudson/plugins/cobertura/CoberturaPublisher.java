@@ -4,15 +4,17 @@ import hudson.Launcher;
 import hudson.FilePath;
 import hudson.Util;
 import hudson.remoting.VirtualChannel;
-import hudson.plugins.cobertura.results.ProjectCoverage;
 import hudson.plugins.cobertura.targets.CoverageTarget;
 import hudson.plugins.cobertura.targets.CoverageMetric;
+import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.model.*;
 import hudson.tasks.Publisher;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.*;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Cobertura {@link Publisher}.
@@ -154,7 +156,7 @@ public class CoberturaPublisher extends Publisher {
         File coberturaXmlReport = getCoberturaReport(build);
         if (coberturaXmlReport.exists()) {
             listener.getLogger().println("Publishing Cobertura coverage results...");
-            ProjectCoverage result = null;
+            CoverageResult result = null;
             try {
                 result = CoberturaCoverageParser.parse(coberturaXmlReport, workspacePath);
             } catch (IOException e) {
@@ -234,7 +236,11 @@ public class CoberturaPublisher extends Publisher {
             req.bindParameters(instance.unhealthyTarget, "coberturaUnhealthyTarget.");
             // start ugly hack
             if (instance.healthyTarget.isEmpty()) {
-                instance.healthyTarget = new CoverageTarget(70, 80, 80);
+                Map<CoverageMetric, Integer> def = new HashMap<CoverageMetric, Integer>();
+                def.put(CoverageMetric.CONDITIONAL, 70);
+                def.put(CoverageMetric.METHOD, 80);
+                def.put(CoverageMetric.LINE, 80);
+                instance.healthyTarget = new CoverageTarget(def);
             }
             // end ugly hack
             return instance;
