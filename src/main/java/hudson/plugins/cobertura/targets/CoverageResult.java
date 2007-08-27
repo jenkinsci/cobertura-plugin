@@ -9,10 +9,7 @@ import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
 import hudson.util.ColorPalette;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Calendar;
-import java.util.Set;
+import java.util.*;
 import java.io.IOException;
 import java.awt.*;
 
@@ -77,6 +74,10 @@ public class CoverageResult {
 
     public Ratio getCoverage(CoverageMetric metric) {
         return aggregateResults.get(metric);
+    }
+
+    public Set<CoverageMetric> getMetrics() {
+        return Collections.unmodifiableSet(aggregateResults.keySet());
     }
 
     public void updateMetric(CoverageMetric metric, Ratio additionalResult) {

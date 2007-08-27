@@ -32,7 +32,7 @@ public class CoverageAggreagtionRule {
                                                        Ratio inputResult,
                                                        Map<CoverageMetric, Ratio> runningTotal) {
         Map<CoverageMetric, Ratio> result = new HashMap<CoverageMetric, Ratio>(runningTotal);
-        for (CoverageAggreagtionRule rule: INITIAL_RULESET) {
+        for (CoverageAggreagtionRule rule : INITIAL_RULESET) {
             if (rule.source.equals(source) && rule.input.equals(input)) {
                 if (result.containsKey(rule.output)) {
                     Ratio prevTotal = result.get(rule.output);
@@ -63,7 +63,25 @@ public class CoverageAggreagtionRule {
                             break;
                     }
                 } else {
-                    result.put(rule.output, inputResult);
+                    switch (rule.mode) {
+                        case SUM:
+                        case PRODUCT:
+                            result.put(rule.output, inputResult);
+                            break;
+                        case COUNT_NON_ZERO:
+                            if (Math.abs(inputResult.denominator) > 1e-7) {
+                                // we are only interested in counting cases where the denominator is non-zero
+                                if (Math.abs(inputResult.numerator) > 1e-7) {
+                                    result.put(rule.output, Ratio.create(1, 1));
+                                } else {
+                                    result.put(rule.output, Ratio.create(0, 1));
+                                }
+                            }
+                            break;
+                        case NONE:
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -98,20 +116,9 @@ public class CoverageAggreagtionRule {
             new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.LINE,
                     CoverageAggregationMode.COUNT_NON_ZERO, CoverageMetric.FILES),
 
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.LINE,
-                    CoverageAggregationMode.SUM, CoverageMetric.LINE),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.CONDITIONAL,
-                    CoverageAggregationMode.SUM, CoverageMetric.CONDITIONAL),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.METHOD,
-                    CoverageAggregationMode.SUM, CoverageMetric.METHOD),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.CLASSES,
-                    CoverageAggregationMode.SUM, CoverageMetric.CLASSES),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.LINE,
-                    CoverageAggregationMode.COUNT_NON_ZERO, CoverageMetric.FILES),
-
             new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.LINE,
                     CoverageAggregationMode.SUM, CoverageMetric.LINE),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.CONDITIONAL, 
+            new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.CONDITIONAL,
                     CoverageAggregationMode.SUM, CoverageMetric.CONDITIONAL),
             new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.METHOD,
                     CoverageAggregationMode.SUM, CoverageMetric.METHOD),
@@ -120,10 +127,10 @@ public class CoverageAggreagtionRule {
             new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.FILES,
                     CoverageAggregationMode.SUM, CoverageMetric.FILES),
             new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.LINE,
-                    CoverageAggregationMode.COUNT_NON_ZERO, CoverageMetric.FILES),
+                    CoverageAggregationMode.COUNT_NON_ZERO, CoverageMetric.PACKAGES),
     };
 
     public static Ratio combine(CoverageMetric metric, Ratio existingResult, Ratio additionalResult) {
-        return Ratio.create(existingResult.numerator + additionalResult.numerator, existingResult.denominator + additionalResult.numerator);
+        return Ratio.create(existingResult.numerator + additionalResult.numerator, existingResult.denominator + additionalResult.denominator);
     }
 }
