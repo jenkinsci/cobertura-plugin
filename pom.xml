@@ -10,9 +10,9 @@
 
     <artifactId>cobertura</artifactId>
     <packaging>hpi</packaging>
-    <version>0.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <name>Hudson Cobertura plugin</name>
-    <build>
+    <!--build>
       <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -34,5 +34,5 @@
         </executions>
       </plugin>
       </plugins>
-    </build>
+    </build-->
 </project>
