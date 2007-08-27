@@ -8,11 +8,11 @@ package hudson.plugins.cobertura.targets;
  */
 public enum CoverageMetric {
     PACKAGES("Packages"),
+    FILES("Files"),
     CLASSES("Classes"),
     METHOD("Methods"),
-    CONDITIONAL("Conditionals"),
     LINE("Lines"),
-    FILES("Files");
+    CONDITIONAL("Conditionals");
 
     private String name;
 

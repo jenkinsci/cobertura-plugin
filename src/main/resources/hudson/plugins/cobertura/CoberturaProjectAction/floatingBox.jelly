@@ -8,73 +8,47 @@
 
         <j:choose>
             <j:when test="${lastResult.previousResult != null}">
-              <table style="width:380px;">
-                  <tr>
-                      <th>Methods</th>
-                      <td>${lastResult.methodCoverage.percentage}%</td>
-                      <th>Conditionals</th>
-                      <td>${lastResult.conditionalCoverage.percentage}%</td>
-                      <th>Lines</th>
-                      <td>${lastResult.lineCoverage.percentage}%</td>
-                  </tr>
-              </table>
-              <div>
-                  <a href="${from.urlName}/">
-                      <img src="${from.urlName}/graph" />
-                  </a>
-              </div>
+                <table style="width:380px;">
+                    <tr>
+                        <td>
+                        <j:forEach var="metric" items="${lastResult.metrics}">
+                            <strong>${metric}</strong>&amp;nbsp;
+                            ${lastResult.getCoverage(metric).percentage}%
+                        </j:forEach>
+                        </td>
+                    </tr>
+                </table>
+                <div>
+                    <a href="${from.urlName}/">
+                        <img src="${from.urlName}/graph"/>
+                    </a>
+                </div>
             </j:when>
             <j:otherwise>
-              <div style="border: 1px solid #eee; ">
-                  <table style="padding: 0 10px; padding-top: 5px; width:380px;">
-                      <tr>
-                          <th align="left">Methods</th>
-                          <td align="right">${lastResult.methodCoverage.percentage}%</td>
-                      </tr>
-                  </table>
-                  <table style="height: 3px; padding: 0 10px; width:380px;">
-                      <tr>
-                          <j:if test="${lastResult.methodCoverage.percentage &gt; 0}">
-                              <td width="${lastResult.methodCoverage.percentage}%" style="background-color:#bfb;">&amp;nbsp;</td>
-                          </j:if>
-                          <j:if test="${lastResult.methodCoverage.percentage &lt; 100}">
-                              <td width="${100-lastResult.methodCoverage.percentage}%" style="background-color:#fdd;">&amp;nbsp;</td>
-                          </j:if>
-                      </tr>
-                  </table>
-                  <table style="padding: 0 10px; width:380px;">
-                      <tr>
-                          <th align="left">Conditionals</th>
-                          <td align="right">${lastResult.conditionalCoverage.percentage}%</td>
-                      </tr>
-                  </table>
-                  <table style="padding: 0 10px; width:380px;">
-                      <tr>
-                          <j:if test="${lastResult.conditionalCoverage.percentage &gt; 0}">
-                              <td width="${lastResult.conditionalCoverage.percentage}%" style="background-color:#bfb;">&amp;nbsp;</td>
-                          </j:if>
-                          <j:if test="${lastResult.conditionalCoverage.percentage &lt; 100}">
-                              <td width="${100-lastResult.conditionalCoverage.percentage}%" style="background-color:#fdd;">&amp;nbsp;</td>
-                          </j:if>
-                      </tr>
-                  </table>
-                  <table style="padding: 0 10px; width:380px;">
-                      <tr>
-                          <th align="left">Lines</th>
-                          <td align="right">${lastResult.lineCoverage.percentage}%</td>
-                      </tr>
-                  </table>
-                  <table style="padding: 0 10px; padding-bottom:5px; width:380px;">
-                      <tr>
-                          <j:if test="${lastResult.lineCoverage.percentage &gt; 0}">
-                              <td width="${lastResult.lineCoverage.percentage}%" style="background-color:#bfb;">&amp;nbsp;</td>
-                          </j:if>
-                          <j:if test="${lastResult.lineCoverage.percentage &lt; 100}">
-                              <td width="${100-lastResult.lineCoverage.percentage}%" style="background-color:#fdd;">&amp;nbsp;</td>
-                          </j:if>
-                      </tr>
-                  </table>
-              </div>
+                <div style="border: 1px solid #eee; ">
+                    <j:forEach var="metric" items="${lastResult.metrics}">
+                        <table style="padding: 0 10px; padding-top: 5px; width:380px;">
+                            <tr>
+                                <th align="left">${metric}</th>
+                                <td align="right">${lastResult.getCoverage(metric).percentage}%</td>
+                            </tr>
+                        </table>
+                        <table style="height: 3px; padding: 0 10px; width:380px;">
+                            <tr>
+                                <j:if test="${lastResult.getCoverage(metric).percentage &gt; 0}">
+                                    <td width="${lastResult.getCoverage(metric).percentage}%" style="background-color:#bfb;">
+                                        &amp;nbsp;
+                                    </td>
+                                </j:if>
+                                <j:if test="${lastResult.getCoverage(metric).percentage &lt; 100}">
+                                    <td width="${100-lastResult.getCoverage(metric).percentage}%" style="background-color:#fdd;">
+                                        &amp;nbsp;
+                                    </td>
+                                </j:if>
+                            </tr>
+                        </table>
+                    </j:forEach>
+                </div>
             </j:otherwise>
         </j:choose>
     </j:if>

@@ -10,6 +10,7 @@ import hudson.util.ShiftedCategoryAxis;
 import hudson.util.ColorPalette;
 
 import java.util.*;
+import java.util.List;
 import java.io.IOException;
 import java.awt.*;
 
@@ -64,8 +65,70 @@ public class CoverageResult {
         return element;
     }
 
+    public List<CoverageResult> getParents() {
+        List<CoverageResult> result = new ArrayList<CoverageResult>();
+        CoverageResult p = getParent();
+        while (p != null) {
+            result.add(p);
+            p = p.getParent();
+        }
+        Collections.reverse(result);
+        return result;
+    }
+
+    public Set<CoverageElement> getChildElements() {
+        Set<CoverageElement> result = new HashSet<CoverageElement>();
+        for (CoverageResult child : children.values()) {
+            result.add(child.element);
+        }
+        return result;
+    }
+
+    public Set<String> getChildren(CoverageElement element) {
+        Set<String> result = new TreeSet<String>();
+        for (CoverageResult child : children.values()) {
+            if (child.element.equals(element)) {
+                result.add(child.name);
+            }
+        }
+        return result;
+    }
+
     public Set<String> getChildren() {
         return children.keySet();
+    }
+
+    public Map<CoverageMetric, Ratio> getResults() {
+        return Collections.unmodifiableMap(aggregateResults);
+    }
+
+    public String urlTransform(String name) {
+        StringBuilder buf = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            final char c = name.charAt(i);
+            if (('0' <= c && '9' >= c)
+                    || ('A' <= c && 'Z' >= c)
+                    || ('a' <= c && 'z' >= c)) {
+                buf.append(c);
+            } else {
+                buf.append('_');
+            }
+        }
+        return buf.toString();
+    }
+
+    public String xmlTransform(String name) {
+        return name.replaceAll("\\&", "&amp;").replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;");
+    }
+
+    public String relativeUrl(CoverageResult parent) {
+        StringBuffer url = new StringBuffer("..");
+        CoverageResult p = getParent();
+        while (p != null && p != parent) {
+            url.append("/..");
+            p = p.getParent();
+        }
+        return url.toString();
     }
 
     public CoverageResult getChild(String name) {
@@ -77,7 +140,7 @@ public class CoverageResult {
     }
 
     public Set<CoverageMetric> getMetrics() {
-        return Collections.unmodifiableSet(aggregateResults.keySet());
+        return Collections.unmodifiableSet(new TreeSet(aggregateResults.keySet()));
     }
 
     public void updateMetric(CoverageMetric metric, Ratio additionalResult) {
@@ -88,6 +151,7 @@ public class CoverageResult {
             localResults.put(metric, additionalResult);
         }
     }
+
     /**
      * Getter for property 'owner'.
      *
@@ -105,9 +169,9 @@ public class CoverageResult {
     public void setOwner(Build owner) {
         this.owner = owner;
         aggregateResults.clear();
-        for (CoverageResult child: children.values()) {
+        for (CoverageResult child : children.values()) {
             child.setOwner(owner);
-            for (Map.Entry<CoverageMetric, Ratio> childResult: child.aggregateResults.entrySet()) {
+            for (Map.Entry<CoverageMetric, Ratio> childResult : child.aggregateResults.entrySet()) {
                 aggregateResults.putAll(CoverageAggreagtionRule.aggregate(child.getElement(),
                         childResult.getKey(), childResult.getValue(), aggregateResults));
             }
@@ -141,7 +205,19 @@ public class CoverageResult {
         }
     }
 
-    /** Generates the graph that shows the coverage trend up to this report. */
+    public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) throws IOException {
+        token = token.toLowerCase();
+        for (String name : children.keySet()) {
+            if (urlTransform(name).toLowerCase().equals(token)) {
+                return getChild(name);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Generates the graph that shows the coverage trend up to this report.
+     */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (ChartUtil.awtProblem) {
             // not available. send out error message
@@ -159,7 +235,7 @@ public class CoverageResult {
 
         for (CoverageResult a = this; a != null; a = a.getPreviousResult()) {
             ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(a.getOwner());
-            for (Map.Entry<CoverageMetric, Ratio> value: a.aggregateResults.entrySet()) {
+            for (Map.Entry<CoverageMetric, Ratio> value : a.aggregateResults.entrySet()) {
                 dsb.add(value.getValue().getPercentageFloat(), value.getKey().toString(), label);
             }
         }

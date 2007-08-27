@@ -231,9 +231,9 @@ public class CoberturaPublisher extends Publisher {
         /** Creates a new instance of {@link CoberturaPublisher} from a submitted form. */
         public CoberturaPublisher newInstance(StaplerRequest req) throws FormException {
             CoberturaPublisher instance = req.bindParameters(CoberturaPublisher.class, "cobertura.");
-            req.bindParameters(instance.failingTarget, "coberturaFailingTarget.");
-            req.bindParameters(instance.healthyTarget, "coberturaHealthyTarget.");
-            req.bindParameters(instance.unhealthyTarget, "coberturaUnhealthyTarget.");
+//            req.bindParameters(instance.failingTarget, "coberturaFailingTarget.");
+//            req.bindParameters(instance.healthyTarget, "coberturaHealthyTarget.");
+//            req.bindParameters(instance.unhealthyTarget, "coberturaUnhealthyTarget.");
             // start ugly hack
             if (instance.healthyTarget.isEmpty()) {
                 Map<CoverageMetric, Integer> def = new HashMap<CoverageMetric, Integer>();
