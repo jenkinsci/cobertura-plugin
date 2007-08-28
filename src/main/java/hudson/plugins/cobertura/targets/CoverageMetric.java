@@ -14,13 +14,13 @@ public enum CoverageMetric {
     LINE("Lines"),
     CONDITIONAL("Conditionals");
 
-    private String name;
+    private final String name;
 
     CoverageMetric(String name) {
         this.name = name;
     }
 
-    public String toString() {
+    public String getName() {
         return name;
     }
 }

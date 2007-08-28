@@ -5,6 +5,8 @@ import hudson.plugins.cobertura.targets.CoverageElement;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import org.xml.sax.SAXException;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.SAXParser;
@@ -52,6 +54,12 @@ public class CoberturaCoverageParser {
         if (in == null) throw new NullPointerException();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setValidating(false);
+        try {
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+        } catch (SAXNotRecognizedException e) {
+        } catch (SAXNotSupportedException e) {
+        }
         try {
             SAXParser parser = factory.newSAXParser();
             CoberturaXmlHandler handler = new CoberturaXmlHandler();
@@ -127,7 +135,7 @@ class CoberturaXmlHandler extends DefaultHandler {
             descend(CoverageElement.JAVA_FILE, filename);
             descend(CoverageElement.JAVA_CLASS, name);
         } else if ("method".equals(qName)) {
-            String methodName = name + attributes.getValue("signature");
+            String methodName = buildMethodName(name, attributes.getValue("signature"));
             descend(CoverageElement.JAVA_METHOD, methodName);
         } else if ("line".equals(qName)) {
             String hitsString = attributes.getValue("hits");
@@ -155,6 +163,68 @@ class CoberturaXmlHandler extends DefaultHandler {
             }
         }
 
+    }
+
+    private String buildMethodName(String name, String signature) {
+        Matcher signatureMatcher = Pattern.compile("\\((.*)\\)(.*)").matcher(signature);
+        StringBuilder methodName = new StringBuilder();
+        if (signatureMatcher.matches()) {
+            Pattern argMatcher = Pattern.compile("\\[*([TL][^\\;]*\\;)|([ZCBSIFJDV])");
+            String returnType = signatureMatcher.group(2);
+            Matcher matcher = argMatcher.matcher(returnType);
+            if (matcher.matches()) {
+                methodName.append(parseMethodArg(matcher.group()));
+                methodName.append(' ');
+            }
+            methodName.append(name);
+            String args = signatureMatcher.group(1);
+            matcher = argMatcher.matcher(args);
+            methodName.append('(');
+            boolean first = true;
+            while (matcher.find()) {
+                if (!first) {
+                    methodName.append(',');
+                }
+                methodName.append(parseMethodArg(matcher.group()));
+                first = false;
+            }
+            methodName.append(')');
+        } else {
+            methodName.append(name);
+        }
+        return methodName.toString();
+    }
+
+    private String parseMethodArg(String s) {
+        char c = s.charAt(0);
+        int end;
+        switch (c) {
+            case'Z':
+                return "boolean";
+            case'C':
+                return "char";
+            case'B':
+                return "byte";
+            case'S':
+                return "short";
+            case'I':
+                return "int";
+            case'F':
+                return "float";
+            case'J':
+                return "";
+            case'D':
+                return "double";
+            case'V':
+                return "void";
+            case'[':
+                return parseMethodArg(s.substring(1)) + "[]";
+            case'T':
+            case'L':
+                end = s.indexOf(';');
+                return s.substring(1, end).replace('/','.');
+        }
+        return s;
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {

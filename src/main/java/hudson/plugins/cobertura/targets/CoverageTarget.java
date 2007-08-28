@@ -99,4 +99,8 @@ public class CoverageTarget implements Serializable {
     public Integer getTarget(CoverageMetric metric) {
         return targets.get(metric);
     }
+
+    public void clear() {
+        targets.clear();
+    }
 }

@@ -71,7 +71,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         if (minKey == null) return null;
 
         StringBuilder description = new StringBuilder("Cobertura Coverage: ");
-        description.append(minKey.toString());
+        description.append(minKey.getName());
         description.append(" ");
         description.append(result.get(minKey).getPercentage());
         description.append("% (");
@@ -183,7 +183,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         for (CoberturaBuildAction a = this; a != null; a = a.getPreviousResult()) {
             ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(a.owner);
             for (Map.Entry<CoverageMetric, Ratio> value: a.result.entrySet()) {
-                dsb.add(value.getValue().getPercentageFloat(), value.getKey().toString(), label);
+                dsb.add(value.getValue().getPercentageFloat(), value.getKey().getName(), label);
             }
         }
 

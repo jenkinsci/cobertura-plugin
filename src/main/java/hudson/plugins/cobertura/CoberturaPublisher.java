@@ -10,11 +10,10 @@ import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.model.*;
 import hudson.tasks.Publisher;
 import org.kohsuke.stapler.StaplerRequest;
+import org.apache.commons.beanutils.ConvertUtils;
 
 import java.io.*;
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Cobertura {@link Publisher}.
@@ -23,7 +22,7 @@ import java.util.HashMap;
  */
 public class CoberturaPublisher extends Publisher {
 
-    private final String coberturaReportDir;
+    private final String coberturaReportFile;
 
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
@@ -34,15 +33,70 @@ public class CoberturaPublisher extends Publisher {
      * @param coberturaReportDir the report directory
      * @stapler-constructor
      */
-    public CoberturaPublisher(String coberturaReportDir) {
-        this.coberturaReportDir = coberturaReportDir;
+    public CoberturaPublisher(String coberturaReportFile) {
+        this.coberturaReportFile = coberturaReportFile;
         this.healthyTarget = new CoverageTarget();
         this.unhealthyTarget = new CoverageTarget();
         this.failingTarget = new CoverageTarget();
     }
 
-    public String getCoberturaReportDir() {
-        return coberturaReportDir;
+    public List<CoberturaPublisherTarget> getTargets() {
+        Map<CoverageMetric, CoberturaPublisherTarget> targets = new TreeMap<CoverageMetric, CoberturaPublisherTarget>();
+        for (CoverageMetric metric: healthyTarget.getTargets()) {
+            CoberturaPublisherTarget target = targets.get(metric);
+            if (target == null) {
+                target = new CoberturaPublisherTarget();
+                target.setMetric(metric);
+            }
+            target.setHealthy(healthyTarget.getTarget(metric));
+            targets.put(metric, target);
+        }
+        for (CoverageMetric metric: unhealthyTarget.getTargets()) {
+            CoberturaPublisherTarget target = targets.get(metric);
+            if (target == null) {
+                target = new CoberturaPublisherTarget();
+                target.setMetric(metric);
+            }
+            target.setUnhealthy(unhealthyTarget.getTarget(metric));
+            targets.put(metric, target);
+        }
+        for (CoverageMetric metric: failingTarget.getTargets()) {
+            CoberturaPublisherTarget target = targets.get(metric);
+            if (target == null) {
+                target = new CoberturaPublisherTarget();
+                target.setMetric(metric);
+            }
+            target.setUnstable(failingTarget.getTarget(metric));
+            targets.put(metric, target);
+        }
+        List<CoberturaPublisherTarget> result = new ArrayList<CoberturaPublisherTarget>(targets.values());
+        return result;
+    }
+
+    private void setTargets(List<CoberturaPublisherTarget> targets) {
+        healthyTarget.clear();
+        unhealthyTarget.clear();
+        failingTarget.clear();
+        for (CoberturaPublisherTarget target: targets) {
+            if (target.getHealthy() != null) {
+                healthyTarget.setTarget(target.getMetric(), target.getHealthy());
+            }
+            if (target.getUnhealthy() != null) {
+                unhealthyTarget.setTarget(target.getMetric(), target.getUnhealthy());
+            }
+            if (target.getUnstable() != null) {
+                failingTarget.setTarget(target.getMetric(), target.getUnstable());
+            }
+        }
+    }
+
+    /**
+     * Getter for property 'coberturaReportFile'.
+     *
+     * @return Value for property 'coberturaReportFile'.
+     */
+    public String getCoberturaReportFile() {
+        return coberturaReportFile;
     }
 
     /**
@@ -111,9 +165,10 @@ public class CoberturaPublisher extends Publisher {
     }
 
 
+    /** {@inheritDoc} */
     public boolean perform(Build<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
         listener.getLogger().println("Publishing Cobertura coverage report...");
-        FilePath coverageReport = build.getParent().getWorkspace().child(coberturaReportDir);
+        FilePath coverageReport = build.getParent().getWorkspace().child(coberturaReportFile);
 
         FilePath target = new FilePath(getCoberturaReportDir(build.getParent()));
         final File buildCoberturaDir = build.getRootDir();
@@ -125,11 +180,7 @@ public class CoberturaPublisher extends Publisher {
             if (build.getResult().isWorseOrEqualTo(Result.FAILURE) && !coverageReport.exists())
                 return true;
 
-            // Copy the code
-            coverageReport.copyRecursiveTo("**/*", target);
-            // Copy the xml report
-
-            coverageReport.copyRecursiveTo("coverage.xml", buildTarget);
+            coverageReport.copyTo(new FilePath(buildTarget, "coverage.xml"));
         } catch (IOException e) {
             Util.displayIOException(e, listener);
             e.printStackTrace(listener.fatalError("Unable to copy coverage from " + coverageReport + " to " + target));
@@ -185,16 +236,18 @@ public class CoberturaPublisher extends Publisher {
     }
 
     private void flagMissingCoberturaXml(BuildListener listener, Build<?, ?> build) {
-        listener.getLogger().println("Could not find '" + coberturaReportDir + "/coverage.xml'.  Did you generate " +
+        listener.getLogger().println("Could not find '" + coberturaReportFile + "/coverage.xml'.  Did you generate " +
                 "the XML report for Cobertura?");
         build.setResult(Result.FAILURE);
     }
 
 
+    /** {@inheritDoc} */
     public Action getProjectAction(Project project) {
         return new CoberturaProjectAction(project);
     }
 
+    /** {@inheritDoc} */
     public Descriptor<Publisher> getDescriptor() {
         // see Descriptor javadoc for more about what a descriptor is.
         return DESCRIPTOR;
@@ -212,6 +265,15 @@ public class CoberturaPublisher extends Publisher {
      * configuration screen.
      */
     public static final class DescriptorImpl extends Descriptor<Publisher> {
+        CoverageMetric[] metrics = {
+                CoverageMetric.PACKAGES,
+                CoverageMetric.FILES,
+                CoverageMetric.CLASSES,
+                CoverageMetric.METHOD,
+                CoverageMetric.LINE,
+                CoverageMetric.CONDITIONAL,
+        };
+        /** Constructs a new DescriptorImpl. */
         DescriptorImpl() {
             super(CoberturaPublisher.class);
         }
@@ -221,7 +283,31 @@ public class CoberturaPublisher extends Publisher {
             return "Publish Cobertura Coverage Report";
         }
 
+        /**
+         * Getter for property 'metrics'.
+         *
+         * @return Value for property 'metrics'.
+         */
+        public List<CoverageMetric> getMetrics() {
+            return Arrays.asList(metrics);
+        }
 
+        public List<CoberturaPublisherTarget> getDefaultTargets() {
+            List<CoberturaPublisherTarget> result = new ArrayList<CoberturaPublisherTarget>();
+            result.add(new CoberturaPublisherTarget(CoverageMetric.METHOD, 80, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.LINE, 80, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.CONDITIONAL, 70, null, null));
+            return result;
+        }
+
+        public List<CoberturaPublisherTarget> getTargets(CoberturaPublisher instance) {
+            if (instance == null) {
+                return getDefaultTargets();
+            }
+            return instance.getTargets();
+        }
+
+        /** {@inheritDoc} */
         public boolean configure(StaplerRequest req) throws FormException {
             req.bindParameters(this, "cobertura.");
             save();
@@ -231,19 +317,11 @@ public class CoberturaPublisher extends Publisher {
         /** Creates a new instance of {@link CoberturaPublisher} from a submitted form. */
         public CoberturaPublisher newInstance(StaplerRequest req) throws FormException {
             CoberturaPublisher instance = req.bindParameters(CoberturaPublisher.class, "cobertura.");
-//            req.bindParameters(instance.failingTarget, "coberturaFailingTarget.");
-//            req.bindParameters(instance.healthyTarget, "coberturaHealthyTarget.");
-//            req.bindParameters(instance.unhealthyTarget, "coberturaUnhealthyTarget.");
-            // start ugly hack
-            if (instance.healthyTarget.isEmpty()) {
-                Map<CoverageMetric, Integer> def = new HashMap<CoverageMetric, Integer>();
-                def.put(CoverageMetric.CONDITIONAL, 70);
-                def.put(CoverageMetric.METHOD, 80);
-                def.put(CoverageMetric.LINE, 80);
-                instance.healthyTarget = new CoverageTarget(def);
-            }
-            // end ugly hack
+            ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
+            List<CoberturaPublisherTarget> targets = req.bindParametersToList(CoberturaPublisherTarget.class, "cobertura.target.");
+            instance.setTargets(targets);
             return instance;
         }
     }
+
 }

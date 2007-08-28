@@ -3,6 +3,9 @@ package hudson.plugins.cobertura;
 import hudson.Plugin;
 import hudson.tasks.BuildStep;
 import hudson.plugins.cobertura.CoberturaPublisher;
+import hudson.plugins.cobertura.targets.CoverageMetric;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
 
 /**
  * Entry point of a plugin.

@@ -17,12 +17,12 @@
                 <cobertura:floatingTrendGraph/>
             </j:if>
 
-            <h2>Overall Coverage Summary</h2>
-            <table border="1">
+            <h2>${it.element.displayName} Coverage Summary</h2>
+            <table border="1px" class="pane">
                 <tr>
                     <td>Name</td>
                     <j:forEach var="metric" items="${metrics}">
-                        <td>${metric}</td>
+                        <td>${metric.name}</td>
                     </j:forEach>
                 </tr>
                 <tr>
@@ -36,12 +36,13 @@
             </table>
 
             <j:forEach var="element" items="${it.childElements}">
+                <j:set var="childMetrics" value="${it.getChildMetrics(element)}"/>
                 <h2>Coverage Breakdown by ${element.displayName}</h2>
-                <table border="1">
+                <table border="1px" class="pane sortable">
                     <tr>
                         <td>Name</td>
-                        <j:forEach var="metric" items="${metrics}">
-                            <td>${metric}</td>
+                        <j:forEach var="metric" items="${childMetrics}">
+                            <td>${metric.name}</td>
                         </j:forEach>
                     </tr>
                     <j:forEach var="c" items="${it.children}">
@@ -49,7 +50,7 @@
                         <tr>
 
                             <td><a href="${child.urlTransform(child.name)}/">${child.xmlTransform(child.name)}</a></td>
-                            <j:forEach var="metric" items="${metrics}">
+                            <j:forEach var="metric" items="${childMetrics}">
                                 <j:set var="childResult" value="${child.getCoverage(metric)}"/>
                                 <j:choose>
                                     <j:when test="${childResult!=null}">
@@ -58,7 +59,7 @@
                                         </td>
                                     </j:when>
                                     <j:otherwise>
-                                        <td data="N/A">N/A</td>
+                                        <td data="101">N/A</td>
                                     </j:otherwise>
                                 </j:choose>
                             </j:forEach>

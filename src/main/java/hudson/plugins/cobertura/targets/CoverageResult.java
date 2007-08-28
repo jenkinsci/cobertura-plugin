@@ -94,6 +94,16 @@ public class CoverageResult {
         return result;
     }
 
+    public Set<CoverageMetric> getChildMetrics(CoverageElement element) {
+        Set<CoverageMetric> result = new TreeSet<CoverageMetric>();
+        for (CoverageResult child : children.values()) {
+            if (child.element.equals(element)) {
+                result.addAll(child.getMetrics());
+            }
+        }
+        return result;
+    }
+
     public Set<String> getChildren() {
         return children.keySet();
     }
@@ -236,7 +246,7 @@ public class CoverageResult {
         for (CoverageResult a = this; a != null; a = a.getPreviousResult()) {
             ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(a.getOwner());
             for (Map.Entry<CoverageMetric, Ratio> value : a.aggregateResults.entrySet()) {
-                dsb.add(value.getValue().getPercentageFloat(), value.getKey().toString(), label);
+                dsb.add(value.getValue().getPercentageFloat(), value.getKey().getName(), label);
             }
         }
 
