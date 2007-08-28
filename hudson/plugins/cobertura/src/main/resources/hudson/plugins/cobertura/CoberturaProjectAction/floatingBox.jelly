@@ -1,0 +1,55 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
+    <j:set var="lastResult" value="${from.lastResult.result}"/>
+    <j:if test="${lastResult != null}">
+        <div class="test-trend-caption">
+            Code Coverage
+        </div>
+
+        <j:choose>
+            <j:when test="${lastResult.previousResult != null}">
+                <table style="width:380px;">
+                    <tr>
+                        <td>
+                        <j:forEach var="metric" items="${lastResult.metrics}">
+                            <strong>${metric.name}</strong>&amp;nbsp;
+                            ${lastResult.getCoverage(metric).percentage}%
+                        </j:forEach>
+                        </td>
+                    </tr>
+                </table>
+                <div>
+                    <a href="${from.urlName}/">
+                        <img src="${from.urlName}/graph"/>
+                    </a>
+                </div>
+            </j:when>
+            <j:otherwise>
+                <div style="border: 1px solid #eee; ">
+                    <j:forEach var="metric" items="${lastResult.metrics}">
+                        <table style="padding: 0 10px; padding-top: 5px; width:380px;">
+                            <tr>
+                                <th align="left">${metric.name}</th>
+                                <td align="right">${lastResult.getCoverage(metric).percentage}%</td>
+                            </tr>
+                        </table>
+                        <table style="height: 3px; padding: 0 10px; width:380px;">
+                            <tr>
+                                <j:if test="${lastResult.getCoverage(metric).percentage &gt; 0}">
+                                    <td width="${lastResult.getCoverage(metric).percentage}%" style="background-color:#bfb;">
+                                        &amp;nbsp;
+                                    </td>
+                                </j:if>
+                                <j:if test="${lastResult.getCoverage(metric).percentage &lt; 100}">
+                                    <td width="${100-lastResult.getCoverage(metric).percentage}%" style="background-color:#fdd;">
+                                        &amp;nbsp;
+                                    </td>
+                                </j:if>
+                            </tr>
+                        </table>
+                    </j:forEach>
+                </div>
+            </j:otherwise>
+        </j:choose>
+    </j:if>
+</j:jelly>
