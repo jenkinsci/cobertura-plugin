@@ -43,11 +43,11 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
     }
 
     public String getUrlName() {
-        if (new File(CoberturaPublisher.getCoberturaReportDir(project), "index.html").exists())
-            return "cobertura";
-        else if (new File(CoberturaPublisher.getCoberturaReportDir(project), "cobertura.xml").exists())
-            return "lastBuild/cobertura";
-        return "cobertura";
+//        if (new File(CoberturaPublisher.getCoberturaReportDir(project), "index.html").exists())
+//            return "cobertura";
+//        else if (new File(CoberturaPublisher.getCoberturaReportDir(project), "cobertura.xml").exists())
+        return "lastBuild/cobertura";
+//        return "cobertura";
     }
 
     public CoberturaBuildAction getLastResult() {

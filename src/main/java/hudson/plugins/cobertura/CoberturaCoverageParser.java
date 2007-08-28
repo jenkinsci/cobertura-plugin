@@ -146,18 +146,22 @@ class CoberturaXmlHandler extends DefaultHandler {
                 // ignore
             }
             if (Boolean.parseBoolean(attributes.getValue("branch"))) {
-                String conditionCoverage = attributes.getValue("condition-coverage");
-                // should be of the format xxx% (yyy/zzz)
-                Matcher matcher = Pattern.compile("(\\d*)\\%\\s*\\((\\d*)/(\\d*)\\)").matcher(conditionCoverage);
-                if (matcher.matches()) {
-                    assert matcher.groupCount() == 3;
-                    final String numeratorStr = matcher.group(2);
-                    final String denominatorStr = matcher.group(3);
-                    try {
-                        rootCoverage.updateMetric(CoverageMetric.CONDITIONAL,
-                                Ratio.create(Integer.parseInt(numeratorStr), Integer.parseInt(denominatorStr)));
-                    } catch (NumberFormatException e) {
-                        // ignore
+                final String conditionCoverage = attributes.getValue("condition-coverage");
+                if (conditionCoverage != null) {
+                    // some cases in the wild have branch = true but no condition-coverage attribute
+
+                    // should be of the format xxx% (yyy/zzz)
+                    Matcher matcher = Pattern.compile("(\\d*)\\%\\s*\\((\\d*)/(\\d*)\\)").matcher(conditionCoverage);
+                    if (matcher.matches()) {
+                        assert matcher.groupCount() == 3;
+                        final String numeratorStr = matcher.group(2);
+                        final String denominatorStr = matcher.group(3);
+                        try {
+                            rootCoverage.updateMetric(CoverageMetric.CONDITIONAL,
+                                    Ratio.create(Integer.parseInt(numeratorStr), Integer.parseInt(denominatorStr)));
+                        } catch (NumberFormatException e) {
+                            // ignore
+                        }
                     }
                 }
             }
@@ -222,7 +226,7 @@ class CoberturaXmlHandler extends DefaultHandler {
             case'T':
             case'L':
                 end = s.indexOf(';');
-                return s.substring(1, end).replace('/','.');
+                return s.substring(1, end).replace('/', '.');
         }
         return s;
     }
