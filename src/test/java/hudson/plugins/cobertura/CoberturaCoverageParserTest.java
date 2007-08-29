@@ -6,6 +6,8 @@ import junit.framework.TestCase;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 
+import java.io.InputStream;
+
 /**
  * CloverCoverageParser Tester.
  *
@@ -27,7 +29,7 @@ public class CoberturaCoverageParserTest extends TestCase {
 
     public void testFailureMode1() throws Exception {
         try {
-            CoberturaCoverageParser.parse(null);
+            CoberturaCoverageParser.parse((InputStream)null, null);
         } catch (NullPointerException e) {
             assertTrue("Expected exception thrown", true);
         }
@@ -46,7 +48,7 @@ public class CoberturaCoverageParserTest extends TestCase {
     }
 
     public void testParse() throws Exception {
-        CoverageResult result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage.xml"));
+        CoverageResult result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage.xml"), null);
         result.setOwner(null);
         print(result, 0);
         assertNotNull(result);
@@ -68,7 +70,7 @@ public class CoberturaCoverageParserTest extends TestCase {
     }
 
     public void testParse2() throws Exception {
-        CoverageResult result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage-with-data.xml"));
+        CoverageResult result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage-with-data.xml"), null);
         result.setOwner(null);
         print(result, 0);
         assertNotNull(result);
