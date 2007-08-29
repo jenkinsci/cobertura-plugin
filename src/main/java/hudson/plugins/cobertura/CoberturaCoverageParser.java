@@ -31,14 +31,13 @@ public class CoberturaCoverageParser {
     private CoberturaCoverageParser() {
     }
 
-    public static CoverageResult parse(File inFile, String pathPrefix) throws IOException {
+    public static CoverageResult parse(File inFile, CoverageResult cumulative) throws IOException {
         FileInputStream fileInputStream = null;
         BufferedInputStream bufferedInputStream = null;
         try {
             fileInputStream = new FileInputStream(inFile);
             bufferedInputStream = new BufferedInputStream(fileInputStream);
-            CoberturaCoverageParser parser = new CoberturaCoverageParser();
-            return parse(bufferedInputStream);
+            return parse(bufferedInputStream, cumulative);
         } finally {
             try {
                 if (bufferedInputStream != null)
@@ -50,7 +49,7 @@ public class CoberturaCoverageParser {
         }
     }
 
-    public static CoverageResult parse(InputStream in) throws IOException {
+    public static CoverageResult parse(InputStream in, CoverageResult cumulative) throws IOException {
         if (in == null) throw new NullPointerException();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setValidating(false);
@@ -62,7 +61,7 @@ public class CoberturaCoverageParser {
         }
         try {
             SAXParser parser = factory.newSAXParser();
-            CoberturaXmlHandler handler = new CoberturaXmlHandler();
+            CoberturaXmlHandler handler = new CoberturaXmlHandler(cumulative);
             parser.parse(in, handler);
             return handler.getRootCoverage();
         } catch (ParserConfigurationException e) {
@@ -74,13 +73,19 @@ public class CoberturaCoverageParser {
 }
 
 class CoberturaXmlHandler extends DefaultHandler {
-    private CoverageResult rootCoverage = null;
+    private CoverageResult rootCoverage;
     private Stack<CoverageResult> stack = new Stack<CoverageResult>();
     private static final String DEFAULT_PACKAGE = "<default>";
 
+    public CoberturaXmlHandler(CoverageResult rootCoverage) {
+        this.rootCoverage = rootCoverage;
+    }
+
     public void startDocument() throws SAXException {
         super.startDocument();
-        rootCoverage = new CoverageResult(CoverageElement.PROJECT, null, "Cobertura Coverage Report");
+        if (this.rootCoverage == null) {
+            this.rootCoverage = new CoverageResult(CoverageElement.PROJECT, null, "Cobertura Coverage Report");
+        }
         stack.clear();
     }
 

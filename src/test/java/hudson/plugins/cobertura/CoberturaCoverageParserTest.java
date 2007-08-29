@@ -27,7 +27,7 @@ public class CoberturaCoverageParserTest extends TestCase {
 
     public void testFailureMode1() throws Exception {
         try {
-            CoberturaCoverageParser.parse(null, "");
+            CoberturaCoverageParser.parse(null);
         } catch (NullPointerException e) {
             assertTrue("Expected exception thrown", true);
         }

@@ -67,6 +67,9 @@
                     </j:forEach>
                 </table>
             </j:forEach>
+            <j:if test="${it.sourceAvailable}">
+                <h2>Source Code</h2>
+            </j:if>
         </l:main-panel>
     </l:layout>
 </j:jelly>

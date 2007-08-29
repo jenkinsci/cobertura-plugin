@@ -11,7 +11,7 @@ import hudson.util.ColorPalette;
 
 import java.util.*;
 import java.util.List;
-import java.io.IOException;
+import java.io.*;
 import java.awt.*;
 
 import org.kohsuke.stapler.StaplerRequest;
@@ -42,15 +42,27 @@ public class CoverageResult {
     private final CoverageResult parent;
     private final Map<String, CoverageResult> children = new HashMap<String, CoverageResult>();
     private final String name;
+    private String relativeSourcePath;
+
     public Build owner = null;
 
     public CoverageResult(CoverageElement elementType, CoverageResult parent, String name) {
         this.element = elementType;
         this.parent = parent;
         this.name = name;
+        this.relativeSourcePath = null;
         if (this.parent != null) {
             this.parent.children.put(name, this);
         }
+    }
+
+
+    public String getRelativeSourcePath() {
+        return relativeSourcePath;
+    }
+
+    public void setRelativeSourcePath(String relativeSourcePath) {
+        this.relativeSourcePath = relativeSourcePath;
     }
 
     public String getName() {
@@ -63,6 +75,22 @@ public class CoverageResult {
 
     public CoverageElement getElement() {
         return element;
+    }
+
+    public boolean isSourceAvailable() {
+        return element.equals(CoverageElement.JAVA_CLASS)
+                && relativeSourcePath != null
+                && owner != null
+                && getSourceFile().exists();
+    }
+
+    /**
+     * gets the file corresponding to the source file.
+     *
+     * @return The file where the source file should be (if it exists)
+     */
+    private File getSourceFile() {
+        return new File(owner.getProject().getRootDir(), "cobertura/" + relativeSourcePath);
     }
 
     public List<CoverageResult> getParents() {
@@ -223,6 +251,10 @@ public class CoverageResult {
             }
         }
         return null;
+    }
+
+    public void doCoverageHighlightedSource(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        // TODO
     }
 
     /**

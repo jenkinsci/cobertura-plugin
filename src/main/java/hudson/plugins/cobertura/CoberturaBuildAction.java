@@ -45,7 +45,6 @@ import java.awt.*;
  */
 public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy {
     public final Build owner;
-    private String buildBaseDir;
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
     private Map<CoverageMetric, Ratio> result;
@@ -118,16 +117,10 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         }
     }
 
-    CoberturaBuildAction(Build owner, String workspacePath, CoverageResult r, CoverageTarget healthyTarget,
+    CoberturaBuildAction(Build owner, CoverageResult r, CoverageTarget healthyTarget,
                          CoverageTarget unhealthyTarget) {
         this.owner = owner;
         this.report = new WeakReference<CoverageResult>(r);
-        this.buildBaseDir = workspacePath;
-        if (this.buildBaseDir == null) {
-            this.buildBaseDir = File.separator;
-        } else if (!this.buildBaseDir.endsWith(File.separator)) {
-            this.buildBaseDir += File.separator;
-        }
         this.healthyTarget = healthyTarget;
         this.unhealthyTarget = unhealthyTarget;
         r.setOwner(owner);
@@ -147,25 +140,33 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
             if (r != null) return r;
         }
 
-        File reportFile = CoberturaPublisher.getCoberturaReport(owner);
-        try {
-            CoverageResult r = CoberturaCoverageParser.parse(reportFile, buildBaseDir);
+        CoverageResult r = null;
+        for (File reportFile : CoberturaPublisher.getCoberturaReports(owner)) {
+            try {
+                r = CoberturaCoverageParser.parse(reportFile, r);
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Failed to load " + reportFile, e);
+            }
+        }
+        if (r != null) {
             r.setOwner(owner);
             report = new WeakReference<CoverageResult>(r);
             return r;
-        } catch (IOException e) {
-            logger.log(Level.WARNING, "Failed to load " + reportFile, e);
+        } else {
             return null;
         }
     }
 
     private static final Logger logger = Logger.getLogger(CoberturaBuildAction.class.getName());
 
-    public static CoberturaBuildAction load(Build<?, ?> build, String workspacePath, CoverageResult result,
-                                            CoverageTarget healthyTarget, CoverageTarget unhealthyTarget) {
-        return new CoberturaBuildAction(build, workspacePath, result, healthyTarget, unhealthyTarget);
+    public static CoberturaBuildAction load(Build<?, ?> build, CoverageResult result, CoverageTarget healthyTarget,
+                                            CoverageTarget unhealthyTarget) {
+        return new CoberturaBuildAction(build, result, healthyTarget, unhealthyTarget);
     }
-    /** Generates the graph that shows the coverage trend up to this report. */
+
+    /**
+     * Generates the graph that shows the coverage trend up to this report.
+     */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (ChartUtil.awtProblem) {
             // not available. send out error message
@@ -182,7 +183,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
 
         for (CoberturaBuildAction a = this; a != null; a = a.getPreviousResult()) {
             ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(a.owner);
-            for (Map.Entry<CoverageMetric, Ratio> value: a.result.entrySet()) {
+            for (Map.Entry<CoverageMetric, Ratio> value : a.result.entrySet()) {
                 dsb.add(value.getValue().getPercentageFloat(), value.getKey().getName(), label);
             }
         }
