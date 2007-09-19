@@ -40,6 +40,7 @@ public class CoverageResult {
     private final Map<CoverageMetric, Ratio> aggregateResults = new HashMap<CoverageMetric, Ratio>();
     private final Map<CoverageMetric, Ratio> localResults = new HashMap<CoverageMetric, Ratio>();
     private final CoverageResult parent;
+    private final CoveragePaint paint;
     private final Map<String, CoverageResult> children = new HashMap<String, CoverageResult>();
     private final String name;
     private String relativeSourcePath;
@@ -48,6 +49,7 @@ public class CoverageResult {
 
     public CoverageResult(CoverageElement elementType, CoverageResult parent, String name) {
         this.element = elementType;
+        this.paint = CoveragePaintRule.makePaint(element);
         this.parent = parent;
         this.name = name;
         this.relativeSourcePath = null;
@@ -55,7 +57,6 @@ public class CoverageResult {
             this.parent.children.put(name, this);
         }
     }
-
 
     public String getRelativeSourcePath() {
         return relativeSourcePath;
@@ -77,11 +78,24 @@ public class CoverageResult {
         return element;
     }
 
-    public boolean isSourceAvailable() {
-        return element.equals(CoverageElement.JAVA_CLASS)
-                && relativeSourcePath != null
-                && owner != null
-                && getSourceFile().exists();
+    public boolean isSourceCodeLevel() {
+        return relativeSourcePath != null;
+    }
+
+    public CoveragePaint getPaint() {
+        return paint;
+    }
+
+    public void paint(int line, int hits) {
+        if (paint != null) {
+            paint.paint(line, hits);
+        }
+    }
+
+    public void paint(int line, int hits, int branchHits, int branchTotal) {
+        if (paint != null) {
+            paint.paint(line, hits, branchHits, branchTotal);
+        }
     }
 
     /**
@@ -209,6 +223,9 @@ public class CoverageResult {
         aggregateResults.clear();
         for (CoverageResult child : children.values()) {
             child.setOwner(owner);
+            if (paint != null && child.paint != null && CoveragePaintRule.propagatePaintToParent(child.element)) {
+                paint.add(child.paint);
+            }
             for (Map.Entry<CoverageMetric, Ratio> childResult : child.aggregateResults.entrySet()) {
                 aggregateResults.putAll(CoverageAggreagtionRule.aggregate(child.getElement(),
                         childResult.getKey(), childResult.getValue(), aggregateResults));
@@ -216,6 +233,10 @@ public class CoverageResult {
         }
         // override any local results (as they should be more accurate than the aggregated ones)
         aggregateResults.putAll(localResults);
+        // now inject any results from CoveragePaint as they should be most accurate.
+        if (paint != null) {
+            aggregateResults.putAll(paint.getResults());
+        }
     }
 
     /**
@@ -333,5 +354,17 @@ public class CoverageResult {
         plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
 
         return chart;
+    }
+
+    public Map<String, CoveragePaint> getPaintedSources() {
+        Map<String, CoveragePaint> result = new HashMap<String, CoveragePaint>();
+        // check the children
+        for (CoverageResult child: children.values()) {
+            result.putAll(child.getPaintedSources());
+        }
+        if (relativeSourcePath != null && paint != null) {
+            result.put(relativeSourcePath, paint);
+        }
+        return result;
     }
 }

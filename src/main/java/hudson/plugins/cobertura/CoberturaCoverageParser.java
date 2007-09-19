@@ -14,6 +14,9 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.Stack;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -32,12 +35,16 @@ public class CoberturaCoverageParser {
     }
 
     public static CoverageResult parse(File inFile, CoverageResult cumulative) throws IOException {
+        return parse(inFile, cumulative, null);
+    }
+
+    public static CoverageResult parse(File inFile, CoverageResult cumulative, Set<String> sourcePaths) throws IOException {
         FileInputStream fileInputStream = null;
         BufferedInputStream bufferedInputStream = null;
         try {
             fileInputStream = new FileInputStream(inFile);
             bufferedInputStream = new BufferedInputStream(fileInputStream);
-            return parse(bufferedInputStream, cumulative);
+            return parse(bufferedInputStream, cumulative, sourcePaths);
         } finally {
             try {
                 if (bufferedInputStream != null)
@@ -50,6 +57,10 @@ public class CoberturaCoverageParser {
     }
 
     public static CoverageResult parse(InputStream in, CoverageResult cumulative) throws IOException {
+        return parse(in, cumulative, null);
+    }
+
+    public static CoverageResult parse(InputStream in, CoverageResult cumulative, Set<String> sourcePaths) throws IOException {
         if (in == null) throw new NullPointerException();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setValidating(false);
@@ -63,6 +74,9 @@ public class CoberturaCoverageParser {
             SAXParser parser = factory.newSAXParser();
             CoberturaXmlHandler handler = new CoberturaXmlHandler(cumulative);
             parser.parse(in, handler);
+            if (sourcePaths != null) {
+                sourcePaths.addAll(handler.getSourcePaths());
+            }
             return handler.getRootCoverage();
         } catch (ParserConfigurationException e) {
             throw new IOException("Cannot parse coverage results", e);
@@ -76,6 +90,10 @@ class CoberturaXmlHandler extends DefaultHandler {
     private CoverageResult rootCoverage;
     private Stack<CoverageResult> stack = new Stack<CoverageResult>();
     private static final String DEFAULT_PACKAGE = "<default>";
+    private Set<String> sourcePaths = new HashSet<String>();
+    private boolean inSources = false;
+    private boolean inSource = false;
+    private StringBuilder sourceDir = new StringBuilder();
 
     public CoberturaXmlHandler(CoverageResult rootCoverage) {
         this.rootCoverage = rootCoverage;
@@ -87,10 +105,12 @@ class CoberturaXmlHandler extends DefaultHandler {
             this.rootCoverage = new CoverageResult(CoverageElement.PROJECT, null, "Cobertura Coverage Report");
         }
         stack.clear();
+        inSource = false;
+        inSources = false;
     }
 
     public void endDocument() throws SAXException {
-        if (!stack.empty()) {
+        if (!stack.empty() || inSource || inSources) {
             throw new SAXException("Unbalanced parse of cobertua coverage results.");
         }
         super.endDocument();    //To change body of overridden methods use File | Settings | File Templates.
@@ -118,7 +138,12 @@ class CoberturaXmlHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
         String name = attributes.getValue("name");
-        if ("coverage".equals(qName)) {
+        if ("sources".equals(qName)) {
+            inSources = true;
+        } else if ("source".equals(qName)) {
+            sourceDir = new StringBuilder();
+            inSource = true;
+        } else if ("coverage".equals(qName)) {
         } else if ("package".equals(qName)) {
             if ("".equals(name) || null == name) {
                 name = DEFAULT_PACKAGE;
@@ -127,29 +152,30 @@ class CoberturaXmlHandler extends DefaultHandler {
         } else if ("class".equals(qName)) {
             assert rootCoverage.getElement() == CoverageElement.JAVA_PACKAGE;
             // cobertura combines file and class
-            String filename = attributes.getValue("filename").replace('\\', '/');
-            String packageName = rootCoverage.getName();
+            final String filename = attributes.getValue("filename").replace('\\', '/');
+            String relativeFilename = filename;
+
+            final String packageName = rootCoverage.getName();
+            final String packagePath = packageName.replace('.', '/') + "/";
             if (!DEFAULT_PACKAGE.equals(packageName)) {
-                if (filename.startsWith(packageName.replace('.', '/') + "/")) {
-                    filename = filename.substring(packageName.length() + 1);
+                if (relativeFilename.startsWith(packagePath)) {
+                    relativeFilename = filename.substring(packagePath.length());
                 }
             }
             if (name.startsWith(packageName + ".")) {
                 name = name.substring(packageName.length() + 1);
             }
-            descend(CoverageElement.JAVA_FILE, filename);
+            descend(CoverageElement.JAVA_FILE, relativeFilename);
+            rootCoverage.setRelativeSourcePath(filename);
             descend(CoverageElement.JAVA_CLASS, name);
         } else if ("method".equals(qName)) {
             String methodName = buildMethodName(name, attributes.getValue("signature"));
             descend(CoverageElement.JAVA_METHOD, methodName);
         } else if ("line".equals(qName)) {
             String hitsString = attributes.getValue("hits");
-            try {
-                int hits = Integer.parseInt(hitsString);
-                rootCoverage.updateMetric(CoverageMetric.LINE, Ratio.create((hits == 0) ? 0 : 1, 1));
-            } catch (NumberFormatException e) {
-                // ignore
-            }
+            String lineNumber = attributes.getValue("number");
+            int denominator = 0;
+            int numerator = 0;
             if (Boolean.parseBoolean(attributes.getValue("branch"))) {
                 final String conditionCoverage = attributes.getValue("condition-coverage");
                 if (conditionCoverage != null) {
@@ -162,13 +188,26 @@ class CoberturaXmlHandler extends DefaultHandler {
                         final String numeratorStr = matcher.group(2);
                         final String denominatorStr = matcher.group(3);
                         try {
-                            rootCoverage.updateMetric(CoverageMetric.CONDITIONAL,
-                                    Ratio.create(Integer.parseInt(numeratorStr), Integer.parseInt(denominatorStr)));
+                            numerator = Integer.parseInt(numeratorStr);
+                            denominator = Integer.parseInt(denominatorStr);
+                            rootCoverage.updateMetric(CoverageMetric.CONDITIONAL, Ratio.create(numerator, denominator));
                         } catch (NumberFormatException e) {
                             // ignore
                         }
                     }
                 }
+            }
+            try {
+                int hits = Integer.parseInt(hitsString);
+                int number = Integer.parseInt(lineNumber);
+                if (denominator == 0) {
+                    rootCoverage.paint(number, hits);
+                } else {
+                    rootCoverage.paint(number, hits, numerator, denominator);
+                }
+                rootCoverage.updateMetric(CoverageMetric.LINE, Ratio.create((hits == 0) ? 0 : 1, 1));
+            } catch (NumberFormatException e) {
+                // ignore
             }
         }
 
@@ -237,7 +276,14 @@ class CoberturaXmlHandler extends DefaultHandler {
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        if ("coverage".equals(qName)) {
+        if ("sources".equals(qName)) {
+            inSources = false;
+        } else if ("source".equals(qName)) {
+            if (inSources && inSource) {
+                sourcePaths.add(sourceDir.toString().trim());
+            }
+            inSource = false;
+        } else if ("coverage".equals(qName)) {
         } else if ("package".equals(qName)) {
             ascend(CoverageElement.JAVA_PACKAGE);
         } else if ("class".equals(qName)) {
@@ -249,9 +295,18 @@ class CoberturaXmlHandler extends DefaultHandler {
         super.endElement(uri, localName, qName);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        sourceDir.append(new String(ch, start, length));
+    }
+
     public CoverageResult getRootCoverage() {
         return rootCoverage;
     }
+
+    public Set<String> getSourcePaths() {
+        return Collections.unmodifiableSet(sourcePaths);
+    }
+
 }
 
 class CoberturaXmlHandlerStackItem {

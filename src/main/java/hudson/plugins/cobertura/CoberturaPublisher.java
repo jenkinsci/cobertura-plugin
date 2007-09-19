@@ -3,10 +3,10 @@ package hudson.plugins.cobertura;
 import hudson.Launcher;
 import hudson.FilePath;
 import hudson.Util;
-import hudson.remoting.VirtualChannel;
 import hudson.plugins.cobertura.targets.CoverageTarget;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
+import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.model.*;
 import hudson.tasks.Publisher;
 import org.kohsuke.stapler.StaplerRequest;
@@ -173,15 +173,17 @@ public class CoberturaPublisher extends Publisher {
     /**
      * {@inheritDoc}
      */
-    public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
+    public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         listener.getLogger().println("Publishing Cobertura coverage report...");
-        FilePath coverageReport = build.getParent().getWorkspace().child(coberturaReportFile);
+        final Project<?, ?> project = build.getParent();
+        final FilePath workspace = project.getWorkspace();
+        FilePath coverageReport = workspace.child(coberturaReportFile);
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
 
         FilePath[] reports = new FilePath[0];
         try {
-            reports = build.getParent().getWorkspace().list(coberturaReportFile);
+            reports = workspace.list(coberturaReportFile);
 
             // if the build has failed, then there's not
             // much point in reporting an error
@@ -213,10 +215,11 @@ public class CoberturaPublisher extends Publisher {
         }
 
         listener.getLogger().println("Publishing Cobertura coverage results...");
+        Set<String> sourcePaths = new HashSet<String>();
         CoverageResult result = null;
         for (File coberturaXmlReport : getCoberturaReports(build)) {
             try {
-                result = CoberturaCoverageParser.parse(coberturaXmlReport, result);
+                result = CoberturaCoverageParser.parse(coberturaXmlReport, result, sourcePaths);
             } catch (IOException e) {
                 Util.displayIOException(e, listener);
                 e.printStackTrace(listener.fatalError("Unable to parse " + coberturaXmlReport));
@@ -224,6 +227,13 @@ public class CoberturaPublisher extends Publisher {
             }
         }
         if (result != null) {
+            final FilePath paintedSourcesPath = new FilePath(new File(build.getProject().getRootDir(), "cobertura"));
+            paintedSourcesPath.mkdirs();
+            SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths,
+                    result.getPaintedSources());
+
+            workspace.act(painter);
+
             final CoberturaBuildAction action = CoberturaBuildAction.load(build, result, healthyTarget, unhealthyTarget);
 
             build.getActions().add(action);

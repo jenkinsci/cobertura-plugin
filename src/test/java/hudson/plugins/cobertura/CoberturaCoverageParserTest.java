@@ -7,6 +7,8 @@ import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 
 import java.io.InputStream;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * CloverCoverageParser Tester.
@@ -48,7 +50,8 @@ public class CoberturaCoverageParserTest extends TestCase {
     }
 
     public void testParse() throws Exception {
-        CoverageResult result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage.xml"), null);
+        Set<String> paths = new HashSet<String>();
+        CoverageResult result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage.xml"), null, paths);
         result.setOwner(null);
         print(result, 0);
         assertNotNull(result);
@@ -67,6 +70,7 @@ public class CoberturaCoverageParserTest extends TestCase {
         assertEquals(Ratio.create(0, 19), subResult.getCoverage(CoverageMetric.LINE));
         assertEquals(Ratio.create(0, 12), subResult.getCoverage(CoverageMetric.CONDITIONAL));
         assertEquals(Ratio.create(0, 4), subResult.getCoverage(CoverageMetric.METHOD));
+        assertEquals(1, paths.size());
     }
 
     public void testParse2() throws Exception {
