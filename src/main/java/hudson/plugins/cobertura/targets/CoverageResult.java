@@ -1,33 +1,41 @@
 package hudson.plugins.cobertura.targets;
 
-import hudson.plugins.cobertura.Ratio;
-import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.model.Build;
 import hudson.model.Run;
+import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.cobertura.Ratio;
 import hudson.util.ChartUtil;
+import hudson.util.ColorPalette;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
-import hudson.util.ColorPalette;
-
-import java.util.*;
-import java.util.List;
-import java.io.*;
-import java.awt.*;
-
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.title.LegendTitle;
-import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * TODO javadoc.
@@ -249,11 +257,14 @@ public class CoverageResult {
             if (owner == null) {
                 return null;
             }
-            Run prevBuild = owner.getPreviousBuild();
+            Run prevBuild = owner.getPreviousNotFailedBuild();
             if (prevBuild == null) {
                 return null;
             }
-            CoberturaBuildAction action = prevBuild.getAction(CoberturaBuildAction.class);
+            CoberturaBuildAction action;
+            while ((null == (action = prevBuild.getAction(CoberturaBuildAction.class)))) {
+                prevBuild = prevBuild.getPreviousNotFailedBuild();
+            }
             if (action == null) {
                 return null;
             }
@@ -359,7 +370,7 @@ public class CoverageResult {
     public Map<String, CoveragePaint> getPaintedSources() {
         Map<String, CoveragePaint> result = new HashMap<String, CoveragePaint>();
         // check the children
-        for (CoverageResult child: children.values()) {
+        for (CoverageResult child : children.values()) {
             result.putAll(child.getPaintedSources());
         }
         if (relativeSourcePath != null && paint != null) {
