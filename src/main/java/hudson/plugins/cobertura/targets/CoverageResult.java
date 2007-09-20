@@ -8,6 +8,7 @@ import hudson.util.ChartUtil;
 import hudson.util.ColorPalette;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
+import hudson.util.TextFile;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -113,6 +114,18 @@ public class CoverageResult {
      */
     private File getSourceFile() {
         return new File(owner.getProject().getRootDir(), "cobertura/" + relativeSourcePath);
+    }
+
+    public boolean isSourceFileAvailable() {
+        return owner == owner.getProject().getLastStableBuild() && getSourceFile().exists();
+    }
+
+    public String getSourceFileContent() {
+        try {
+            return new TextFile(getSourceFile()).read();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public List<CoverageResult> getParents() {

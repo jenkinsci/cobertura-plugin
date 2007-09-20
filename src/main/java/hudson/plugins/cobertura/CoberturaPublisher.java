@@ -1,19 +1,33 @@
 package hudson.plugins.cobertura;
 
-import hudson.Launcher;
 import hudson.FilePath;
+import hudson.Launcher;
 import hudson.Util;
-import hudson.plugins.cobertura.targets.CoverageTarget;
+import hudson.model.AbstractItem;
+import hudson.model.Action;
+import hudson.model.Build;
+import hudson.model.BuildListener;
+import hudson.model.Descriptor;
+import hudson.model.Project;
+import hudson.model.Result;
+import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
-import hudson.plugins.cobertura.renderers.SourceCodePainter;
-import hudson.model.*;
+import hudson.plugins.cobertura.targets.CoverageTarget;
 import hudson.tasks.Publisher;
-import org.kohsuke.stapler.StaplerRequest;
 import org.apache.commons.beanutils.ConvertUtils;
+import org.kohsuke.stapler.StaplerRequest;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Cobertura {@link Publisher}.
@@ -227,6 +241,7 @@ public class CoberturaPublisher extends Publisher {
             }
         }
         if (result != null) {
+            result.setOwner(build);
             final FilePath paintedSourcesPath = new FilePath(new File(build.getProject().getRootDir(), "cobertura"));
             paintedSourcesPath.mkdirs();
             SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths,
@@ -234,7 +249,8 @@ public class CoberturaPublisher extends Publisher {
 
             workspace.act(painter);
 
-            final CoberturaBuildAction action = CoberturaBuildAction.load(build, result, healthyTarget, unhealthyTarget);
+            final CoberturaBuildAction action = CoberturaBuildAction
+                    .load(build, result, healthyTarget, unhealthyTarget);
 
             build.getActions().add(action);
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
@@ -346,7 +362,8 @@ public class CoberturaPublisher extends Publisher {
         public CoberturaPublisher newInstance(StaplerRequest req) throws FormException {
             CoberturaPublisher instance = req.bindParameters(CoberturaPublisher.class, "cobertura.");
             ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
-            List<CoberturaPublisherTarget> targets = req.bindParametersToList(CoberturaPublisherTarget.class, "cobertura.target.");
+            List<CoberturaPublisherTarget> targets = req
+                    .bindParametersToList(CoberturaPublisherTarget.class, "cobertura.target.");
             instance.setTargets(targets);
             return instance;
         }

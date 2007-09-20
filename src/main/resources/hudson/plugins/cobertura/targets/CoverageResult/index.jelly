@@ -1,11 +1,12 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags">
+    <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags" css="/plugin/cobertura/css/style.css">
         <st:include it="${it.owner}" page="sidepanel.jelly"/>
         <l:main-panel>
             <h1>Code Coverage</h1>
             <j:forEach var="parent" items="${it.parents}">
-                <a href="${it.relativeUrl(parent)}">${parent.xmlTransform(parent.name)}</a> &gt;
+                <a href="${it.relativeUrl(parent)}">${parent.xmlTransform(parent.name)}</a>
+                &gt;
             </j:forEach>
             ${it.xmlTransform(it.name)}
             <j:set var="metrics" value="${it.metrics}"/>
@@ -35,6 +36,30 @@
                 </tr>
             </table>
 
+            <j:if test="${it.sourceCodeLevel}">
+                <h2>Source</h2>
+                <j:choose>
+                    <j:when test="${it.sourceFileAvailable}">
+                        <div style="overflow-x:scroll;">
+                            <table class="source">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3">${it.relativeSourcePath}</th>
+                                    </tr>
+                                </thead>
+                                ${it.sourceFileContent}
+
+                            </table>
+                        </div>
+                    </j:when>
+                    <j:otherwise>
+                        <p>
+                            <i>Source code is unavailable</i>
+                        </p>
+                    </j:otherwise>
+                </j:choose>
+            </j:if>
+
             <j:forEach var="element" items="${it.childElements}">
                 <j:set var="childMetrics" value="${it.getChildMetrics(element)}"/>
                 <h2>Coverage Breakdown by ${element.displayName}</h2>
@@ -49,7 +74,9 @@
                         <j:set var="child" value="${it.getChild(c)}"/>
                         <tr>
 
-                            <td><a href="${child.urlTransform(child.name)}/">${child.xmlTransform(child.name)}</a></td>
+                            <td>
+                                <a href="${child.urlTransform(child.name)}/">${child.xmlTransform(child.name)}</a>
+                            </td>
                             <j:forEach var="metric" items="${childMetrics}">
                                 <j:set var="childResult" value="${child.getCoverage(metric)}"/>
                                 <j:choose>
@@ -67,9 +94,6 @@
                     </j:forEach>
                 </table>
             </j:forEach>
-            <j:if test="${it.sourceAvailable}">
-                <h2>Source Code</h2>
-            </j:if>
         </l:main-panel>
     </l:layout>
 </j:jelly>
