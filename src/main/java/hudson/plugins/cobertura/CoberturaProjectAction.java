@@ -11,7 +11,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.ServletException;
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -32,12 +31,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
     }
 
     public String getDisplayName() {
-        if (new File(CoberturaPublisher.getCoberturaReportDir(project), "index.html").exists())
-            return "Cobertura Coverage Report";
-        else if (new File(CoberturaPublisher.getCoberturaReportDir(project), "cobertura.xml").exists())
-            return "Coverage Report";
-        else
-            return null;
+        return "Coverage Report";
     }
 
     public String getUrlName() {
