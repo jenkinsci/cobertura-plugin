@@ -2,9 +2,8 @@ package hudson.plugins.cobertura.targets;
 
 import hudson.plugins.cobertura.Ratio;
 
-import java.util.Arrays;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TODO javadoc.
@@ -46,11 +45,37 @@ public class CoveragePaint {
 
     private void ensureSize(int line) {
         if (painted.length <= line) {
-            painted = Arrays.copyOf(painted, line + EXTRA_BUFFER_SIZE);
-            hitCount = Arrays.copyOf(hitCount, line + EXTRA_BUFFER_SIZE);
-            branchCount = Arrays.copyOf(branchCount, line + EXTRA_BUFFER_SIZE);
-            branchCoverage = Arrays.copyOf(branchCoverage, line + EXTRA_BUFFER_SIZE);
+            painted = copyOf(painted, line + EXTRA_BUFFER_SIZE);
+            hitCount = copyOf(hitCount, line + EXTRA_BUFFER_SIZE);
+            branchCount = copyOf(branchCount, line + EXTRA_BUFFER_SIZE);
+            branchCoverage = copyOf(branchCoverage, line + EXTRA_BUFFER_SIZE);
         }
+    }
+
+    /**
+     * ensure compatibility with JRE 1.5.
+     *
+     * @param original
+     * @param newLength
+     * @return
+     */
+    private static boolean[] copyOf(boolean[] original, int newLength) {
+        final boolean[] copy = new boolean[newLength];
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        return copy;
+    }
+
+    /**
+     * ensure compatibility with JRE 1.5.
+     *
+     * @param original
+     * @param newLength
+     * @return
+     */
+    private static int[] copyOf(int[] original, int newLength) {
+        final int[] copy = new int[newLength];
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        return copy;
     }
 
     public void paint(int line, int hits) {
