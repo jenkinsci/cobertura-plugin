@@ -275,7 +275,7 @@ public class CoverageResult {
                 return null;
             }
             CoberturaBuildAction action;
-            while ((null == (action = prevBuild.getAction(CoberturaBuildAction.class)))) {
+            while ((prevBuild != null) && (null == (action = prevBuild.getAction(CoberturaBuildAction.class)))) {
                 prevBuild = prevBuild.getPreviousNotFailedBuild();
             }
             if (action == null) {
