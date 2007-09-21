@@ -28,12 +28,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
     }
 
     public String getIconFileName() {
-        if (new File(CoberturaPublisher.getCoberturaReportDir(project), "index.html").exists())
-            return "graph.gif";
-        else if (new File(CoberturaPublisher.getCoberturaReportDir(project), "cobertura.xml").exists())
-            return "graph.gif";
-        else
-            return null;
+        return "graph.gif";
     }
 
     public String getDisplayName() {
