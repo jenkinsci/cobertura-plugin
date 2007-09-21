@@ -1,0 +1,99 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags" css="/plugin/cobertura/css/style.css">
+        <st:include it="${it.owner}" page="sidepanel.jelly"/>
+        <l:main-panel>
+            <h1>Code Coverage</h1>
+            <j:forEach var="parent" items="${it.parents}">
+                <a href="${it.relativeUrl(parent)}">${parent.xmlTransform(parent.name)}</a>
+                &gt;
+            </j:forEach>
+            ${it.xmlTransform(it.name)}
+            <j:set var="metrics" value="${it.metrics}"/>
+            <h2>Trend</h2>
+            <img src="graph" width="400" height="200"/>
+
+
+            <j:if test="${it.result.previousResult != null}">
+                <cobertura:floatingTrendGraph/>
+            </j:if>
+
+            <h2>${it.element.displayName} Coverage Summary</h2>
+            <table border="1px" class="pane">
+                <tr>
+                    <td>Name</td>
+                    <j:forEach var="metric" items="${metrics}">
+                        <td>${metric.name}</td>
+                    </j:forEach>
+                </tr>
+                <tr>
+                    <td>${it.name}</td>
+                    <j:forEach var="metric" items="${metrics}">
+                        <td data="${it.getCoverage(metric).percentageFloat}">${it.getCoverage(metric).percentage}%
+                            (${it.getCoverage(metric)})
+                        </td>
+                    </j:forEach>
+                </tr>
+            </table>
+
+            <j:if test="${it.sourceCodeLevel}">
+                <h2>Source</h2>
+                <j:choose>
+                    <j:when test="${it.sourceFileAvailable}">
+                        <div style="overflow-x:scroll;">
+                            <table class="source">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3">${it.relativeSourcePath}</th>
+                                    </tr>
+                                </thead>
+                                ${it.sourceFileContent}
+
+                            </table>
+                        </div>
+                    </j:when>
+                    <j:otherwise>
+                        <p>
+                            <i>Source code is unavailable</i>
+                        </p>
+                    </j:otherwise>
+                </j:choose>
+            </j:if>
+
+            <j:forEach var="element" items="${it.childElements}">
+                <j:set var="childMetrics" value="${it.getChildMetrics(element)}"/>
+                <h2>Coverage Breakdown by ${element.displayName}</h2>
+                <table border="1px" class="pane sortable">
+                    <tr>
+                        <td>Name</td>
+                        <j:forEach var="metric" items="${childMetrics}">
+                            <td>${metric.name}</td>
+                        </j:forEach>
+                    </tr>
+                    <j:forEach var="c" items="${it.children}">
+                        <j:set var="child" value="${it.getChild(c)}"/>
+                        <tr>
+
+                            <td>
+                                <a href="${child.urlTransform(child.name)}/">${child.xmlTransform(child.name)}</a>
+                            </td>
+                            <j:forEach var="metric" items="${childMetrics}">
+                                <j:set var="childResult" value="${child.getCoverage(metric)}"/>
+                                <j:choose>
+                                    <j:when test="${childResult!=null}">
+                                        <td data="${childResult.percentageFloat}">${childResult.percentage}%
+                                            (${childResult})
+                                        </td>
+                                    </j:when>
+                                    <j:otherwise>
+                                        <td data="101">N/A</td>
+                                    </j:otherwise>
+                                </j:choose>
+                            </j:forEach>
+                        </tr>
+                    </j:forEach>
+                </table>
+            </j:forEach>
+        </l:main-panel>
+    </l:layout>
+</j:jelly>
