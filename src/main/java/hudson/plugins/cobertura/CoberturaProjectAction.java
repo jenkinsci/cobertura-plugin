@@ -13,9 +13,9 @@ import java.io.IOException;
  */
 public class CoberturaProjectAction extends Actionable implements ProminentProjectAction {
 
-    private final Project<?, ?> project;
+    private final AbstractProject<?, ?> project;
 
-    public CoberturaProjectAction(Project project) {
+    public CoberturaProjectAction(AbstractProject project) {
         this.project = project;
     }
 
@@ -32,7 +32,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
     }
 
     public CoberturaBuildAction getLastResult() {
-        for (Build<?, ?> b = project.getLastStableBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
+        for (AbstractBuild<?, ?> b = project.getLastStableBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
             if (b.getResult() == Result.FAILURE)
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
