@@ -190,14 +190,14 @@ public class CoberturaPublisher extends Publisher {
     public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         listener.getLogger().println("Publishing Cobertura coverage report...");
         final Project<?, ?> project = build.getParent();
-        final FilePath workspace = project.getWorkspace();
-        FilePath coverageReport = workspace.child(coberturaReportFile);
+        final FilePath moduleRoot = project.getModuleRoot();
+        FilePath coverageReport = moduleRoot.child(coberturaReportFile);
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
 
         FilePath[] reports = new FilePath[0];
         try {
-            reports = workspace.list(coberturaReportFile);
+            reports = moduleRoot.list(coberturaReportFile);
 
             // if the build has failed, then there's not
             // much point in reporting an error
@@ -247,10 +247,10 @@ public class CoberturaPublisher extends Publisher {
             SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths,
                     result.getPaintedSources());
 
-            workspace.act(painter);
+            moduleRoot.act(painter);
 
-            final CoberturaBuildAction action = CoberturaBuildAction
-                    .load(build, result, healthyTarget, unhealthyTarget);
+            final CoberturaBuildAction action = CoberturaBuildAction.load(build, result, healthyTarget,
+                    unhealthyTarget);
 
             build.getActions().add(action);
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
