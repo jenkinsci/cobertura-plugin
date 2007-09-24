@@ -1,16 +1,9 @@
 package hudson.plugins.cobertura;
 
-import hudson.FilePath;
-import hudson.model.Actionable;
-import hudson.model.Build;
-import hudson.model.DirectoryBrowserSupport;
-import hudson.model.Project;
-import hudson.model.ProminentProjectAction;
-import hudson.model.Result;
+import hudson.model.*;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
@@ -52,12 +45,6 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (getLastResult() != null)
             getLastResult().getResult().doGraph(req, rsp);
-    }
-
-    public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException,
-            InterruptedException {
-        new DirectoryBrowserSupport(this).serveFile(req, rsp,
-                new FilePath(CoberturaPublisher.getCoberturaReportDir(project)), "graph.gif", false);
     }
 
     public void doIndex(StaplerRequest req, StaplerResponse rsp) throws IOException {
