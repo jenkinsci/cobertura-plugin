@@ -13,7 +13,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -102,10 +104,21 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
     }
 
     public Boolean invoke(File workspaceDir, VirtualChannel channel) throws IOException {
+        final List<File> trialPaths = new ArrayList<File>(sourcePaths.size());
+        for (String sourcePath: sourcePaths) {
+            final File trialPath = new File(sourcePath);
+            if (trialPath.exists()) {
+                trialPaths.add(trialPath);
+            }
+            final File trialPath2 = new File(workspaceDir, sourcePath);
+            if (trialPath2.exists() && !trialPath2.equals(trialPath)) {
+                trialPaths.add(trialPath2);
+            }
+        }
         for (Map.Entry<String, CoveragePaint> entry : paint.entrySet()) {
             // first see if we can find the file
             File source = new File(workspaceDir, entry.getKey());
-            Iterator<String> possiblePath = sourcePaths.iterator();
+            final Iterator<File> possiblePath = trialPaths.iterator();
             while (!source.exists() && possiblePath.hasNext()) {
                 source = new File(possiblePath.next(), entry.getKey());
             }
