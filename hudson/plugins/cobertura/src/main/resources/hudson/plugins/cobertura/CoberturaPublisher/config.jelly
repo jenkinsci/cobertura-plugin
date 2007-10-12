@@ -1,0 +1,77 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry title="Cobertura xml report pattern"
+             description="
+             This is a file name pattern that can be used to locate the cobertura xml report files
+             (for example with Maven2 use &lt;b&gt;**/target/site/cobertura/coverage.xml&lt;/b&gt;).
+           The path is relative to &lt;a href='ws/'&gt;the module root&lt;/a&gt; unless
+           you are using Subversion as SCM and have configured multiple modules, in which case it is
+           relative to the workspace root.&lt;br/&gt;
+           Cobertura must be configured to generate XML reports for this plugin to function.
+           ">
+        <f:textbox name="cobertura.coberturaReportFile" value="${instance.coberturaReportFile}"/>
+    </f:entry>
+    <f:entry title="Coverage Metric Targets"
+             description="
+             Configure health reporting thresholds. &lt;br/&gt;
+             For the &lt;img src='${rootURL}/images/16x16/health-80plus.gif' alt='100%'&gt;
+             row, leave blank to use the default value (i.e. 80). &lt;br/&gt;
+             For the &lt;img src='${rootURL}/images/16x16/health-00to19.gif' alt='0%'&gt; and
+             &lt;img src='${rootURL}/images/16x16/yellow.gif' alt='0%'&gt; rows, leave blank to
+             use the default values (i.e. 0).
+    ">
+        <f:repeatable var="inst" varStatus="instStatus" items="${descriptor.getTargets(instance)}">
+            <table width="100%">
+                <col width="25%"/>
+                <col/>
+                <col width="24px"/>
+                <col width="15%"/>
+                <col width="24px"/>
+                <col width="15%"/>
+                <col width="24px"/>
+                <col width="15%"/>
+
+                <tbody>
+                    <tr>
+                        <td>
+                            <select class="setting-input" name="cobertura.target.metric">
+                                <j:forEach var="i" items="${descriptor.metrics}">
+                                    <f:option selected="${i==inst.metric}" value="${i}">${i.name}</f:option>
+                                </j:forEach>
+                            </select>
+                        </td>
+                        <td>
+                            <j:if test="${!loopStatus.first}">
+                                <f:repeatableDeleteButton/>
+                            </j:if>
+                        </td>
+                        <th>
+                            <img src="${rootURL}/images/16x16/health-80plus.gif" alt="100%"
+                                 title="Report health as 100% when coverage is greater than"/>
+                        </th>
+                        <td>
+                            <f:textbox name="cobertura.target.healthy"
+                                       value="${inst.healthy}"/>
+                        </td>
+                        <th>
+                            <img src="${rootURL}/images/16x16/health-00to19.gif" alt="0%"
+                                 title="Report health as 0% when coverage is less than"/>
+                        </th>
+                        <td>
+                            <f:textbox name="cobertura.target.unhealthy"
+                                       value="${inst.unhealthy}"/>
+                        </td>
+                        <th>
+                            <img src="${rootURL}/images/16x16/yellow.gif" alt="0%"
+                                 title="Mark the build as unstable when coverage is less than"/>
+                        </th>
+                        <td>
+                            <f:textbox name="cobertura.target.unstable"
+                                       value="${inst.unstable}"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </f:repeatable>
+    </f:entry>
+</j:jelly>

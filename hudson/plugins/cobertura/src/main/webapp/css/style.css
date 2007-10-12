@@ -1,0 +1,63 @@
+table.source {
+    border-style: solid;
+    border-color: #bbb;
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-width: 1px;
+    width: 100%;
+}
+
+table.source td {
+    border-style: solid;
+    border-color: #bbb;
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-width: 0px 0px 0px 0px;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+    font-family: courier, monospace;
+}
+
+table.source td.line {
+    text-align: right;
+    border-width: 0px 1px 0px 0px;
+}
+
+table.source td.hits {
+    text-align: right;
+    border-width: 0px 1px 0px 0px;
+}
+
+table.source th {
+    padding-left: 0.5em;
+    font-weight: bold;
+    font-family: serif;
+    background-color: #f0f0f0;
+    border-width: 1px 1px 1px 1px;
+    text-align: left;
+}
+
+table.source tr.coverFull {
+    background-color: #dfd;
+}
+
+table.source tr.coverPart {
+    background-color: #ffd;
+}
+
+table.source tr.coverPart td.hits, table.source tr.coverNone td.hits {
+    background-color: #fdd;
+    font-weight: bold;
+}
+
+table.source tr.coverPart td.code {
+    background-color: #fdd;
+}
+
+table.source tr.coverNone {
+    background-color: #fdd;
+}
+
+table.source tr.noCover {
+    background-color: #fff;
+}
