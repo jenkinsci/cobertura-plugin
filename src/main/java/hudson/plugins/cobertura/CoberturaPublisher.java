@@ -14,6 +14,7 @@ import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
+import hudson.scm.SubversionSCM;
 import hudson.tasks.Publisher;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.kohsuke.stapler.StaplerRequest;
@@ -190,8 +191,15 @@ public class CoberturaPublisher extends Publisher {
     public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         listener.getLogger().println("Publishing Cobertura coverage report...");
         final Project<?, ?> project = build.getParent();
-        final FilePath moduleRoot = project.getModuleRoot();
-        FilePath coverageReport = moduleRoot.child(coberturaReportFile);
+        final boolean multipleModuleRoots;
+        if (project.getScm() instanceof SubversionSCM) {
+            // hack of the first kind
+            SubversionSCM scm = SubversionSCM.class.cast(project.getScm());
+            multipleModuleRoots = scm.getLocations().length > 1;
+        } else {
+            multipleModuleRoots = false;
+        }
+        final FilePath moduleRoot = multipleModuleRoots ? project.getWorkspace() : project.getModuleRoot();
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
 
@@ -206,7 +214,7 @@ public class CoberturaPublisher extends Publisher {
 
         } catch (IOException e) {
             Util.displayIOException(e, listener);
-            e.printStackTrace(listener.fatalError("Unable to copy coverage from " + coverageReport + " to " + buildTarget));
+            e.printStackTrace(listener.fatalError("Unable to find coverage results"));
             build.setResult(Result.FAILURE);
         }
 
@@ -223,7 +231,7 @@ public class CoberturaPublisher extends Publisher {
                 reports[i].copyTo(targetPath);
             } catch (IOException e) {
                 Util.displayIOException(e, listener);
-                e.printStackTrace(listener.fatalError("Unable to copy coverage from " + coverageReport + " to " + buildTarget));
+                e.printStackTrace(listener.fatalError("Unable to copy coverage from " + reports[i] + " to " + buildTarget));
                 build.setResult(Result.FAILURE);
             }
         }

@@ -4,7 +4,9 @@
              description="
              This is a file name pattern that can be used to locate the cobertura xml report files
              (for example with Maven2 use &lt;b&gt;**/target/site/cobertura/coverage.xml&lt;/b&gt;).
-           The path is relative to &lt;a href='ws/'&gt;the workspace root&lt;/a&gt;.&lt;br/&gt;
+           The path is relative to &lt;a href='ws/'&gt;the module root&lt;/a&gt; unless
+           you are using Subversion as SCM and have configured multiple modules, in which case it is
+           relative to the workspace root.&lt;br/&gt;
            Cobertura must be configured to generate XML reports for this plugin to function.
            ">
         <f:textbox name="cobertura.coberturaReportFile" value="${instance.coberturaReportFile}"/>
@@ -40,7 +42,7 @@
                         </td>
                         <td>
                             <j:if test="${!loopStatus.first}">
-                            <f:repeatableDeleteButton/>
+                                <f:repeatableDeleteButton/>
                             </j:if>
                         </td>
                         <th>
