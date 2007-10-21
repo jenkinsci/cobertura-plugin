@@ -2,6 +2,7 @@ package hudson.plugins.cobertura.targets;
 
 import hudson.plugins.cobertura.Ratio;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import java.util.Map;
  * @author Stephen Connolly
  * @since 29-Aug-2007 17:44:29
  */
-public class CoveragePaint {
+public class CoveragePaint implements Serializable {
     private static int[] EMPTY_INT_ARRAY = {};
     private static Integer[] EMPTY_INTEGER_ARRAY = {};
     private static boolean[] EMPTY_BOOLEAN_ARRAY = {};

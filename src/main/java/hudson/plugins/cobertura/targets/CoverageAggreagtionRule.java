@@ -2,8 +2,9 @@ package hudson.plugins.cobertura.targets;
 
 import hudson.plugins.cobertura.Ratio;
 
-import java.util.Map;
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TODO javadoc.
@@ -11,7 +12,7 @@ import java.util.HashMap;
  * @author Stephen Connolly
  * @since 22-Aug-2007 18:08:46
  */
-public class CoverageAggreagtionRule {
+public class CoverageAggreagtionRule implements Serializable {
     private final CoverageMetric output;
     private final CoverageAggregationMode mode;
     private final CoverageMetric input;

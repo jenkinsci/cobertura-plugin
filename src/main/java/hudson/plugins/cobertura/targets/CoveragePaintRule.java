@@ -1,12 +1,14 @@
 package hudson.plugins.cobertura.targets;
 
+import java.io.Serializable;
+
 /**
  * Describes how {@link CoveragePaint} can be aggregated up a {@link CoverageResult} tree.
  *
  * @author Stephen Connolly
  * @since 29-Aug-2007 18:13:22
  */
-public class CoveragePaintRule {
+public class CoveragePaintRule implements Serializable {
     private final CoverageElement element;
     private final CoverageAggregationMode mode;
 
