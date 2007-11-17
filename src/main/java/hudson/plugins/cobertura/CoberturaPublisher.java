@@ -3,13 +3,7 @@ package hudson.plugins.cobertura;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.AbstractItem;
-import hudson.model.Action;
-import hudson.model.Build;
-import hudson.model.BuildListener;
-import hudson.model.Descriptor;
-import hudson.model.Project;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
@@ -22,13 +16,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Cobertura {@link Publisher}.
@@ -180,7 +168,7 @@ public class CoberturaPublisher extends Publisher {
      * Gets the directory where the Cobertura Report is stored for the given project.
      */
     /*package*/
-    static File[] getCoberturaReports(Build build) {
+    static File[] getCoberturaReports(AbstractBuild build) {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
     }
 

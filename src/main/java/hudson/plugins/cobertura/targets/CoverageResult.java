@@ -1,6 +1,6 @@
 package hudson.plugins.cobertura.targets;
 
-import hudson.model.Build;
+import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.Ratio;
@@ -43,7 +43,7 @@ public class CoverageResult implements Serializable {
     private final String name;
     private String relativeSourcePath;
 
-    public Build owner = null;
+    public AbstractBuild owner = null;
 
     public CoverageResult(CoverageElement elementType, CoverageResult parent, String name) {
         this.element = elementType;
@@ -219,7 +219,7 @@ public class CoverageResult implements Serializable {
      *
      * @return Value for property 'owner'.
      */
-    public Build getOwner() {
+    public AbstractBuild getOwner() {
         return owner;
     }
 
@@ -228,7 +228,7 @@ public class CoverageResult implements Serializable {
      *
      * @param owner Value to set for property 'owner'.
      */
-    public void setOwner(Build owner) {
+    public void setOwner(AbstractBuild owner) {
         this.owner = owner;
         aggregateResults.clear();
         for (CoverageResult child : children.values()) {
@@ -301,7 +301,7 @@ public class CoverageResult implements Serializable {
             return;
         }
 
-        Build build = getOwner();
+        AbstractBuild build = getOwner();
         Calendar t = build.getTimestamp();
 
         if (req.checkIfModified(t, rsp))

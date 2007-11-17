@@ -1,6 +1,6 @@
 package hudson.plugins.cobertura;
 
-import hudson.model.Build;
+import hudson.model.AbstractBuild;
 import hudson.model.HealthReport;
 import hudson.model.HealthReportingAction;
 import hudson.model.Result;
@@ -27,8 +27,7 @@ import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -45,7 +44,7 @@ import java.util.logging.Logger;
  * @since 03-Jul-2007 08:43:08
  */
 public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy {
-    public final Build owner;
+    public final AbstractBuild owner;
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
     private Map<CoverageMetric, Ratio> result;
@@ -104,8 +103,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      * Gets the previous {@link CoberturaBuildAction} of the given build.
      */
     /*package*/
-    static CoberturaBuildAction getPreviousResult(Build start) {
-        Build<?, ?> b = start;
+    static CoberturaBuildAction getPreviousResult(AbstractBuild start) {
+        AbstractBuild<?, ?> b = start;
         while (true) {
             b = b.getPreviousNotFailedBuild();
             if (b == null)
@@ -117,7 +116,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         }
     }
 
-    CoberturaBuildAction(Build owner, CoverageResult r, CoverageTarget healthyTarget,
+    CoberturaBuildAction(AbstractBuild owner, CoverageResult r, CoverageTarget healthyTarget,
                          CoverageTarget unhealthyTarget) {
         this.owner = owner;
         this.report = new WeakReference<CoverageResult>(r);
@@ -159,7 +158,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
 
     private static final Logger logger = Logger.getLogger(CoberturaBuildAction.class.getName());
 
-    public static CoberturaBuildAction load(Build<?, ?> build, CoverageResult result, CoverageTarget healthyTarget,
+    public static CoberturaBuildAction load(AbstractBuild<?, ?> build, CoverageResult result, CoverageTarget healthyTarget,
                                             CoverageTarget unhealthyTarget) {
         return new CoberturaBuildAction(build, result, healthyTarget, unhealthyTarget);
     }
