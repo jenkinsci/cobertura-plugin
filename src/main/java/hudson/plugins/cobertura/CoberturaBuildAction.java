@@ -51,6 +51,9 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
 
     private transient WeakReference<CoverageResult> report;
 
+    /**
+     * {@inheritDoc}
+     */
     public HealthReport getBuildHealth() {
         if (healthyTarget == null || unhealthyTarget == null) return null;
         if (result == null) {
@@ -79,22 +82,39 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         return new HealthReport(minValue, description.toString());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getIconFileName() {
         return "graph.gif";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getDisplayName() {
         return "Coverage Report";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getUrlName() {
         return "cobertura";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object getTarget() {
         return getResult();  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    /**
+     * Getter for property 'previousResult'.
+     *
+     * @return Value for property 'previousResult'.
+     */
     public CoberturaBuildAction getPreviousResult() {
         return getPreviousResult(owner);
     }

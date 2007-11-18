@@ -18,18 +18,28 @@ public enum CoverageElement {
 
     CoverageElement(String displayName) {
         this.parent = null;
-        this.displayName= displayName;
+        this.displayName = displayName;
     }
 
     CoverageElement(String displayName, CoverageElement parent) {
         this.parent = parent;
-        this.displayName= displayName;
+        this.displayName = displayName;
     }
 
+    /**
+     * Getter for property 'parent'.
+     *
+     * @return Value for property 'parent'.
+     */
     public CoverageElement getParent() {
         return parent;
     }
 
+    /**
+     * Getter for property 'displayName'.
+     *
+     * @return Value for property 'displayName'.
+     */
     public String getDisplayName() {
         return displayName;
     }

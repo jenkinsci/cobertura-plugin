@@ -1,25 +1,25 @@
 package hudson.plugins.cobertura;
 
-import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageElement;
 import hudson.plugins.cobertura.targets.CoverageMetric;
+import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.util.IOException2;
-import org.xml.sax.SAXException;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.util.Stack;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Collections;
-import java.util.regex.Pattern;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA.
@@ -100,6 +100,9 @@ class CoberturaXmlHandler extends DefaultHandler {
         this.rootCoverage = rootCoverage;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void startDocument() throws SAXException {
         super.startDocument();
         if (this.rootCoverage == null) {
@@ -110,6 +113,9 @@ class CoberturaXmlHandler extends DefaultHandler {
         inSources = false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void endDocument() throws SAXException {
         if (!stack.empty() || inSource || inSources) {
             throw new SAXException("Unbalanced parse of cobertua coverage results.");
@@ -136,6 +142,9 @@ class CoberturaXmlHandler extends DefaultHandler {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
         String name = attributes.getValue("name");
@@ -276,6 +285,9 @@ class CoberturaXmlHandler extends DefaultHandler {
         return s;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if ("sources".equals(qName)) {
             inSources = false;
@@ -296,14 +308,27 @@ class CoberturaXmlHandler extends DefaultHandler {
         super.endElement(uri, localName, qName);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void characters(char[] ch, int start, int length) throws SAXException {
         sourceDir.append(new String(ch, start, length));
     }
 
+    /**
+     * Getter for property 'rootCoverage'.
+     *
+     * @return Value for property 'rootCoverage'.
+     */
     public CoverageResult getRootCoverage() {
         return rootCoverage;
     }
 
+    /**
+     * Getter for property 'sourcePaths'.
+     *
+     * @return Value for property 'sourcePaths'.
+     */
     public Set<String> getSourcePaths() {
         return Collections.unmodifiableSet(sourcePaths);
     }
@@ -320,10 +345,20 @@ class CoberturaXmlHandlerStackItem {
         totals = new CoberturaCoverageTotals();
     }
 
+    /**
+     * Getter for property 'metric'.
+     *
+     * @return Value for property 'metric'.
+     */
     public CoverageResult getMetric() {
         return metric;
     }
 
+    /**
+     * Getter for property 'totals'.
+     *
+     * @return Value for property 'totals'.
+     */
     public CoberturaCoverageTotals getTotals() {
         return totals;
     }
@@ -337,6 +372,9 @@ class CoberturaCoverageTotals {
     private long totalMethodCount;
     private long coverMethodCount;
 
+    /**
+     * Constructs a new CoberturaCoverageTotals.
+     */
     public CoberturaCoverageTotals() {
         totalLineCount = 0;
         coverLineCount = 0;
@@ -375,14 +413,29 @@ class CoberturaCoverageTotals {
         coverMethodCount += sub.coverMethodCount;
     }
 
+    /**
+     * Getter for property 'lineCoverage'.
+     *
+     * @return Value for property 'lineCoverage'.
+     */
     public Ratio getLineCoverage() {
         return Ratio.create(coverLineCount, totalLineCount);
     }
 
+    /**
+     * Getter for property 'conditionalCoverage'.
+     *
+     * @return Value for property 'conditionalCoverage'.
+     */
     public Ratio getConditionalCoverage() {
         return Ratio.create(coverLineCount, totalLineCount);
     }
 
+    /**
+     * Getter for property 'methodCoverage'.
+     *
+     * @return Value for property 'methodCoverage'.
+     */
     public Ratio getMethodCoverage() {
         return Ratio.create(coverMethodCount, totalMethodCount);
     }

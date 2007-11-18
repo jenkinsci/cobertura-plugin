@@ -130,6 +130,11 @@ public class CoveragePaint implements Serializable {
         }
     }
 
+    /**
+     * Getter for property 'lineCoverage'.
+     *
+     * @return Value for property 'lineCoverage'.
+     */
     public Ratio getLineCoverage() {
         int painted = 0;
         int covered = 0;
@@ -144,6 +149,11 @@ public class CoveragePaint implements Serializable {
         return Ratio.create(covered, painted);
     }
 
+    /**
+     * Getter for property 'conditionalCoverage'.
+     *
+     * @return Value for property 'conditionalCoverage'.
+     */
     public Ratio getConditionalCoverage() {
         long maxTotal = 0;
         long total = 0;
@@ -154,6 +164,11 @@ public class CoveragePaint implements Serializable {
         return Ratio.create(total, maxTotal);
     }
 
+    /**
+     * Getter for property 'results'.
+     *
+     * @return Value for property 'results'.
+     */
     public Map<CoverageMetric, Ratio> getResults() {
         Map<CoverageMetric, Ratio> result = new HashMap<CoverageMetric, Ratio>();
         result.put(CoverageMetric.LINE, getLineCoverage());

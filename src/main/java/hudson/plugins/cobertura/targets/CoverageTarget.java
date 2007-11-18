@@ -3,10 +3,10 @@ package hudson.plugins.cobertura.targets;
 import hudson.plugins.cobertura.Ratio;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Holds the target coverage for a specific condition;
@@ -18,6 +18,9 @@ public class CoverageTarget implements Serializable {
 
     private Map<CoverageMetric, Integer> targets = new HashMap<CoverageMetric, Integer>();
 
+    /**
+     * Constructs a new CoverageTarget.
+     */
     public CoverageTarget() {
     }
 
@@ -25,6 +28,11 @@ public class CoverageTarget implements Serializable {
         this.targets.putAll(coverage);
     }
 
+    /**
+     * Getter for property 'alwaysMet'.
+     *
+     * @return Value for property 'alwaysMet'.
+     */
     public boolean isAlwaysMet() {
         for (Integer target : targets.values()) {
             if (target != null && target > 0) {
@@ -34,6 +42,11 @@ public class CoverageTarget implements Serializable {
         return true;
     }
 
+    /**
+     * Getter for property 'empty'.
+     *
+     * @return Value for property 'empty'.
+     */
     public boolean isEmpty() {
         for (Integer target : targets.values()) {
             if (target != null) {
@@ -82,6 +95,11 @@ public class CoverageTarget implements Serializable {
         return result;
     }
 
+    /**
+     * Getter for property 'targets'.
+     *
+     * @return Value for property 'targets'.
+     */
     public Set<CoverageMetric> getTargets() {
         Set<CoverageMetric> targets = new HashSet<CoverageMetric>();
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {

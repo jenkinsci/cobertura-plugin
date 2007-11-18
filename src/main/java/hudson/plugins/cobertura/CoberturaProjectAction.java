@@ -19,18 +19,32 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         this.project = project;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getIconFileName() {
         return "graph.gif";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getDisplayName() {
         return "Coverage Report";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getUrlName() {
         return "cobertura";
     }
 
+    /**
+     * Getter for property 'lastResult'.
+     *
+     * @return Value for property 'lastResult'.
+     */
     public CoberturaBuildAction getLastResult() {
         for (AbstractBuild<?, ?> b = project.getLastStableBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
             if (b.getResult() == Result.FAILURE)
@@ -51,6 +65,9 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         rsp.sendRedirect2("../lastStableBuild/cobertura");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getSearchUrl() {
         return getUrlName();
     }

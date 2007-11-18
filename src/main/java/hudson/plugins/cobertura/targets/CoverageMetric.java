@@ -20,6 +20,11 @@ public enum CoverageMetric {
         this.name = name;
     }
 
+    /**
+     * Getter for property 'name'.
+     *
+     * @return Value for property 'name'.
+     */
     public String getName() {
         return name;
     }

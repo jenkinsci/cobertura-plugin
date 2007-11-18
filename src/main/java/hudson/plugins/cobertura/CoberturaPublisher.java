@@ -43,6 +43,11 @@ public class CoberturaPublisher extends Publisher {
         this.failingTarget = new CoverageTarget();
     }
 
+    /**
+     * Getter for property 'targets'.
+     *
+     * @return Value for property 'targets'.
+     */
     public List<CoberturaPublisherTarget> getTargets() {
         Map<CoverageMetric, CoberturaPublisherTarget> targets = new TreeMap<CoverageMetric, CoberturaPublisherTarget>();
         for (CoverageMetric metric : healthyTarget.getTargets()) {
@@ -76,6 +81,11 @@ public class CoberturaPublisher extends Publisher {
         return result;
     }
 
+    /**
+     * Setter for property 'targets'.
+     *
+     * @param targets Value to set for property 'targets'.
+     */
     private void setTargets(List<CoberturaPublisherTarget> targets) {
         healthyTarget.clear();
         unhealthyTarget.clear();
@@ -328,6 +338,11 @@ public class CoberturaPublisher extends Publisher {
             return Arrays.asList(metrics);
         }
 
+        /**
+         * Getter for property 'defaultTargets'.
+         *
+         * @return Value for property 'defaultTargets'.
+         */
         public List<CoberturaPublisherTarget> getDefaultTargets() {
             List<CoberturaPublisherTarget> result = new ArrayList<CoberturaPublisherTarget>();
             result.add(new CoberturaPublisherTarget(CoverageMetric.METHOD, 80, null, null));
@@ -366,6 +381,9 @@ public class CoberturaPublisher extends Publisher {
     }
 
     private static class CoberturaReportFilenameFilter implements FilenameFilter {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept(File dir, String name) {
             // TODO take this out of an anonymous inner class, create a singleton and use a Regex to match the name
             return name.startsWith("coverage") && name.endsWith(".xml");

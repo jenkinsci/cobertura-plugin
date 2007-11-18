@@ -4,20 +4,8 @@ import hudson.FilePath;
 import hudson.plugins.cobertura.targets.CoveragePaint;
 import hudson.remoting.VirtualChannel;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.Reader;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 /**
  * TODO javadoc.
@@ -103,9 +91,12 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Boolean invoke(File workspaceDir, VirtualChannel channel) throws IOException {
         final List<File> trialPaths = new ArrayList<File>(sourcePaths.size());
-        for (String sourcePath: sourcePaths) {
+        for (String sourcePath : sourcePaths) {
             final File trialPath = new File(sourcePath);
             if (trialPath.exists()) {
                 trialPaths.add(trialPath);

@@ -25,6 +25,9 @@ import java.util.Set;
  */
 public class MavenCoberturaPublisher extends MavenReporter {
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean postExecute(MavenBuildProxy build, MavenProject pom, MojoInfo mojo, BuildListener listener,
                                Throwable error) throws InterruptedException, IOException {
         if (!mojo.pluginName.matches("org.codehaus.mojo", "cobertura-maven-plugin"))
@@ -130,10 +133,16 @@ public class MavenCoberturaPublisher extends MavenReporter {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Action getProjectAction(MavenModule project) {
         return new CoberturaProjectAction(project);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public MavenReporterDescriptor getDescriptor() {
         return DESCRIPTOR;
     }
@@ -144,14 +153,23 @@ public class MavenCoberturaPublisher extends MavenReporter {
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static final class DescriptorImpl extends MavenReporterDescriptor {
+        /**
+         * Do not instantiate DescriptorImpl.
+         */
         private DescriptorImpl() {
             super(MavenCoberturaPublisher.class);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public String getDisplayName() {
             return "Publish Cobertura Coverage Report";
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public MavenReporter newAutoInstance(MavenModule mavenModule) {
             return new MavenCoberturaPublisher();
         }

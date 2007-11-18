@@ -5,10 +5,10 @@ import org.apache.commons.beanutils.Converter;
 
 /**
  * TODO javadoc.
-*
-* @author Stephen Connolly
-* @since 28-Aug-2007 09:51:26
-*/
+ *
+ * @author Stephen Connolly
+ * @since 28-Aug-2007 09:51:26
+ */
 public final class CoberturaPublisherTarget {
     private CoverageMetric metric;
     private Integer healthy;
@@ -17,12 +17,13 @@ public final class CoberturaPublisherTarget {
     public static final Converter CONVERTER = new TargetConverter();
 
 
-    /** Constructs a new CoberturaPublisherTarget. */
+    /**
+     * Constructs a new CoberturaPublisherTarget.
+     */
     public CoberturaPublisherTarget() {
     }
 
     /**
-     *
      * @param metric
      * @param healthy
      * @param unhealthy
@@ -109,6 +110,9 @@ public final class CoberturaPublisherTarget {
     }
 
     private static class TargetConverter implements Converter {
+        /**
+         * {@inheritDoc}
+         */
         public Object convert(Class type, Object value) {
             return CoverageMetric.valueOf(value.toString());
         }

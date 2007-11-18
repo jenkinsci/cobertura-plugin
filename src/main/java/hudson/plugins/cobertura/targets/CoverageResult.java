@@ -56,30 +56,65 @@ public class CoverageResult implements Serializable {
         }
     }
 
+    /**
+     * Getter for property 'relativeSourcePath'.
+     *
+     * @return Value for property 'relativeSourcePath'.
+     */
     public String getRelativeSourcePath() {
         return relativeSourcePath;
     }
 
+    /**
+     * Setter for property 'relativeSourcePath'.
+     *
+     * @param relativeSourcePath Value to set for property 'relativeSourcePath'.
+     */
     public void setRelativeSourcePath(String relativeSourcePath) {
         this.relativeSourcePath = relativeSourcePath;
     }
 
+    /**
+     * Getter for property 'name'.
+     *
+     * @return Value for property 'name'.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Getter for property 'parent'.
+     *
+     * @return Value for property 'parent'.
+     */
     public CoverageResult getParent() {
         return parent;
     }
 
+    /**
+     * Getter for property 'element'.
+     *
+     * @return Value for property 'element'.
+     */
     public CoverageElement getElement() {
         return element;
     }
 
+    /**
+     * Getter for property 'sourceCodeLevel'.
+     *
+     * @return Value for property 'sourceCodeLevel'.
+     */
     public boolean isSourceCodeLevel() {
         return relativeSourcePath != null;
     }
 
+    /**
+     * Getter for property 'paint'.
+     *
+     * @return Value for property 'paint'.
+     */
     public CoveragePaint getPaint() {
         return paint;
     }
@@ -105,10 +140,20 @@ public class CoverageResult implements Serializable {
         return new File(owner.getProject().getRootDir(), "cobertura/" + relativeSourcePath);
     }
 
+    /**
+     * Getter for property 'sourceFileAvailable'.
+     *
+     * @return Value for property 'sourceFileAvailable'.
+     */
     public boolean isSourceFileAvailable() {
         return owner == owner.getProject().getLastStableBuild() && getSourceFile().exists();
     }
 
+    /**
+     * Getter for property 'sourceFileContent'.
+     *
+     * @return Value for property 'sourceFileContent'.
+     */
     public String getSourceFileContent() {
         try {
             return new TextFile(getSourceFile()).read();
@@ -117,6 +162,11 @@ public class CoverageResult implements Serializable {
         }
     }
 
+    /**
+     * Getter for property 'parents'.
+     *
+     * @return Value for property 'parents'.
+     */
     public List<CoverageResult> getParents() {
         List<CoverageResult> result = new ArrayList<CoverageResult>();
         CoverageResult p = getParent();
@@ -128,6 +178,11 @@ public class CoverageResult implements Serializable {
         return result;
     }
 
+    /**
+     * Getter for property 'childElements'.
+     *
+     * @return Value for property 'childElements'.
+     */
     public Set<CoverageElement> getChildElements() {
         Set<CoverageElement> result = new HashSet<CoverageElement>();
         for (CoverageResult child : children.values()) {
@@ -156,10 +211,20 @@ public class CoverageResult implements Serializable {
         return result;
     }
 
+    /**
+     * Getter for property 'children'.
+     *
+     * @return Value for property 'children'.
+     */
     public Set<String> getChildren() {
         return children.keySet();
     }
 
+    /**
+     * Getter for property 'results'.
+     *
+     * @return Value for property 'results'.
+     */
     public Map<CoverageMetric, Ratio> getResults() {
         return Collections.unmodifiableMap(aggregateResults);
     }
@@ -201,6 +266,11 @@ public class CoverageResult implements Serializable {
         return aggregateResults.get(metric);
     }
 
+    /**
+     * Getter for property 'metrics'.
+     *
+     * @return Value for property 'metrics'.
+     */
     public Set<CoverageMetric> getMetrics() {
         return Collections.unmodifiableSet(new TreeSet(aggregateResults.keySet()));
     }
@@ -369,6 +439,11 @@ public class CoverageResult implements Serializable {
         return chart;
     }
 
+    /**
+     * Getter for property 'paintedSources'.
+     *
+     * @return Value for property 'paintedSources'.
+     */
     public Map<String, CoveragePaint> getPaintedSources() {
         Map<String, CoveragePaint> result = new HashMap<String, CoveragePaint>();
         // check the children
