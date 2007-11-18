@@ -10,6 +10,7 @@ import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,16 +26,49 @@ import java.util.Set;
  */
 public class MavenCoberturaPublisher extends MavenReporter {
 
+
+    public boolean preExecute(MavenBuildProxy build, MavenProject pom, MojoInfo mojo, BuildListener listener) throws InterruptedException, IOException {
+        if (isCoberturaReport(mojo)) {
+            // tell cobertura:cobertura to generate the XML report
+            XmlPlexusConfiguration c = (XmlPlexusConfiguration) mojo.configuration.getChild("formats");
+            if (c == null) {
+                listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
+                XmlPlexusConfiguration fmts = new XmlPlexusConfiguration("formats");
+                XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
+                fmt.setValue("html"); // this is in by default
+                fmts.addChild(fmt);
+                fmt = new XmlPlexusConfiguration("format");
+                fmt.setValue("xml"); // need this
+                fmts.addChild(fmt);
+                mojo.configuration.addChild(fmts);
+            } else {
+                XmlPlexusConfiguration[] fmts = (XmlPlexusConfiguration[]) c.getChildren("format");
+                boolean xmlConfigured = false;
+                for (XmlPlexusConfiguration fmt : fmts) {
+                    if ("xml".equalsIgnoreCase(fmt.getValue().trim())) {
+                        xmlConfigured = true;
+                        break;
+                    }
+                }
+                if (xmlConfigured) {
+                    listener.getLogger().println("[HUDSON] cobertura-maven-plugin already configured with xml reports enabled");
+                } else {
+                    listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
+                    XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
+                    fmt.setValue("xml"); // need this
+                    c.addChild(fmt);
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      */
     public boolean postExecute(MavenBuildProxy build, MavenProject pom, MojoInfo mojo, BuildListener listener,
                                Throwable error) throws InterruptedException, IOException {
-        if (!mojo.pluginName.matches("org.codehaus.mojo", "cobertura-maven-plugin"))
-            return true;
-
-        if (!mojo.getGoal().equals("cobertura"))
-            return true;
+        if (!isCoberturaReport(mojo)) return true;
 
         boolean haveXMLReport = false;
         File outputDir;
@@ -53,6 +87,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
                 }
             }
             if (!haveXMLReport) {
+                listener.getLogger().println("[HUDSON] I could not auto-configure the cobertura-maven-plugin to generate xml reports");
                 listener.getLogger().println("[HUDSON] If the cobertura plugin needs was configured to generate xml reports, e.g.");
                 listener.getLogger().println("[HUDSON]     ...");
                 listener.getLogger().println("[HUDSON]     <plugin>");
@@ -130,6 +165,15 @@ public class MavenCoberturaPublisher extends MavenReporter {
         // TODO the project level action
         // build.registerAsProjectAction(this);
 
+        return true;
+    }
+
+    private boolean isCoberturaReport(MojoInfo mojo) {
+        if (!mojo.pluginName.matches("org.codehaus.mojo", "cobertura-maven-plugin"))
+            return false;
+
+        if (!mojo.getGoal().equals("cobertura"))
+            return false;
         return true;
     }
 
