@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  * @since 03-Jul-2007 08:43:08
  */
 public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy {
-    public final AbstractBuild owner;
+    private final AbstractBuild<?, ?> owner;
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
     private Map<CoverageMetric, Ratio> result;
@@ -136,7 +136,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         }
     }
 
-    CoberturaBuildAction(AbstractBuild owner, CoverageResult r, CoverageTarget healthyTarget,
+    CoberturaBuildAction(AbstractBuild<?, ?> owner, CoverageResult r, CoverageTarget healthyTarget,
                          CoverageTarget unhealthyTarget) {
         this.owner = owner;
         this.report = new WeakReference<CoverageResult>(r);

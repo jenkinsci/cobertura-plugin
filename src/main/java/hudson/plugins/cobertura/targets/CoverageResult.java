@@ -43,7 +43,7 @@ public class CoverageResult implements Serializable {
     private final String name;
     private String relativeSourcePath;
 
-    public AbstractBuild owner = null;
+    public AbstractBuild<?, ?> owner = null;
 
     public CoverageResult(CoverageElement elementType, CoverageResult parent, String name) {
         this.element = elementType;

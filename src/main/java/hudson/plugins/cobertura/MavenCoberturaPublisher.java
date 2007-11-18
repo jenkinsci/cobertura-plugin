@@ -66,8 +66,9 @@ public class MavenCoberturaPublisher extends MavenReporter {
     /**
      * {@inheritDoc}
      */
-    public boolean postExecute(MavenBuildProxy build, MavenProject pom, MojoInfo mojo, BuildListener listener,
-                               Throwable error) throws InterruptedException, IOException {
+    public boolean postExecute(final MavenBuildProxy build, final MavenProject pom,
+                               final MojoInfo mojo, final BuildListener listener,
+                               final Throwable error) throws InterruptedException, IOException {
         if (!isCoberturaReport(mojo)) return true;
 
         boolean haveXMLReport = false;
@@ -81,7 +82,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 
             String[] formats = mojo.getConfigurationValue("formats", String[].class);
             for (String o : formats) {
-                if ("xml".equals(o.trim())) {
+                if ("xml".equalsIgnoreCase(o.trim())) {
                     haveXMLReport = true;
                     break;
                 }
@@ -154,8 +155,9 @@ public class MavenCoberturaPublisher extends MavenReporter {
                     result.getPaintedSources());
 
             new FilePath(pom.getBasedir()).act(painter);
+            listener.getLogger().println(build.execute(new MavenCoberturaActionAdder(listener)));
 
-            // TODO the build action 
+            // TODO the build action
         } else {
             listener.getLogger().println("[HUDSON] Unable to parse coverage results.");
             build.setResult(Result.FAILURE);
@@ -220,4 +222,36 @@ public class MavenCoberturaPublisher extends MavenReporter {
     }
 
     private static final long serialVersionUID = 1L;
+
+    private static class MavenCoberturaActionAdder implements MavenBuildProxy.BuildCallable<String, IOException> {
+        private final BuildListener listener;
+
+        public MavenCoberturaActionAdder(BuildListener listener) {
+            this.listener = listener;
+        }
+
+        public String call(MavenBuild build) throws IOException {
+            listener.getLogger().println("+++ at start");
+            try {
+                CoberturaBuildAction cba = build.getAction(CoberturaBuildAction.class);
+                if (cba == null) {
+                    listener.getLogger().println("+++ no action");
+                    File cvgxml = new File(build.getRootDir(), "coverage.xml");
+                    CoverageResult result = CoberturaCoverageParser.parse(cvgxml, null, new HashSet<String>());
+                    result.setOwner(build);
+                    listener.getLogger().println("+++ parsed file");
+
+                    CoberturaBuildAction o = CoberturaBuildAction.load(build, result, null, null);
+                    listener.getLogger().println("+++ loaded action");
+                    build.getActions().add(o);
+                    listener.getLogger().println("+++ added action");
+                } else {
+
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace(listener.getLogger());
+            }
+            return "ok";
+        }
+    }
 }
