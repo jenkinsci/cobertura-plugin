@@ -2,7 +2,12 @@ package hudson.plugins.cobertura;
 
 import hudson.FilePath;
 import hudson.Util;
-import hudson.maven.*;
+import hudson.maven.MavenBuild;
+import hudson.maven.MavenBuildProxy;
+import hudson.maven.MavenModule;
+import hudson.maven.MavenReporter;
+import hudson.maven.MavenReporterDescriptor;
+import hudson.maven.MojoInfo;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -51,7 +56,8 @@ public class MavenCoberturaPublisher extends MavenReporter {
                     }
                 }
                 if (xmlConfigured) {
-                    listener.getLogger().println("[HUDSON] cobertura-maven-plugin already configured with xml reports enabled");
+                    listener.getLogger()
+                            .println("[HUDSON] cobertura-maven-plugin already configured with xml reports enabled");
                 } else {
                     listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
                     XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
@@ -88,8 +94,10 @@ public class MavenCoberturaPublisher extends MavenReporter {
                 }
             }
             if (!haveXMLReport) {
-                listener.getLogger().println("[HUDSON] I could not auto-configure the cobertura-maven-plugin to generate xml reports");
-                listener.getLogger().println("[HUDSON] If the cobertura plugin needs was configured to generate xml reports, e.g.");
+                listener.getLogger()
+                        .println("[HUDSON] I could not auto-configure the cobertura-maven-plugin to generate xml reports");
+                listener.getLogger()
+                        .println("[HUDSON] If the cobertura plugin needs was configured to generate xml reports, e.g.");
                 listener.getLogger().println("[HUDSON]     ...");
                 listener.getLogger().println("[HUDSON]     <plugin>");
                 listener.getLogger().println("[HUDSON]       <groupId>org.codehaus.mojo</groupId>");
@@ -99,7 +107,8 @@ public class MavenCoberturaPublisher extends MavenReporter {
                 listener.getLogger().println("[HUDSON]         ...");
                 listener.getLogger().println("[HUDSON]         <formats>");
                 listener.getLogger().println("[HUDSON]           ...");
-                listener.getLogger().println("[HUDSON]           <format>xml</format> <!-- ensure this format is present -->");
+                listener.getLogger()
+                        .println("[HUDSON]           <format>xml</format> <!-- ensure this format is present -->");
                 listener.getLogger().println("[HUDSON]           ...");
                 listener.getLogger().println("[HUDSON]         </formats>");
                 listener.getLogger().println("[HUDSON]         ...");
@@ -119,7 +128,8 @@ public class MavenCoberturaPublisher extends MavenReporter {
 
         File reportFile = new File(outputDir, "coverage.xml");
         if (!reportFile.exists()) {
-            listener.getLogger().println("[HUDSON] Cobertura report not generated (probably this module is not a java module)");
+            listener.getLogger()
+                    .println("[HUDSON] Cobertura report not generated (probably this module is not a java module)");
             return true;
         }
 
@@ -155,17 +165,19 @@ public class MavenCoberturaPublisher extends MavenReporter {
                     result.getPaintedSources());
 
             new FilePath(pom.getBasedir()).act(painter);
-            listener.getLogger().println(build.execute(new MavenCoberturaActionAdder(listener)));
+            if (!build.execute(new MavenCoberturaActionAdder(listener))) {
+                listener.getLogger().println("[HUDSON] Unable to add link to cobertura results");
+                build.setResult(Result.FAILURE);
+                return true;
+            }
 
-            // TODO the build action
         } else {
             listener.getLogger().println("[HUDSON] Unable to parse coverage results.");
             build.setResult(Result.FAILURE);
             return true;
         }
 
-        // TODO the project level action
-        // build.registerAsProjectAction(this);
+        build.registerAsProjectAction(this);
 
         return true;
     }
@@ -223,35 +235,30 @@ public class MavenCoberturaPublisher extends MavenReporter {
 
     private static final long serialVersionUID = 1L;
 
-    private static class MavenCoberturaActionAdder implements MavenBuildProxy.BuildCallable<String, IOException> {
+    private static class MavenCoberturaActionAdder implements MavenBuildProxy.BuildCallable<Boolean, IOException> {
         private final BuildListener listener;
 
         public MavenCoberturaActionAdder(BuildListener listener) {
             this.listener = listener;
         }
 
-        public String call(MavenBuild build) throws IOException {
-            listener.getLogger().println("+++ at start");
+        public Boolean call(MavenBuild build) throws IOException {
             try {
                 CoberturaBuildAction cba = build.getAction(CoberturaBuildAction.class);
                 if (cba == null) {
-                    listener.getLogger().println("+++ no action");
                     File cvgxml = new File(build.getRootDir(), "coverage.xml");
                     CoverageResult result = CoberturaCoverageParser.parse(cvgxml, null, new HashSet<String>());
                     result.setOwner(build);
-                    listener.getLogger().println("+++ parsed file");
 
                     CoberturaBuildAction o = CoberturaBuildAction.load(build, result, null, null);
-                    listener.getLogger().println("+++ loaded action");
                     build.getActions().add(o);
-                    listener.getLogger().println("+++ added action");
                 } else {
-
+                    return false;
                 }
             } catch (NullPointerException e) {
-                e.printStackTrace(listener.getLogger());
+                return false;
             }
-            return "ok";
+            return true;
         }
     }
 }

@@ -27,7 +27,8 @@ import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -207,7 +208,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
             }
         }
 
-        ChartUtil.generateGraph(req, rsp, createChart(dsb.build()), 400, 200);
+        ChartUtil.generateGraph(req, rsp, createChart(dsb.build()), 500, 200);
     }
 
     private JFreeChart createChart(CategoryDataset dataset) {

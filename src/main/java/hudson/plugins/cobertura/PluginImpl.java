@@ -1,6 +1,7 @@
 package hudson.plugins.cobertura;
 
 import hudson.Plugin;
+import hudson.maven.MavenReporters;
 import hudson.tasks.BuildStep;
 
 /**
@@ -17,6 +18,6 @@ public class PluginImpl extends Plugin {
         // plugins normally extend Hudson by providing custom implementations
         // of 'extension points'. In this example, we'll add one builder.
         BuildStep.PUBLISHERS.add(CoberturaPublisher.DESCRIPTOR);
-        //MavenReporters.LIST.add(MavenCoberturaPublisher.DESCRIPTOR);
+        MavenReporters.LIST.add(MavenCoberturaPublisher.DESCRIPTOR);
     }
 }

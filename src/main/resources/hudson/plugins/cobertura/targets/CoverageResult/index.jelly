@@ -11,7 +11,7 @@
             ${it.xmlTransform(it.name)}
             <j:set var="metrics" value="${it.metrics}"/>
             <h2>Trend</h2>
-            <img src="graph" width="400" height="200"/>
+            <img src="graph" width="500" height="200"/>
 
 
             <j:if test="${it.result.previousResult != null}">

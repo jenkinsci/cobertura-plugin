@@ -4,7 +4,11 @@ import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.Ratio;
-import hudson.util.*;
+import hudson.util.ChartUtil;
+import hudson.util.ColorPalette;
+import hudson.util.DataSetBuilder;
+import hudson.util.ShiftedCategoryAxis;
+import hudson.util.TextFile;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -20,12 +24,20 @@ import org.jfree.ui.RectangleInsets;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * TODO javadoc.
@@ -386,7 +398,7 @@ public class CoverageResult implements Serializable {
             }
         }
 
-        ChartUtil.generateGraph(req, rsp, createChart(dsb.build()), 400, 200);
+        ChartUtil.generateGraph(req, rsp, createChart(dsb.build()), 500, 200);
     }
 
     private JFreeChart createChart(CategoryDataset dataset) {
