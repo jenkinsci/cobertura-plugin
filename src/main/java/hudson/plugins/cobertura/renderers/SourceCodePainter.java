@@ -116,6 +116,12 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
             if (source.exists()) {
                 try {
                     paintSourceCode(source, entry.getValue(), destination.child(entry.getKey()));
+                } catch (IOException e) {
+                    // we made our best shot at generating painted source code
+                    // I give up
+                    // I wish I had a logger at this point
+                    // But we should not fail the build just because we cannot paint one file
+                    // TODO add logging
                 } catch (InterruptedException e) {
                     return Boolean.FALSE;
                 }
