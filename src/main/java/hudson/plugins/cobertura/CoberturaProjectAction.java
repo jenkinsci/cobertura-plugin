@@ -19,6 +19,10 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         this.project = project;
     }
 
+    public AbstractProject<?, ?> getProject() {
+        return project;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -56,13 +60,34 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         return null;
     }
 
+    /**
+     * Getter for property 'lastResult'.
+     *
+     * @return Value for property 'lastResult'.
+     */
+    public Integer getLastResultBuild() {
+        for (AbstractBuild<?, ?> b = project.getLastStableBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
+            if (b.getResult() == Result.FAILURE)
+                continue;
+            CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
+            if (r != null)
+                return b.getNumber();
+        }
+        return null;
+    }
+
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (getLastResult() != null)
             getLastResult().getResult().doGraph(req, rsp);
     }
 
     public void doIndex(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        rsp.sendRedirect2("../lastStableBuild/cobertura");
+        Integer buildNumber = getLastResultBuild();
+        if (buildNumber == null) {
+            rsp.sendRedirect2("nodata");
+        } else {
+            rsp.sendRedirect2("../" + buildNumber + "/cobertura");
+        }
     }
 
     /**
