@@ -187,6 +187,10 @@ public class CoberturaPublisher extends Publisher {
      * {@inheritDoc}
      */
     public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+        if (!Result.SUCCESS.equals(build.getResult())) {
+            listener.getLogger().println("Skipping Cobertura coverage report as build was not successful...");
+            return true;
+        }
         listener.getLogger().println("Publishing Cobertura coverage report...");
         final Project<?, ?> project = build.getParent();
         final boolean multipleModuleRoots;
