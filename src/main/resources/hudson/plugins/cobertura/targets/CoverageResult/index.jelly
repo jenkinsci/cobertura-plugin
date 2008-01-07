@@ -8,17 +8,43 @@
                 <a href="${it.relativeUrl(parent)}">${parent.xmlTransform(parent.name)}</a>
                 &gt;
             </j:forEach>
-            ${it.xmlTransform(it.name)}
+            <h2>${it.xmlTransform(it.name)}</h2>
             <j:set var="metrics" value="${it.metrics}"/>
-            <h2>Trend</h2>
-            <img src="graph" width="500" height="200"/>
-
-
-            <j:if test="${it.result.previousResult != null}">
-                <cobertura:floatingTrendGraph/>
+            <h3>Trend</h3>
+            <j:if test="${it.previousResult != null}">
+            <img src="graph" width="500px" height="200px"/>
+            </j:if>
+            <j:if test="${it.previousResult == null}">
+                <div style="border: 1px solid #eee; width:500px; ">
+                    <j:forEach var="metric" items="${it.metrics}">
+                        <table style="padding: 0 10px; padding-top: 5px; width:480px;">
+                            <tr>
+                                <th align="left">${metric.name}</th>
+                                <td align="right">${it.getCoverage(metric).percentage}%</td>
+                            </tr>
+                        </table>
+                        <table style="height: 3px; padding: 0 10px; width:480px;">
+                            <tr>
+                                <j:if test="${it.getCoverage(metric).percentage &gt; 0}">
+                                    <td width="${it.getCoverage(metric).percentage}%"
+                                        style="background-color:#bfb;">
+                                        &amp;nbsp;
+                                    </td>
+                                </j:if>
+                                <j:if test="${it.getCoverage(metric).percentage &lt; 100}">
+                                    <td width="${100-it.getCoverage(metric).percentage}%"
+                                        style="background-color:#fdd;">
+                                        &amp;nbsp;
+                                    </td>
+                                </j:if>
+                            </tr>
+                        </table>
+                    </j:forEach>
+                </div>
             </j:if>
 
-            <h2>${it.element.displayName} Coverage Summary</h2>
+
+            <h3>${it.element.displayName} Coverage Summary</h3>
             <table border="1px" class="pane">
                 <tr>
                     <td>Name</td>
@@ -37,7 +63,7 @@
             </table>
 
             <j:if test="${it.sourceCodeLevel}">
-                <h2>Source</h2>
+                <h3>Source</h3>
                 <j:choose>
                     <j:when test="${it.sourceFileAvailable}">
                         <div style="overflow-x:scroll;">
@@ -54,7 +80,20 @@
                     </j:when>
                     <j:otherwise>
                         <p>
-                            <i>Source code is unavailable</i>
+                            <i>Source code is unavailable.</i> Some possible reasons are:
+                            <ul>
+                                <li>
+                                    This is not the most recent build (to save on disk space, this plugin only keeps the
+                                    most recent build's source code).
+                                </li>
+                                <li>
+                                    Cobertura found the source code but did not provide enough information to locate the
+                                    source code.
+                                </li>
+                                <li>
+                                    Cobertura could not find the source code, so this plugin has no hope of finding it.
+                                </li>
+                            </ul>
                         </p>
                     </j:otherwise>
                 </j:choose>
@@ -62,7 +101,7 @@
 
             <j:forEach var="element" items="${it.childElements}">
                 <j:set var="childMetrics" value="${it.getChildMetrics(element)}"/>
-                <h2>Coverage Breakdown by ${element.displayName}</h2>
+                <h3>Coverage Breakdown by ${element.displayName}</h3>
                 <table border="1px" class="pane sortable">
                     <tr>
                         <td>Name</td>
