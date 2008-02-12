@@ -17,7 +17,7 @@ public class PluginImpl extends Plugin {
     public void start() throws Exception {
         // plugins normally extend Hudson by providing custom implementations
         // of 'extension points'. In this example, we'll add one builder.
-        BuildStep.PUBLISHERS.add(CoberturaPublisher.DESCRIPTOR);
+        BuildStep.PUBLISHERS.addRecorder(CoberturaPublisher.DESCRIPTOR);
         MavenReporters.LIST.add(MavenCoberturaPublisher.DESCRIPTOR);
     }
 }
