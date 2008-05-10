@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2007 Avaya Inc.
- *
- * All rights reserved.
- */
-
 package hudson.plugins.cobertura;
 
 import hudson.maven.AggregatableAction;
