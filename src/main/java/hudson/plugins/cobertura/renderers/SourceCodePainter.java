@@ -113,7 +113,7 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
             while (!source.exists() && possiblePath.hasNext()) {
                 source = new File(possiblePath.next(), entry.getKey());
             }
-            if (source.exists()) {
+            if (source.isFile()) {
                 try {
                     paintSourceCode(source, entry.getValue(), destination.child(entry.getKey()));
                 } catch (IOException e) {
