@@ -27,8 +27,7 @@ import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -49,6 +48,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
     private Map<CoverageMetric, Ratio> result;
+    private HealthReport health = null;
 
     private transient WeakReference<CoverageResult> report;
 
@@ -56,6 +56,9 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      * {@inheritDoc}
      */
     public HealthReport getBuildHealth() {
+        if (health != null) {
+            return health;
+        }
         if (healthyTarget == null || unhealthyTarget == null) return null;
         if (result == null) {
             CoverageResult projectCoverage = getResult();
@@ -80,7 +83,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         description.append("% (");
         description.append(result.get(minKey).toString());
         description.append(")");
-        return new HealthReport(minValue, description.toString());
+        health = new HealthReport(minValue, description.toString());
+        return health;
     }
 
     /**
@@ -148,6 +152,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
             result = new HashMap<CoverageMetric, Ratio>();
             result.putAll(r.getResults());
         }
+        getBuildHealth(); // populate the health field so we don't have to parse everything all the time
     }
 
 

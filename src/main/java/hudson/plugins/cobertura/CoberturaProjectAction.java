@@ -78,7 +78,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
 
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (getLastResult() != null)
-            getLastResult().getResult().doGraph(req, rsp);
+            getLastResult().doGraph(req, rsp);
     }
 
     public void doIndex(StaplerRequest req, StaplerResponse rsp) throws IOException {
