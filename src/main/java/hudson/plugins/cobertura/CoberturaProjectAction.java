@@ -50,7 +50,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      * @return Value for property 'lastResult'.
      */
     public CoberturaBuildAction getLastResult() {
-        for (AbstractBuild<?, ?> b = project.getLastStableBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
+        for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
             if (b.getResult() == Result.FAILURE)
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
@@ -66,7 +66,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      * @return Value for property 'lastResult'.
      */
     public Integer getLastResultBuild() {
-        for (AbstractBuild<?, ?> b = project.getLastStableBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
+        for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
             if (b.getResult() == Result.FAILURE)
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
