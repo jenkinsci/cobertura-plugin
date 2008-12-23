@@ -11,6 +11,10 @@
            ">
         <f:textbox name="cobertura.coberturaReportFile" value="${instance.coberturaReportFile}"/>
     </f:entry>
+    <f:entry title="Consider only stable builds"
+    	     description="Include only stable builds, i.e. exclude unstable and failed ones." >                                                                                           
+       <f:checkbox name="cobertura.onlyStable" checked="${instance.onlyStable}" />                                                                                        
+    </f:entry>      
     <f:entry title="Coverage Metric Targets"
              description="
              Configure health reporting thresholds. &lt;br/&gt;
