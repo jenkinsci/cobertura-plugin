@@ -14,11 +14,19 @@ import java.io.IOException;
 public class CoberturaProjectAction extends Actionable implements ProminentProjectAction {
 
     private final AbstractProject<?, ?> project;
+	private boolean onlyStable;
 
-    public CoberturaProjectAction(AbstractProject project) {
+    public CoberturaProjectAction(AbstractProject<?, ?> project, boolean onlyStable) {
         this.project = project;
+        this.onlyStable = onlyStable;
     }
 
+    public CoberturaProjectAction(AbstractProject<?, ?> project) {
+        this.project = project;
+        CoberturaPublisher cp = (CoberturaPublisher) project.getPublishersList().get(CoberturaPublisher.DESCRIPTOR);
+        onlyStable = cp.getOnlyStable();
+    }
+    
     public AbstractProject<?, ?> getProject() {
         return project;
     }
@@ -50,8 +58,8 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      * @return Value for property 'lastResult'.
      */
     public CoberturaBuildAction getLastResult() {
-        for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
-            if (b.getResult() == Result.FAILURE)
+        for (AbstractBuild<?, ?> b = getLastBuildToBeConsidered(); b != null; b = b.getPreviousNotFailedBuild()) {
+            if (b.getResult() == Result.FAILURE || (b.getResult() != Result.SUCCESS && onlyStable))
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
             if (r != null)
@@ -59,15 +67,17 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         }
         return null;
     }
-
-    /**
+    private AbstractBuild<?, ?> getLastBuildToBeConsidered(){
+    	return onlyStable ? project.getLastStableBuild() : project.getLastSuccessfulBuild();    	
+    }
+     /**
      * Getter for property 'lastResult'.
      *
      * @return Value for property 'lastResult'.
      */
     public Integer getLastResultBuild() {
-        for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
-            if (b.getResult() == Result.FAILURE)
+        for (AbstractBuild<?, ?> b = getLastBuildToBeConsidered(); b != null; b = b.getPreviousNotFailedBuild()) {
+            if (b.getResult() == Result.FAILURE || (b.getResult() != Result.SUCCESS && onlyStable))
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
             if (r != null)

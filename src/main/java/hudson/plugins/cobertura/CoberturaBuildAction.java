@@ -51,6 +51,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     private HealthReport health = null;
 
     private transient WeakReference<CoverageResult> report;
+	private boolean onlyStable;
 
     /**
      * {@inheritDoc}
@@ -136,17 +137,25 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
                 return null;
             assert b.getResult() != Result.FAILURE : "We asked for the previous not failed build";
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
+            if(r.includeOnlyStable() && b.getResult() != Result.SUCCESS){
+            	r = null;
+            }
             if (r != null)
                 return r;
         }
     }
 
-    CoberturaBuildAction(AbstractBuild<?, ?> owner, CoverageResult r, CoverageTarget healthyTarget,
-                         CoverageTarget unhealthyTarget) {
+    private boolean includeOnlyStable() {
+		return onlyStable;
+	}
+
+	CoberturaBuildAction(AbstractBuild<?, ?> owner, CoverageResult r, CoverageTarget healthyTarget,
+                         CoverageTarget unhealthyTarget, boolean onlyStable) {
         this.owner = owner;
         this.report = new WeakReference<CoverageResult>(r);
         this.healthyTarget = healthyTarget;
         this.unhealthyTarget = unhealthyTarget;
+        this.onlyStable = onlyStable;
         r.setOwner(owner);
         if (result == null) {
             result = new HashMap<CoverageMetric, Ratio>();
@@ -185,8 +194,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     private static final Logger logger = Logger.getLogger(CoberturaBuildAction.class.getName());
 
     public static CoberturaBuildAction load(AbstractBuild<?, ?> build, CoverageResult result, CoverageTarget healthyTarget,
-                                            CoverageTarget unhealthyTarget) {
-        return new CoberturaBuildAction(build, result, healthyTarget, unhealthyTarget);
+                                            CoverageTarget unhealthyTarget, boolean onlyStable) {
+        return new CoberturaBuildAction(build, result, healthyTarget, unhealthyTarget, onlyStable);
     }
 
     /**

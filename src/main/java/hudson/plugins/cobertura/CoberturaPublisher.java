@@ -26,7 +26,8 @@ import java.util.*;
 public class CoberturaPublisher extends Publisher {
 
     private final String coberturaReportFile;
-
+    private final boolean onlyStable;
+    
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
     private CoverageTarget failingTarget;
@@ -36,8 +37,9 @@ public class CoberturaPublisher extends Publisher {
      * @param coberturaReportFile the report directory
      * @stapler-constructor
      */
-    public CoberturaPublisher(String coberturaReportFile) {
+    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable) {
         this.coberturaReportFile = coberturaReportFile;
+        this.onlyStable = onlyStable;
         this.healthyTarget = new CoverageTarget();
         this.unhealthyTarget = new CoverageTarget();
         this.failingTarget = new CoverageTarget();
@@ -113,6 +115,14 @@ public class CoberturaPublisher extends Publisher {
     }
 
     /**
+     * Which type of build should be considered.
+	 * @return the onlyStable
+	 */
+	public boolean getOnlyStable() {
+		return onlyStable;
+	}
+
+	/**
      * Getter for property 'healthyTarget'.
      *
      * @return Value for property 'healthyTarget'.
@@ -260,7 +270,7 @@ public class CoberturaPublisher extends Publisher {
             moduleRoot.act(painter);
 
             final CoberturaBuildAction action = CoberturaBuildAction.load(build, result, healthyTarget,
-                    unhealthyTarget);
+                    unhealthyTarget, getOnlyStable());
 
             build.getActions().add(action);
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
@@ -285,7 +295,7 @@ public class CoberturaPublisher extends Publisher {
      * {@inheritDoc}
      */
     public Action getProjectAction(Project project) {
-        return new CoberturaProjectAction(project);
+        return new CoberturaProjectAction(project, getOnlyStable());
     }
 
     /**

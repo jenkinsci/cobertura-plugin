@@ -250,7 +250,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
                     CoverageResult result = CoberturaCoverageParser.parse(cvgxml, null, new HashSet<String>());
                     result.setOwner(build);
 
-                    CoberturaBuildAction o = CoberturaBuildAction.load(build, result, null, null);
+                    CoberturaBuildAction o = CoberturaBuildAction.load(build, result, null, null, false);
                     build.getActions().add(o);
                 } else {
                     return false;

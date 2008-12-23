@@ -21,8 +21,8 @@ import java.util.logging.Logger;
 public class MavenCoberturaBuildAction extends CoberturaBuildAction implements AggregatableAction {
     private static final Logger LOGGER = Logger.getLogger(MavenCoberturaBuildAction.class.getName());
 
-    MavenCoberturaBuildAction(MavenBuild build, CoverageResult r, CoverageTarget healthyTarget, CoverageTarget unhealthyTarget) {
-        super(build, r, healthyTarget, unhealthyTarget);
+    MavenCoberturaBuildAction(MavenBuild build, CoverageResult r, CoverageTarget healthyTarget, CoverageTarget unhealthyTarget, boolean onlyStable) {
+        super(build, r, healthyTarget, unhealthyTarget, onlyStable);
     }
 
     public MavenAggregatedReport createAggregatedAction(MavenModuleSetBuild build, Map<MavenModule, List<MavenBuild>> moduleBuilds) {
