@@ -23,8 +23,11 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
 
     public CoberturaProjectAction(AbstractProject<?, ?> project) {
         this.project = project;
+        
         CoberturaPublisher cp = (CoberturaPublisher) project.getPublishersList().get(CoberturaPublisher.DESCRIPTOR);
-        onlyStable = cp.getOnlyStable();
+        if (cp != null) {
+        	onlyStable = cp.getOnlyStable();
+        }
     }
     
     public AbstractProject<?, ?> getProject() {
