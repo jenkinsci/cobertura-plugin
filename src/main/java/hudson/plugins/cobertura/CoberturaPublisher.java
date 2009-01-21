@@ -196,13 +196,14 @@ public class CoberturaPublisher extends Publisher {
     /**
      * {@inheritDoc}
      */
-    public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    @Override
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         if (!Result.SUCCESS.equals(build.getResult())) {
             listener.getLogger().println("Skipping Cobertura coverage report as build was not successful...");
             return true;
         }
         listener.getLogger().println("Publishing Cobertura coverage report...");
-        final Project<?, ?> project = build.getParent();
+        final AbstractProject<?, ?> project = build.getProject();
         final boolean multipleModuleRoots;
         if (project.getScm() instanceof SubversionSCM) {
             // hack of the first kind
