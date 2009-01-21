@@ -137,7 +137,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
                 return null;
             assert b.getResult() != Result.FAILURE : "We asked for the previous not failed build";
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
-            if(r.includeOnlyStable() && b.getResult() != Result.SUCCESS){
+            if(r != null && r.includeOnlyStable() && b.getResult() != Result.SUCCESS){
             	r = null;
             }
             if (r != null)
