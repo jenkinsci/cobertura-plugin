@@ -11,6 +11,7 @@ import hudson.plugins.cobertura.targets.CoverageTarget;
 import hudson.scm.SubversionSCM;
 import hudson.tasks.Publisher;
 import org.apache.commons.beanutils.ConvertUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.File;
@@ -37,6 +38,7 @@ public class CoberturaPublisher extends Publisher {
      * @param coberturaReportFile the report directory
      * @stapler-constructor
      */
+    @DataBoundConstructor 
     public CoberturaPublisher(String coberturaReportFile, boolean onlyStable) {
         this.coberturaReportFile = coberturaReportFile;
         this.onlyStable = onlyStable;
