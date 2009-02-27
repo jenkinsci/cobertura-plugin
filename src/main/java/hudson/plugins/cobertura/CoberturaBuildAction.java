@@ -1,16 +1,10 @@
 package hudson.plugins.cobertura;
 
-import hudson.model.AbstractBuild;
-import hudson.model.HealthReport;
-import hudson.model.HealthReportingAction;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
-import hudson.util.ChartUtil;
-import hudson.util.ColorPalette;
-import hudson.util.DataSetBuilder;
-import hudson.util.ShiftedCategoryAxis;
+import hudson.util.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -26,6 +20,7 @@ import org.jfree.ui.RectangleInsets;
 import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.jvnet.localizer.Localizable;
 
 import java.awt.*;
 import java.io.File;
@@ -53,6 +48,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     private transient WeakReference<CoverageResult> report;
 	private boolean onlyStable;
 
+
     /**
      * {@inheritDoc}
      */
@@ -60,7 +56,28 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         if (health != null) {
             return health;
         }
-        if (healthyTarget == null || unhealthyTarget == null) return null;
+        //try to get targets from root project (for maven modules targets are null)
+        DescribableList rootpublishers = owner.getProject().getRootProject().getPublishersList();
+
+        if (healthyTarget == null ){
+            if(rootpublishers != null){
+                CoberturaPublisher publisher = (CoberturaPublisher) rootpublishers.get(CoberturaPublisher.class);
+                if(publisher !=null){
+                    healthyTarget = publisher.getHealthyTarget();
+                }
+            }
+        }
+        if(unhealthyTarget == null ){
+            if(rootpublishers != null){
+                CoberturaPublisher publisher = (CoberturaPublisher) rootpublishers.get(CoberturaPublisher.class);
+                if(publisher !=null){
+                    unhealthyTarget = publisher.getUnhealthyTarget();
+                }
+            }
+        }
+        if(healthyTarget == null || unhealthyTarget == null){
+            return null;
+        }
         if (result == null) {
             CoverageResult projectCoverage = getResult();
             result = new HashMap<CoverageMetric, Ratio>();
@@ -77,14 +94,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         }
         if (minKey == null) return null;
 
-        StringBuilder description = new StringBuilder("Cobertura Coverage: ");
-        description.append(minKey.getName());
-        description.append(" ");
-        description.append(result.get(minKey).getPercentage());
-        description.append("% (");
-        description.append(result.get(minKey).toString());
-        description.append(")");
-        health = new HealthReport(minValue, description.toString());
+        Localizable localizedDescription = Messages._CoberturaBuildAction_description(result.get(minKey).getPercentage(),result.get(minKey).toString(),minKey.getName());
+        health = new HealthReport(minValue, localizedDescription);
         return health;
     }
 
