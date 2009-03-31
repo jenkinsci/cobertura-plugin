@@ -13,14 +13,6 @@
     <version>0.8.6-SNAPSHOT</version>
     <name>Hudson Cobertura plugin</name>
     <url>http://hudson.gotdns.com/wiki/display/HUDSON/Cobertura+Plugin</url>
-    
-    <dependencies>
-      <dependency>
-        <groupId>org.jvnet.hudson.main</groupId>
-        <artifactId>maven-plugin</artifactId>
-      </dependency>
-    </dependencies>
-    
     <!--build>
       <plugins>
       <plugin>
