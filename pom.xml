@@ -12,7 +12,7 @@
     <packaging>hpi</packaging>
     <version>0.8.6-SNAPSHOT</version>
     <name>Hudson Cobertura plugin</name>
-    <url>http://hudson.gotdns.com/wiki/display/HUDSON/Cobertura+Plugin</url>
+    <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
     
     <dependencies>
       <dependency>
