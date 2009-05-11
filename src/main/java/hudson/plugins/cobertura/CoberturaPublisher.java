@@ -6,8 +6,8 @@ import hudson.Util;
 import hudson.model.*;
 import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.targets.CoverageMetric;
-import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
+import hudson.plugins.cobertura.targets.PaintedCoverageResult;
 import hudson.scm.SubversionSCM;
 import hudson.tasks.Publisher;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -23,6 +23,7 @@ import java.util.*;
  * Cobertura {@link Publisher}.
  *
  * @author Stephen Connolly
+ * @author davidmc24
  */
 public class CoberturaPublisher extends Publisher {
 
@@ -254,10 +255,10 @@ public class CoberturaPublisher extends Publisher {
 
         listener.getLogger().println("Publishing Cobertura coverage results...");
         Set<String> sourcePaths = new HashSet<String>();
-        CoverageResult result = null;
+        PaintedCoverageResult result = null;
         for (File coberturaXmlReport : getCoberturaReports(build)) {
             try {
-                result = CoberturaCoverageParser.parse(coberturaXmlReport, result, sourcePaths);
+                result = CoberturaCoverageParser.parsePainted(coberturaXmlReport, result, sourcePaths);
             } catch (IOException e) {
                 Util.displayIOException(e, listener);
                 e.printStackTrace(listener.fatalError("Unable to parse " + coberturaXmlReport));

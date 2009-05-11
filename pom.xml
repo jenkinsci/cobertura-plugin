@@ -19,6 +19,12 @@
         <groupId>org.jvnet.hudson.main</groupId>
         <artifactId>maven-plugin</artifactId>
       </dependency>
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymockclassextension</artifactId>
+        <version>2.4</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
     
     <!--build>

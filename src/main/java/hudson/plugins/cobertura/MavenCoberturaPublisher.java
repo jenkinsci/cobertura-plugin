@@ -13,6 +13,8 @@ import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.targets.CoverageResult;
+import hudson.plugins.cobertura.targets.PaintedCoverageResult;
+
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
@@ -28,6 +30,9 @@ import java.util.Set;
  * Date: 17-Nov-2007
  * Time: 19:08:46
  * To change this template use File | Settings | File Templates.
+ * 
+ * @author connollys
+ * @author davidmc24
  */
 public class MavenCoberturaPublisher extends MavenReporter {
 
@@ -147,11 +152,11 @@ public class MavenCoberturaPublisher extends MavenReporter {
             build.setResult(Result.FAILURE);
         }
 
-        CoverageResult result = null;
+        PaintedCoverageResult result = null;
         Set<String> sourcePaths = new HashSet<String>();
 
         try {
-            result = CoberturaCoverageParser.parse(reportFile, result, sourcePaths);
+            result = CoberturaCoverageParser.parsePainted(reportFile, result, sourcePaths);
         } catch (IOException e) {
             Util.displayIOException(e, listener);
             e.printStackTrace(listener.fatalError("Unable to parse " + reportFilePath));
