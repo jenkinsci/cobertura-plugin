@@ -200,8 +200,9 @@ public class CoberturaPublisher extends Publisher {
      */
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        if (!Result.SUCCESS.equals(build.getResult())) {
-            listener.getLogger().println("Skipping Cobertura coverage report as build was not successful...");
+        Result threshold = onlyStable ? Result.SUCCESS : Result.UNSTABLE;
+        if(build.getResult().isWorseThan(threshold)) {
+            listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
             return true;
         }
         listener.getLogger().println("Publishing Cobertura coverage report...");

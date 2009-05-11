@@ -96,10 +96,12 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
 			for (Map.Entry<CoverageMetric, Integer> e : scores.entrySet()) {
 		                minKey = e.getKey();
 		        }
-            		localizedDescription = Messages._CoberturaBuildAction_description(result.get(minKey).getPercentage(),result.get(minKey).toString(),minKey.getName());
-		        health = new HealthReport(minValue, localizedDescription);
-            		return health;
-
+			if(minKey != null) {
+            		    localizedDescription = Messages._CoberturaBuildAction_description(result.get(minKey).getPercentage(),result.get(minKey).toString(),minKey.getName());
+            		    health = new HealthReport(minValue, localizedDescription);
+            		    return health;
+			}
+			return null;
 		}
 		
 	}else{
