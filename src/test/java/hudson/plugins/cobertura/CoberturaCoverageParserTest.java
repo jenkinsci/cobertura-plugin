@@ -120,9 +120,9 @@ public class CoberturaCoverageParserTest extends TestCase {
      */
     public void testParseMemoryUsage() throws Exception {
         Map<String, Long> files = new LinkedHashMap<String, Long>();
-        files.put("coverage.xml", 5500L);
-        files.put("coverage-with-data.xml", 5500L);
-        files.put("coverage-with-lots-of-data.xml", 115000L);
+        files.put("coverage.xml", 11000L);
+        files.put("coverage-with-data.xml", 11000L);
+        files.put("coverage-with-lots-of-data.xml", 230000L);
         
         for(Entry<String, Long> e : files.entrySet()) {
             final String fileName = e.getKey();
@@ -147,9 +147,9 @@ public class CoberturaCoverageParserTest extends TestCase {
      */
     public void testParsePaintedMemoryUsage() throws Exception {
         Map<String, Long> files = new LinkedHashMap<String, Long>();
-        files.put("coverage.xml", 15000L);
-        files.put("coverage-with-data.xml", 15000L);
-        files.put("coverage-with-lots-of-data.xml", 1450000L);
+        files.put("coverage.xml", 30000L);
+        files.put("coverage-with-data.xml", 30000L);
+        files.put("coverage-with-lots-of-data.xml", 2900000L);
         
         for(Entry<String, Long> e : files.entrySet()) {
             final String fileName = e.getKey();
