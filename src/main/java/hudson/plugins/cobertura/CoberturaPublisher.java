@@ -236,8 +236,12 @@ public class CoberturaPublisher extends Publisher {
         }
 
         if (reports.length == 0) {
-            listener.getLogger().println("No coverage results were found using the pattern '" + coberturaReportFile
-                    + "'.  Did you generate the XML report(s) for Cobertura?");
+            String msg = "No coverage results were found using the pattern '"
+        	+ coberturaReportFile + "' relative to '"
+        	+ moduleRoot.getRemote() + "'."
+        	+ "  Did you enter a pattern relative to the correct directory?"
+        	+ "  Did you generate the XML report(s) for Cobertura?";
+            listener.getLogger().println(msg);
             build.setResult(Result.FAILURE);
             return true;
         }
