@@ -13,7 +13,35 @@
     <version>0.8.7-SNAPSHOT</version>
     <name>Hudson Cobertura plugin</name>
     <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
-    
+
+    <profiles>
+    	<profile>
+    		<id>cobertura</id>
+    		<build>
+    			<plugins>
+    				<plugin>
+    					<groupId>org.codehaus.mojo</groupId>
+    					<artifactId>cobertura-maven-plugin</artifactId>
+    					<configuration>
+    						<formats>
+    							<format>xml</format>
+    							<format>html</format>
+    						</formats>
+    					</configuration>
+    					<executions>
+    						<execution>
+    							<phase>package</phase>
+    							<goals>
+    								<goal>cobertura</goal>
+    							</goals>
+    						</execution>
+    					</executions>
+    				</plugin>
+    			</plugins>
+    		</build>
+    	</profile>
+    </profiles>
+
     <dependencies>
       <dependency>
         <groupId>org.jvnet.hudson.main</groupId>
@@ -26,28 +54,4 @@
         <scope>test</scope>
       </dependency>
     </dependencies>
-    
-    <!--build>
-      <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.2-SNAPSHOT</version>
-        <configuration>
-          <formats>
-            <format>xml</format>
-            <format>html</format>
-          </formats>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>cobertura</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      </plugins>
-    </build-->
 </project>
