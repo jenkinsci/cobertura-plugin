@@ -10,7 +10,7 @@
 
     <artifactId>cobertura</artifactId>
     <packaging>hpi</packaging>
-    <version>0.8.8</version>
+    <version>0.8.9-SNAPSHOT</version>
     <name>Hudson Cobertura plugin</name>
     <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
 
@@ -54,10 +54,4 @@
         <scope>test</scope>
       </dependency>
     </dependencies>
-
-  <scm>
-    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/cobertura-0.8.8</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/cobertura-0.8.8</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/cobertura/tags/cobertura-0.8.8</url>
-  </scm>
 </project>
