@@ -5,7 +5,6 @@ import junit.framework.TestSuite;
 import junit.framework.TestCase;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageMetric;
-import hudson.plugins.cobertura.targets.PaintedCoverageResult;
 
 import java.io.InputStream;
 import java.util.LinkedHashMap;
@@ -120,9 +119,9 @@ public class CoberturaCoverageParserTest extends TestCase {
      */
     public void testParseMemoryUsage() throws Exception {
         Map<String, Long> files = new LinkedHashMap<String, Long>();
-        files.put("coverage.xml", 11000L);
-        files.put("coverage-with-data.xml", 11000L);
-        files.put("coverage-with-lots-of-data.xml", 230000L);
+        files.put("coverage.xml", 22000L);
+        files.put("coverage-with-data.xml", 22000L);
+        files.put("coverage-with-lots-of-data.xml", 2400000L);
         
         for(Entry<String, Long> e : files.entrySet()) {
             final String fileName = e.getKey();
@@ -136,33 +135,6 @@ public class CoberturaCoverageParserTest extends TestCase {
                 }
             };
             assertMaxMemoryUsage(fileName + " results", callable, maxMemory);
-        }
-    }
-    
-    /**
-     * Tests the memory usage of
-     * {@link CoberturaCoverageParser#parsePainted(InputStream, PaintedCoverageResult, Set).
-     * 
-     * @since 28-Apr-2009
-     */
-    public void testParsePaintedMemoryUsage() throws Exception {
-        Map<String, Long> files = new LinkedHashMap<String, Long>();
-        files.put("coverage.xml", 30000L);
-        files.put("coverage-with-data.xml", 30000L);
-        files.put("coverage-with-lots-of-data.xml", 2900000L);
-        
-        for(Entry<String, Long> e : files.entrySet()) {
-            final String fileName = e.getKey();
-            long maxMemory = e.getValue();
-            Callable<PaintedCoverageResult> callable = new Callable<PaintedCoverageResult>() {
-                public PaintedCoverageResult call() throws Exception {
-                    InputStream in = getClass().getResourceAsStream(fileName);
-                    PaintedCoverageResult result = CoberturaCoverageParser.parsePainted(in, null, null);
-                    result.setOwner(null);
-                    return result;
-                }
-            };
-            assertMaxMemoryUsage(fileName + " painted results", callable, maxMemory);
         }
     }
     

@@ -3,7 +3,6 @@ package hudson.plugins.cobertura;
 import hudson.plugins.cobertura.targets.CoverageElement;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
-import hudson.plugins.cobertura.targets.PaintedCoverageResult;
 import hudson.util.IOException2;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -27,7 +26,6 @@ import java.util.regex.Pattern;
  *
  * @author connollys
  * @since 03-Jul-2007 09:03:30
- * @author davidmc24
  */
 public class CoberturaCoverageParser {
 
@@ -42,23 +40,12 @@ public class CoberturaCoverageParser {
     }
 
     public static CoverageResult parse(File inFile, CoverageResult cumulative, Set<String> sourcePaths) throws IOException {
-        return parse(inFile, sourcePaths, new CoberturaXmlHandler(cumulative));
-    }
-    
-    public static PaintedCoverageResult parsePainted(File inFile, PaintedCoverageResult cumulative, Set<String> sourcePaths) throws IOException {
-        CoberturaXmlHandler handler =
-            new PaintedCoberturaXmlHandler(cumulative);
-        CoverageResult result = parse(inFile, sourcePaths, handler);
-        return (PaintedCoverageResult) result;
-    }
-    
-    private static CoverageResult parse(File inFile, Set<String> sourcePaths, CoberturaXmlHandler handler) throws IOException {
         FileInputStream fileInputStream = null;
         BufferedInputStream bufferedInputStream = null;
         try {
             fileInputStream = new FileInputStream(inFile);
             bufferedInputStream = new BufferedInputStream(fileInputStream);
-            return parse(bufferedInputStream, sourcePaths, handler);
+            return parse(bufferedInputStream, cumulative, sourcePaths);
         } finally {
             try {
                 if (bufferedInputStream != null)
@@ -75,17 +62,6 @@ public class CoberturaCoverageParser {
     }
 
     public static CoverageResult parse(InputStream in, CoverageResult cumulative, Set<String> sourcePaths) throws IOException {
-        return parse(in, sourcePaths, new CoberturaXmlHandler(cumulative));
-    }
-    
-    public static PaintedCoverageResult parsePainted(InputStream in, PaintedCoverageResult cumulative, Set<String> sourcePaths) throws IOException {
-        CoberturaXmlHandler handler =
-            new PaintedCoberturaXmlHandler(cumulative);
-        CoverageResult result = parse(in, sourcePaths, handler);
-        return (PaintedCoverageResult) result;
-    }    
-    
-    private static CoverageResult parse(InputStream in, Set<String> sourcePaths, CoberturaXmlHandler handler) throws IOException {
         if (in == null) throw new NullPointerException();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setValidating(false);
@@ -97,6 +73,7 @@ public class CoberturaCoverageParser {
         }
         try {
             SAXParser parser = factory.newSAXParser();
+            CoberturaXmlHandler handler = new CoberturaXmlHandler(cumulative);
             parser.parse(in, handler);
             if (sourcePaths != null) {
                 sourcePaths.addAll(handler.getSourcePaths());
@@ -129,8 +106,7 @@ class CoberturaXmlHandler extends DefaultHandler {
     public void startDocument() throws SAXException {
         super.startDocument();
         if (this.rootCoverage == null) {
-            rootCoverage = newResult(CoverageElement.PROJECT, null,
-                    "Cobertura Coverage Report");
+            this.rootCoverage = new CoverageResult(CoverageElement.PROJECT, null, "Cobertura Coverage Report");
         }
         stack.clear();
         inSource = false;
@@ -151,23 +127,10 @@ class CoberturaXmlHandler extends DefaultHandler {
         CoverageResult child = rootCoverage.getChild(childName);
         stack.push(rootCoverage);
         if (child == null) {
-            rootCoverage = newResult(childType, rootCoverage, childName);
+            rootCoverage = new CoverageResult(childType, rootCoverage, childName);
         } else {
             rootCoverage = child;
         }
-    }
-
-    /**
-     * Creates a new child CoverageResult instance.  Subclasses may wish to
-     * override this method to control how child results are instantiated.
-     * 
-     * @param childType the type for the child result
-     * @param parent the parent for the child result
-     * @param childName the name for the child result
-     * @return the new child CoverageResult
-     */
-    protected CoverageResult newResult(CoverageElement childType, CoverageResult parent, String childName) {
-        return new CoverageResult(childType, parent, childName);
     }
 
     private void ascend(CoverageElement element) {
@@ -213,7 +176,8 @@ class CoberturaXmlHandler extends DefaultHandler {
                 name = name.substring(packageName.length() + 1);
             }
             descend(CoverageElement.JAVA_FILE, relativeFilename);
-            handleClass(name, filename);
+            rootCoverage.setRelativeSourcePath(filename);
+            descend(CoverageElement.JAVA_CLASS, name);
         } else if ("method".equals(qName)) {
             String methodName = buildMethodName(name, attributes.getValue("signature"));
             descend(CoverageElement.JAVA_METHOD, methodName);
@@ -236,6 +200,7 @@ class CoberturaXmlHandler extends DefaultHandler {
                         try {
                             numerator = Integer.parseInt(numeratorStr);
                             denominator = Integer.parseInt(denominatorStr);
+                            rootCoverage.updateMetric(CoverageMetric.CONDITIONAL, Ratio.create(numerator, denominator));
                         } catch (NumberFormatException e) {
                             // ignore
                         }
@@ -245,44 +210,17 @@ class CoberturaXmlHandler extends DefaultHandler {
             try {
                 int hits = Integer.parseInt(hitsString);
                 int number = Integer.parseInt(lineNumber);
-                updateLineCoverage(number, hits, numerator, denominator);
+                if (denominator == 0) {
+                    rootCoverage.paint(number, hits);
+                } else {
+                    rootCoverage.paint(number, hits, numerator, denominator);
+                }
+                rootCoverage.updateMetric(CoverageMetric.LINE, Ratio.create((hits == 0) ? 0 : 1, 1));
             } catch (NumberFormatException e) {
                 // ignore
             }
         }
-    }
 
-    /**
-     * Appropriately handles a coverage class element.  For basic results, the
-     * only handling is to descend a level in the object stack.  Subclasses
-     * may wish to override this method to provide different behavior.
-     * 
-     * @param name the name of the class
-     * @param filename the name of the file containing the class
-     */
-    protected void handleClass(String name, final String filename) {
-        descend(CoverageElement.JAVA_CLASS, name);
-    }
-    
-    /**
-     * Updates the metrics appropriately for the specified line coverage data.
-     * For basic results, this involves updating the conditional and line
-     * ratios.  Subclasses may wish to override this method to provide different
-     * behavior.
-     * 
-     * @param number the number of the line to which that these metrics apply
-     * @param hits the number of times the specified line was hit
-     * @param numerator the numerator of the specified line's branch coverage
-     *          ratio (or zero if not available)
-     * @param denominator the denominator of the specified line's branch
-     *          coverage ratio (or zero if not available)
-     */
-    protected void updateLineCoverage(int number, int hits, int numerator,
-            int denominator) {
-        if(denominator != 0) {
-            rootCoverage.updateMetric(CoverageMetric.CONDITIONAL, Ratio.create(numerator, denominator));
-        }
-        rootCoverage.updateMetric(CoverageMetric.LINE, Ratio.create((hits == 0) ? 0 : 1, 1));
     }
 
     private String buildMethodName(String name, String signature) {
@@ -395,80 +333,6 @@ class CoberturaXmlHandler extends DefaultHandler {
         return Collections.unmodifiableSet(sourcePaths);
     }
 
-}
-
-/**
- * A CoberturaXmlHandler that also parses the data needed to support source
- * file painting.
- * 
- * @author davidmc24
- * @since 28-Apr-2009 (extracted from CoberturaXmlHandler)
- */
-class PaintedCoberturaXmlHandler extends CoberturaXmlHandler {
-    public PaintedCoberturaXmlHandler(PaintedCoverageResult cumulative) {
-        super(cumulative);
-    }
-
-    /**
-     * Creates a new child PaintedCoverageResult instance.
-     * 
-     * @param childType the type for the child result
-     * @param parent the parent for the child result
-     * @param childName the name for the child result
-     * @return the new child PaintedCoverageResult
-     */
-    @Override
-    protected CoverageResult newResult(CoverageElement childType, CoverageResult parent, String childName) {
-        assert parent == null || parent instanceof PaintedCoverageResult : parent.getClass().getName();
-        PaintedCoverageResult paintedParent = (PaintedCoverageResult) parent;
-        return new PaintedCoverageResult(childType, paintedParent, childName);
-    }
-
-    /**
-     * Appropriately handles a coverage class element.  For painted results, we
-     * descend a level in the object stack as well as setting the relative
-     * source path.
-     * 
-     * @param name the name of the class
-     * @param filename the name of the file containing the class
-     */
-    @Override
-    protected void handleClass(String name, String filename) {
-        CoverageResult rootCoverage = getRootCoverage();
-        if(rootCoverage instanceof PaintedCoverageResult) {
-            PaintedCoverageResult paintedCoverage =
-                (PaintedCoverageResult) rootCoverage;
-            paintedCoverage.setRelativeSourcePath(filename);
-        }
-        super.handleClass(name, filename);
-    }
-    
-    /**
-     * Updates the metrics appropriately for the specified line coverage data.
-     * For painted results, this involves updating the conditional and line
-     * ratios as well as updating the painting data for the line.
-     * 
-     * @param number the number of the line to which that these metrics apply
-     * @param hits the number of times the specified line was hit
-     * @param numerator the numerator of the specified line's branch coverage
-     *          ratio (or zero if not available)
-     * @param denominator the denominator of the specified line's branch
-     *          coverage ratio (or zero if not available)
-     */
-    @Override
-    protected void updateLineCoverage(int number, int hits, int numerator,
-            int denominator) {
-        CoverageResult rootCoverage = getRootCoverage();
-        if(rootCoverage instanceof PaintedCoverageResult) {
-            PaintedCoverageResult paintedCoverage = (PaintedCoverageResult) rootCoverage;
-            if (denominator == 0) {
-                paintedCoverage.paint(number, hits);
-            } else {
-                paintedCoverage.paint(number, hits, numerator, denominator);
-            }
-        }
-        super.updateLineCoverage(number, hits, numerator, denominator);
-    }    
 }
 
 class CoberturaXmlHandlerStackItem {

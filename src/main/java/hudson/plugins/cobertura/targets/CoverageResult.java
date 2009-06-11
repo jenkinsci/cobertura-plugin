@@ -8,6 +8,7 @@ import hudson.util.ChartUtil;
 import hudson.util.ColorPalette;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
+import hudson.util.TextFile;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -43,25 +44,46 @@ import java.util.TreeSet;
  *
  * @author Stephen Connolly
  * @since 22-Aug-2007 18:47:10
- * @author davidmc24
  */
 public class CoverageResult implements Serializable {
     private final CoverageElement element;
-    protected final Map<CoverageMetric, Ratio> aggregateResults = new HashMap<CoverageMetric, Ratio>();
+    private final Map<CoverageMetric, Ratio> aggregateResults = new HashMap<CoverageMetric, Ratio>();
     private final Map<CoverageMetric, Ratio> localResults = new HashMap<CoverageMetric, Ratio>();
     private final CoverageResult parent;
-    protected final Map<String, CoverageResult> children = new HashMap<String, CoverageResult>();
+    private final CoveragePaint paint;
+    private final Map<String, CoverageResult> children = new HashMap<String, CoverageResult>();
     private final String name;
+    private String relativeSourcePath;
 
     public AbstractBuild<?, ?> owner = null;
 
     public CoverageResult(CoverageElement elementType, CoverageResult parent, String name) {
         this.element = elementType;
+        this.paint = CoveragePaintRule.makePaint(element);
         this.parent = parent;
         this.name = name;
+        this.relativeSourcePath = null;
         if (this.parent != null) {
             this.parent.children.put(name, this);
         }
+    }
+
+    /**
+     * Getter for property 'relativeSourcePath'.
+     *
+     * @return Value for property 'relativeSourcePath'.
+     */
+    public String getRelativeSourcePath() {
+        return relativeSourcePath;
+    }
+
+    /**
+     * Setter for property 'relativeSourcePath'.
+     *
+     * @param relativeSourcePath Value to set for property 'relativeSourcePath'.
+     */
+    public void setRelativeSourcePath(String relativeSourcePath) {
+        this.relativeSourcePath = relativeSourcePath;
     }
 
     /**
@@ -89,6 +111,67 @@ public class CoverageResult implements Serializable {
      */
     public CoverageElement getElement() {
         return element;
+    }
+
+    /**
+     * Getter for property 'sourceCodeLevel'.
+     *
+     * @return Value for property 'sourceCodeLevel'.
+     */
+    public boolean isSourceCodeLevel() {
+        return relativeSourcePath != null;
+    }
+
+    /**
+     * Getter for property 'paint'.
+     *
+     * @return Value for property 'paint'.
+     */
+    public CoveragePaint getPaint() {
+        return paint;
+    }
+
+    public void paint(int line, int hits) {
+        if (paint != null) {
+            paint.paint(line, hits);
+        }
+    }
+
+    public void paint(int line, int hits, int branchHits, int branchTotal) {
+        if (paint != null) {
+            paint.paint(line, hits, branchHits, branchTotal);
+        }
+    }
+
+    /**
+     * gets the file corresponding to the source file.
+     *
+     * @return The file where the source file should be (if it exists)
+     */
+    private File getSourceFile() {
+        return new File(owner.getProject().getRootDir(), "cobertura/" + relativeSourcePath);
+    }
+
+    /**
+     * Getter for property 'sourceFileAvailable'.
+     *
+     * @return Value for property 'sourceFileAvailable'.
+     */
+    public boolean isSourceFileAvailable() {
+        return owner == owner.getProject().getLastStableBuild() && getSourceFile().exists();
+    }
+
+    /**
+     * Getter for property 'sourceFileContent'.
+     *
+     * @return Value for property 'sourceFileContent'.
+     */
+    public String getSourceFileContent() {
+        try {
+            return new TextFile(getSourceFile()).read();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     /**
@@ -232,18 +315,20 @@ public class CoverageResult implements Serializable {
         aggregateResults.clear();
         for (CoverageResult child : children.values()) {
             child.setOwner(owner);
+            if (paint != null && child.paint != null && CoveragePaintRule.propagatePaintToParent(child.element)) {
+                paint.add(child.paint);
+            }
             for (Map.Entry<CoverageMetric, Ratio> childResult : child.aggregateResults.entrySet()) {
                 aggregateResults.putAll(CoverageAggreagtionRule.aggregate(child.getElement(),
                         childResult.getKey(), childResult.getValue(), aggregateResults));
             }
         }
-        // override with local results (as they should be more accurate than the aggregated ones)
+        // override any local results (as they should be more accurate than the aggregated ones)
         aggregateResults.putAll(localResults);
-        // Local results are only used as an intermediate result in the
-        // aggregation process; once we've aggregated, we don't need them in
-        // memory any more.
-        // TODO: consider making localResults transient, and null'ing it out
-        localResults.clear();
+        // now inject any results from CoveragePaint as they should be most accurate.
+        if (paint != null) {
+            aggregateResults.putAll(paint.getResults());
+        }
     }
 
     /**
@@ -282,6 +367,10 @@ public class CoverageResult implements Serializable {
             }
         }
         return null;
+    }
+
+    public void doCoverageHighlightedSource(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        // TODO
     }
 
     /**
@@ -360,5 +449,22 @@ public class CoverageResult implements Serializable {
         plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
 
         return chart;
+    }
+
+    /**
+     * Getter for property 'paintedSources'.
+     *
+     * @return Value for property 'paintedSources'.
+     */
+    public Map<String, CoveragePaint> getPaintedSources() {
+        Map<String, CoveragePaint> result = new HashMap<String, CoveragePaint>();
+        // check the children
+        for (CoverageResult child : children.values()) {
+            result.putAll(child.getPaintedSources());
+        }
+        if (relativeSourcePath != null && paint != null) {
+            result.put(relativeSourcePath, paint);
+        }
+        return result;
     }
 }
