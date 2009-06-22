@@ -48,6 +48,11 @@
         <artifactId>maven-plugin</artifactId>
       </dependency>
       <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>subversion</artifactId>
+        <version>1.1</version>
+      </dependency>
+      <dependency>
         <groupId>org.easymock</groupId>
         <artifactId>easymockclassextension</artifactId>
         <version>2.4</version>
