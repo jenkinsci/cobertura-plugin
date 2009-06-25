@@ -59,21 +59,17 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         //try to get targets from root project (for maven modules targets are null)
         DescribableList rootpublishers = owner.getProject().getRootProject().getPublishersList();
 
-            if(rootpublishers != null){
-                CoberturaPublisher publisher = (CoberturaPublisher) rootpublishers.get(CoberturaPublisher.class);
-                if(publisher !=null){
-                    healthyTarget = publisher.getHealthyTarget();
-                }
+        if (rootpublishers != null) {
+            CoberturaPublisher publisher = (CoberturaPublisher) rootpublishers.get(CoberturaPublisher.class);
+            if (publisher != null) {
+                healthyTarget = publisher.getHealthyTarget();
+                unhealthyTarget = publisher.getUnhealthyTarget();
             }
-            if(rootpublishers != null){
-                CoberturaPublisher publisher = (CoberturaPublisher) rootpublishers.get(CoberturaPublisher.class);
-                if(publisher !=null){
-                    unhealthyTarget = publisher.getUnhealthyTarget();
-                }
-            }
+
         if(healthyTarget == null || unhealthyTarget == null){
             return null;
         }
+            
         if (result == null) {
             CoverageResult projectCoverage = getResult();
             result = new HashMap<CoverageMetric, Ratio>();
@@ -88,27 +84,26 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
                 minValue = e.getValue();
             }
         }
-	Localizable localizedDescription;
-        if (minKey == null){
-		if(result == null || result.size()==0){
-	 	    return null;
-		}else{
-			for (Map.Entry<CoverageMetric, Integer> e : scores.entrySet()) {
-		                minKey = e.getKey();
-		        }
-			if(minKey != null) {
-            		    localizedDescription = Messages._CoberturaBuildAction_description(result.get(minKey).getPercentage(),result.get(minKey).toString(),minKey.getName());
-            		    health = new HealthReport(minValue, localizedDescription);
-            		    return health;
-			}
-			return null;
-		}
-		
-	}else{
-            localizedDescription = Messages._CoberturaBuildAction_description(result.get(minKey).getPercentage(),result.get(minKey).toString(),minKey.getName());
+        if (minKey == null) {
+            if (result == null || result.size() == 0) {
+                return null;
+            } else {
+                for (Map.Entry<CoverageMetric, Integer> e : scores.entrySet()) {
+                    minKey = e.getKey();
+                }
+                if (minKey != null) {
+                    Localizable localizedDescription = Messages._CoberturaBuildAction_description(result.get(minKey).getPercentage(), result.get(minKey).toString(), minKey.getName());
+                    health = new HealthReport(minValue, localizedDescription);
+                    return health;
+                }
+                return null;
+            }
+
+        } else {
+            Localizable localizedDescription = Messages._CoberturaBuildAction_description(result.get(minKey).getPercentage(), result.get(minKey).toString(), minKey.getName());
             health = new HealthReport(minValue, localizedDescription);
             return health;
-	}
+        }
     }
 
     /**
