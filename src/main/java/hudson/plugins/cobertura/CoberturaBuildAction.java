@@ -65,6 +65,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
                 healthyTarget = publisher.getHealthyTarget();
                 unhealthyTarget = publisher.getUnhealthyTarget();
             }
+        }
 
         if(healthyTarget == null || unhealthyTarget == null){
             return null;
