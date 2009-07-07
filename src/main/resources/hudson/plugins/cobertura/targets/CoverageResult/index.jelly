@@ -55,8 +55,13 @@
                 <tr>
                     <td>${it.name}</td>
                     <j:forEach var="metric" items="${metrics}">
-                        <td data="${it.getCoverage(metric).percentageFloat}">${it.getCoverage(metric).percentage}%
-                            (${it.getCoverage(metric)})
+                        <td>
+                            <table class="percentgraph" cellpadding="0px" cellspacing="0px">
+                                <tr class="percentgraph">                                   
+                                    <td width="40" data="${it.getCoverage(metric).percentageFloat}">${it.getCoverage(metric).percentage}%</td>
+                                    <td class="percentgraph" data="${it.getCoverage(metric).percentageFloat}"><div class="percentgraph"><div class="greenbar" style="width: ${it.getCoverage(metric).percentageFloat}px;"><span class="text">${it.getCoverage(metric)}</span></div></div></td>
+                                </tr>
+                            </table>
                         </td>
                     </j:forEach>
                 </tr>
@@ -120,9 +125,10 @@
                                 <j:set var="childResult" value="${child.getCoverage(metric)}"/>
                                 <j:choose>
                                     <j:when test="${childResult!=null}">
-                                        <td data="${childResult.percentageFloat}">${childResult.percentage}%
-                                            (${childResult})
-                                        </td>
+                                        <td><table class="percentgraph" cellpadding="0px" cellspacing="0px"><tr class="percentgraph">                                   
+                                            <td width="40" class="percentgraph" data="${childResult.percentageFloat}">${childResult.percentage}%</td>
+                                            <td class="percentgraph" data="${childResult.percentageFloat}"><div class="percentgraph"><div class="greenbar" style="width: ${childResult.percentageFloat}px;"><span class="text">${childResult}</span></div></div></td>
+                                        </tr></table></td>
                                     </j:when>
                                     <j:otherwise>
                                         <td data="101">N/A</td>

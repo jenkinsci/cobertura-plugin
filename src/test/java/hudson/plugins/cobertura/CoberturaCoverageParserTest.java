@@ -119,9 +119,9 @@ public class CoberturaCoverageParserTest extends TestCase {
      */
     public void testParseMemoryUsage() throws Exception {
         Map<String, Long> files = new LinkedHashMap<String, Long>();
-        files.put("coverage.xml", 22000L);
-        files.put("coverage-with-data.xml", 22000L);
-        files.put("coverage-with-lots-of-data.xml", 2400000L);
+        files.put("coverage.xml", 100000L);
+        files.put("coverage-with-data.xml", 100000L);
+        files.put("coverage-with-lots-of-data.xml", 2500000L);
         
         for(Entry<String, Long> e : files.entrySet()) {
             final String fileName = e.getKey();
