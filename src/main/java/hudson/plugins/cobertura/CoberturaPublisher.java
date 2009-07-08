@@ -267,7 +267,7 @@ public class CoberturaPublisher extends Publisher {
             final FilePath paintedSourcesPath = new FilePath(new File(build.getProject().getRootDir(), "cobertura"));
             paintedSourcesPath.mkdirs();
             SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths,
-                    result.getPaintedSources());
+                    result.getPaintedSources(), listener);
 
             moduleRoot.act(painter);
 

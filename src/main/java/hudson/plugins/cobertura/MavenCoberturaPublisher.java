@@ -151,7 +151,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
         Set<String> sourcePaths = new HashSet<String>();
 
         try {
-            result = CoberturaCoverageParser.parse(reportFile, result, sourcePaths);
+            result = CoberturaCoverageParser.parse(reportFile, null, sourcePaths);
         } catch (IOException e) {
             Util.displayIOException(e, listener);
             e.printStackTrace(listener.fatalError("Unable to parse " + reportFilePath));
@@ -159,10 +159,11 @@ public class MavenCoberturaPublisher extends MavenReporter {
         }
 
         if (result != null) {
+            result.setOwner(null);
             final FilePath paintedSourcesPath = build.getProjectRootDir().child("cobertura");
             paintedSourcesPath.mkdirs();
             SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths,
-                    result.getPaintedSources());
+                    result.getPaintedSources(), listener);
 
             new FilePath(pom.getBasedir()).act(painter);
             if (!build.execute(new MavenCoberturaActionAdder(listener))) {

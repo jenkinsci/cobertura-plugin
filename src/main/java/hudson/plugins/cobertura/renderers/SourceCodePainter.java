@@ -1,6 +1,7 @@
 package hudson.plugins.cobertura.renderers;
 
 import hudson.FilePath;
+import hudson.model.BuildListener;
 import hudson.plugins.cobertura.targets.CoveragePaint;
 import hudson.remoting.VirtualChannel;
 
@@ -17,11 +18,14 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
     private final Set<String> sourcePaths;
     private final Map<String, CoveragePaint> paint;
     private final FilePath destination;
+    private final BuildListener listener;
 
-    public SourceCodePainter(FilePath destination, Set<String> sourcePaths, Map<String, CoveragePaint> paint) {
+    public SourceCodePainter(FilePath destination, Set<String> sourcePaths,
+            Map<String, CoveragePaint> paint, BuildListener listener) {
         this.destination = destination;
         this.sourcePaths = sourcePaths;
         this.paint = paint;
+        this.listener = listener;
     }
 
     public void paintSourceCode(File source, CoveragePaint paint, FilePath canvas) throws IOException, InterruptedException {
@@ -117,11 +121,14 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
                 try {
                     paintSourceCode(source, entry.getValue(), destination.child(entry.getKey()));
                 } catch (IOException e) {
-                    // we made our best shot at generating painted source code
-                    // I give up
-                    // I wish I had a logger at this point
-                    // But we should not fail the build just because we cannot paint one file
-                    // TODO add logging
+                    // We made our best shot at generating painted source code,
+                    // but alas, we failed.  Log the error and continue.  We
+                    // should not fail the build just because we cannot paint
+                    // one file.
+                    e.printStackTrace(
+                        listener.error(
+                            "ERROR: Failure to paint " + source +
+                            " to "+ destination));
                 } catch (InterruptedException e) {
                     return Boolean.FALSE;
                 }
