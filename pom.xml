@@ -15,42 +15,37 @@
     <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
 
     <profiles>
-    	<profile>
-    		<id>cobertura</id>
-    		<build>
-    			<plugins>
-    				<plugin>
-    					<groupId>org.codehaus.mojo</groupId>
-    					<artifactId>cobertura-maven-plugin</artifactId>
-    					<configuration>
-    						<formats>
-    							<format>xml</format>
-    							<format>html</format>
-    						</formats>
-    					</configuration>
-    					<executions>
-    						<execution>
-    							<phase>package</phase>
-    							<goals>
-    								<goal>cobertura</goal>
-    							</goals>
-    						</execution>
-    					</executions>
-    				</plugin>
-    			</plugins>
-    		</build>
-    	</profile>
+        <profile>
+            <id>cobertura</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>cobertura-maven-plugin</artifactId>
+                        <configuration>
+                            <formats>
+                                <format>xml</format>
+                                <format>html</format>
+                            </formats>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>cobertura</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <dependencies>
       <dependency>
         <groupId>org.jvnet.hudson.main</groupId>
         <artifactId>maven-plugin</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>subversion</artifactId>
-        <version>1.1</version>
       </dependency>
       <dependency>
         <groupId>org.easymock</groupId>

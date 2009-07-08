@@ -8,7 +8,6 @@ import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
-import hudson.scm.SubversionSCM;
 import hudson.tasks.Publisher;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -207,14 +206,9 @@ public class CoberturaPublisher extends Publisher {
         }
         listener.getLogger().println("Publishing Cobertura coverage report...");
         final AbstractProject<?, ?> project = build.getProject();
-        final boolean multipleModuleRoots;
-        if (project.getScm() instanceof SubversionSCM) {
-            // hack of the first kind
-            SubversionSCM scm = SubversionSCM.class.cast(project.getScm());
-            multipleModuleRoots = scm.getLocations().length > 1;
-        } else {
-            multipleModuleRoots = false;
-        }
+        final FilePath[] moduleRoots = project.getModuleRoots();
+        final boolean multipleModuleRoots =
+            moduleRoots != null && moduleRoots.length > 1;
         final FilePath moduleRoot = multipleModuleRoots ? project.getWorkspace() : project.getModuleRoot();
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
@@ -386,7 +380,7 @@ public class CoberturaPublisher extends Publisher {
         public boolean configure(StaplerRequest req) throws FormException {
             req.bindParameters(this, "cobertura.");
             save();
-            return super.configure(req);    //To change body of overridden methods use File | Settings | File Templates.
+            return super.configure(req);
         }
 
         /**

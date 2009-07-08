@@ -4,17 +4,17 @@
              description="
              This is a file name pattern that can be used to locate the cobertura xml report files
              (for example with Maven2 use &lt;b&gt;**/target/site/cobertura/coverage.xml&lt;/b&gt;).
-           The path is relative to the module root unless you are using
-           Subversion as SCM and have configured multiple modules, in which case
-           it is relative to the workspace root.  Note that the module root
-           is SCM-specific, and may not be the same as the workspace root.
+           The path is relative to the module root unless you have configured
+           your SCM with multiple modules, in which case it is relative to the
+           workspace root.  Note that the module root is SCM-specific, and may
+           not be the same as the workspace root.
            &lt;br/&gt;
            Cobertura must be configured to generate XML reports for this plugin to function.
            ">
         <f:textbox name="cobertura.coberturaReportFile" value="${instance.coberturaReportFile}"/>
     </f:entry>
     <f:entry title="Consider only stable builds"
-    	     description="Include only stable builds, i.e. exclude unstable and failed ones." >                                                                                           
+             description="Include only stable builds, i.e. exclude unstable and failed ones." >                                                                                           
        <f:checkbox name="cobertura.onlyStable" checked="${instance.onlyStable}" />                                                                                        
     </f:entry>      
     <f:entry title="Coverage Metric Targets"
