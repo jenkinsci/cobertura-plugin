@@ -14,7 +14,7 @@ import java.io.IOException;
 public class CoberturaProjectAction extends Actionable implements ProminentProjectAction {
 
     private final AbstractProject<?, ?> project;
-	private boolean onlyStable;
+    private boolean onlyStable;
 
     public CoberturaProjectAction(AbstractProject<?, ?> project, boolean onlyStable) {
         this.project = project;
@@ -26,7 +26,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         
         CoberturaPublisher cp = (CoberturaPublisher) project.getPublishersList().get(CoberturaPublisher.DESCRIPTOR);
         if (cp != null) {
-        	onlyStable = cp.getOnlyStable();
+            onlyStable = cp.getOnlyStable();
         }
     }
     
@@ -71,7 +71,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         return null;
     }
     private AbstractBuild<?, ?> getLastBuildToBeConsidered(){
-    	return onlyStable ? project.getLastStableBuild() : project.getLastSuccessfulBuild();    	
+        return onlyStable ? project.getLastStableBuild() : project.getLastSuccessfulBuild();
     }
      /**
      * Getter for property 'lastResult'.

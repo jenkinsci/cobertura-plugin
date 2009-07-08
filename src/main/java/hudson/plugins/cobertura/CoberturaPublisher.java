@@ -118,13 +118,13 @@ public class CoberturaPublisher extends Publisher {
 
     /**
      * Which type of build should be considered.
-	 * @return the onlyStable
-	 */
-	public boolean getOnlyStable() {
-		return onlyStable;
-	}
+     * @return the onlyStable
+     */
+    public boolean getOnlyStable() {
+        return onlyStable;
+    }
 
-	/**
+    /**
      * Getter for property 'healthyTarget'.
      *
      * @return Value for property 'healthyTarget'.
@@ -236,10 +236,10 @@ public class CoberturaPublisher extends Publisher {
 
         if (reports.length == 0) {
             String msg = "No coverage results were found using the pattern '"
-        	+ coberturaReportFile + "' relative to '"
-        	+ moduleRoot.getRemote() + "'."
-        	+ "  Did you enter a pattern relative to the correct directory?"
-        	+ "  Did you generate the XML report(s) for Cobertura?";
+            + coberturaReportFile + "' relative to '"
+            + moduleRoot.getRemote() + "'."
+            + "  Did you enter a pattern relative to the correct directory?"
+            + "  Did you generate the XML report(s) for Cobertura?";
             listener.getLogger().println(msg);
             build.setResult(Result.FAILURE);
             return true;

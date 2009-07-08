@@ -46,7 +46,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     private HealthReport health = null;
 
     private transient WeakReference<CoverageResult> report;
-	private boolean onlyStable;
+    private boolean onlyStable;
 
 
     /**
@@ -157,7 +157,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
             assert b.getResult() != Result.FAILURE : "We asked for the previous not failed build";
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
             if(r != null && r.includeOnlyStable() && b.getResult() != Result.SUCCESS){
-            	r = null;
+                r = null;
             }
             if (r != null)
                 return r;
@@ -165,10 +165,10 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     }
 
     private boolean includeOnlyStable() {
-		return onlyStable;
-	}
+        return onlyStable;
+    }
 
-	CoberturaBuildAction(AbstractBuild<?, ?> owner, CoverageResult r, CoverageTarget healthyTarget,
+    CoberturaBuildAction(AbstractBuild<?, ?> owner, CoverageResult r, CoverageTarget healthyTarget,
                          CoverageTarget unhealthyTarget, boolean onlyStable) {
         this.owner = owner;
         this.report = new WeakReference<CoverageResult>(r);
