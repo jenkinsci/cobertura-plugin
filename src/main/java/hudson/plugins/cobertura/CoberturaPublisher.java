@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura;
 
+import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
@@ -8,7 +9,10 @@ import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
+import hudson.tasks.Recorder;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -17,13 +21,14 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.*;
+import net.sf.json.JSONObject;
 
 /**
  * Cobertura {@link Publisher}.
  *
  * @author Stephen Connolly
  */
-public class CoberturaPublisher extends Publisher {
+public class CoberturaPublisher extends Recorder {
 
     private final String coberturaReportFile;
     private final boolean onlyStable;
@@ -205,11 +210,10 @@ public class CoberturaPublisher extends Publisher {
             return true;
         }
         listener.getLogger().println("Publishing Cobertura coverage report...");
-        final AbstractProject<?, ?> project = build.getProject();
-        final FilePath[] moduleRoots = project.getModuleRoots();
+        final FilePath[] moduleRoots = build.getModuleRoots();
         final boolean multipleModuleRoots =
             moduleRoots != null && moduleRoots.length > 1;
-        final FilePath moduleRoot = multipleModuleRoots ? project.getWorkspace() : project.getModuleRoot();
+        final FilePath moduleRoot = multipleModuleRoots ? build.getWorkspace() : build.getModuleRoot();
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
 
@@ -296,14 +300,23 @@ public class CoberturaPublisher extends Publisher {
     /**
      * {@inheritDoc}
      */
-    public Action getProjectAction(Project project) {
+    @Override
+    public Action getProjectAction(AbstractProject<?, ?> project) {
         return new CoberturaProjectAction(project, getOnlyStable());
     }
 
     /**
      * {@inheritDoc}
      */
-    public Descriptor<Publisher> getDescriptor() {
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.BUILD;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BuildStepDescriptor<Publisher> getDescriptor() {
         // see Descriptor javadoc for more about what a descriptor is.
         return DESCRIPTOR;
     }
@@ -311,6 +324,7 @@ public class CoberturaPublisher extends Publisher {
     /**
      * Descriptor should be singleton.
      */
+    @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     /**
@@ -321,7 +335,7 @@ public class CoberturaPublisher extends Publisher {
      * See <tt>views/hudson/plugins/cobertura/CoberturaPublisher/*.jelly</tt> for the actual HTML fragment for the
      * configuration screen.
      */
-    public static final class DescriptorImpl extends Descriptor<Publisher> {
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         CoverageMetric[] metrics = {
                 CoverageMetric.PACKAGES,
                 CoverageMetric.FILES,
@@ -377,22 +391,29 @@ public class CoberturaPublisher extends Publisher {
         /**
          * {@inheritDoc}
          */
-        public boolean configure(StaplerRequest req) throws FormException {
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             req.bindParameters(this, "cobertura.");
             save();
-            return super.configure(req);
+            return super.configure(req, formData);
         }
 
         /**
          * Creates a new instance of {@link CoberturaPublisher} from a submitted form.
          */
-        public CoberturaPublisher newInstance(StaplerRequest req) throws FormException {
+        @Override
+        public CoberturaPublisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             CoberturaPublisher instance = req.bindParameters(CoberturaPublisher.class, "cobertura.");
             ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
             List<CoberturaPublisherTarget> targets = req
                     .bindParametersToList(CoberturaPublisherTarget.class, "cobertura.target.");
             instance.setTargets(targets);
             return instance;
+        }
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            return true;
         }
     }
 

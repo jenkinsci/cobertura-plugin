@@ -221,7 +221,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      * Generates the graph that shows the coverage trend up to this report.
      */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        if (ChartUtil.awtProblem) {
+        if (ChartUtil.awtProblemCause != null) {
             // not available. send out error message
             rsp.sendRedirect2(req.getContextPath() + "/images/headless.png");
             return;

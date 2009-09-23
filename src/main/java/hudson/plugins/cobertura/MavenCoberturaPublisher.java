@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura;
 
+import hudson.Extension;
 import hudson.FilePath;
 import hudson.Util;
 import hudson.maven.MavenBuild;
@@ -27,11 +28,10 @@ import java.util.Set;
  * User: stephen
  * Date: 17-Nov-2007
  * Time: 19:08:46
- * To change this template use File | Settings | File Templates.
  */
 public class MavenCoberturaPublisher extends MavenReporter {
 
-
+    @Override
     public boolean preExecute(MavenBuildProxy build, MavenProject pom, MojoInfo mojo, BuildListener listener) throws InterruptedException, IOException {
         if (isCoberturaReport(mojo)) {
             // tell cobertura:cobertura to generate the XML report
@@ -72,6 +72,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean postExecute(final MavenBuildProxy build, final MavenProject pom,
                                final MojoInfo mojo, final BuildListener listener,
                                final Throwable error) throws InterruptedException, IOException {
@@ -195,6 +196,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Action getProjectAction(MavenModule project) {
         return new CoberturaProjectAction(project);
     }
@@ -202,6 +204,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
     /**
      * {@inheritDoc}
      */
+    @Override
     public MavenReporterDescriptor getDescriptor() {
         return DESCRIPTOR;
     }
@@ -209,6 +212,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
     /**
      * Descriptor should be singleton.
      */
+    @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static final class DescriptorImpl extends MavenReporterDescriptor {
@@ -229,6 +233,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public MavenReporter newAutoInstance(MavenModule mavenModule) {
             return new MavenCoberturaPublisher();
         }
