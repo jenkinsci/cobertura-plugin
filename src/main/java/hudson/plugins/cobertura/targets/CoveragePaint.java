@@ -13,121 +13,78 @@ import java.util.Map;
  * @since 29-Aug-2007 17:44:29
  */
 public class CoveragePaint implements Serializable {
-    private static int[] EMPTY_INT_ARRAY = {};
-    private static Integer[] EMPTY_INTEGER_ARRAY = {};
-    private static boolean[] EMPTY_BOOLEAN_ARRAY = {};
-    private static int EXTRA_BUFFER_SIZE = 64;
+	
+	/**
+	 * Generated
+	 */
+	private static final long serialVersionUID = -6265259191856193735L;
 
-    private final CoverageElement source;
+	class CoveragePaintDetails implements Serializable {
+		/**
+		 * Generated
+		 */
+		private static final long serialVersionUID = -9097537016381444671L;
+		int hitCount=0;
+		int branchCount=0;
+		int branchCoverage=0;
+		
+		public CoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
+			super();
+			this.hitCount = hitCount;
+			this.branchCount = branchCount;
+			this.branchCoverage = branchCoverage;
+		}
+	}
 
-    /**
-     * has the line been covered.
-     */
-    private boolean[] painted = EMPTY_BOOLEAN_ARRAY;
-
-    /**
-     * is the line partially covered.
-     */
-    private int[] branchCount = EMPTY_INT_ARRAY;
-
-    /**
-     * how many times the line has been covered.
-     */
-    private int[] hitCount = EMPTY_INT_ARRAY;
-
-    /**
-     * the number of branches that are covered.
-     */
-    private int[] branchCoverage = EMPTY_INT_ARRAY;
-
-    public CoveragePaint(CoverageElement source) {
-        this.source = source;
-    }
-
-    private void ensureSize(int line) {
-        if (painted.length <= line) {
-            painted = copyOf(painted, line + EXTRA_BUFFER_SIZE);
-            hitCount = copyOf(hitCount, line + EXTRA_BUFFER_SIZE);
-            branchCount = copyOf(branchCount, line + EXTRA_BUFFER_SIZE);
-            branchCoverage = copyOf(branchCoverage, line + EXTRA_BUFFER_SIZE);
-        }
-    }
-
-    /**
-     * ensure compatibility with JRE 1.5.
-     *
-     * @param original
-     * @param newLength
-     * @return
-     */
-    private static boolean[] copyOf(boolean[] original, int newLength) {
-        final boolean[] copy = new boolean[newLength];
-        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
-        return copy;
-    }
-
-    /**
-     * ensure compatibility with JRE 1.5.
-     *
-     * @param original
-     * @param newLength
-     * @return
-     */
-    private static int[] copyOf(int[] original, int newLength) {
-        final int[] copy = new int[newLength];
-        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
-        return copy;
+	protected Map<Integer,CoveragePaintDetails> lines=new HashMap<Integer,CoveragePaintDetails>();
+	
+	public CoveragePaint(CoverageElement source) {
+//		there were no getters against the source ...
+//      this.source = source;
     }
 
     public void paint(int line, int hits) {
-        ensureSize(line);
-        if (painted[line]) {
-            hitCount[line] += hits;
-        } else {
-            painted[line] = true;
-            hitCount[line] = hits;
-            branchCount[line] = 0;
-            branchCoverage[line] = 0;
-        }
+    	CoveragePaintDetails d=lines.get(line);    		
+    	if (d==null){
+    		d=new CoveragePaintDetails(0, 0, 0);
+    		lines.put(line, d);
+    	}
+		d.hitCount+=hits;
     }
 
     public void paint(int line, int hits, int branchCover, int branchCount) {
-        ensureSize(line);
-        if (painted[line]) {
-            hitCount[line] += hits;
-            if (this.branchCount[line] == 0) {
-                this.branchCount[line] = branchCount;
-                branchCoverage[line] = branchCover;
+    	CoveragePaintDetails d=lines.get(line);    		
+    	if (d==null){
+    		d=new CoveragePaintDetails(hits, branchCount, branchCover);
+    		lines.put(line, d);
+    	} else {    		
+    		d.hitCount+=hits;
+            if (d.branchCount == 0) {
+                d.branchCount = branchCount;
+                d.branchCoverage = branchCover;
             } else {
                 // TODO find a better algorithm
-                this.branchCount[line] = Math.max(this.branchCount[line], branchCount);
-                branchCoverage[line] = Math.max(branchCoverage[line], branchCover);
+                d.branchCount = Math.max(d.branchCount, branchCount);
+                d.branchCoverage = Math.max(d.branchCoverage, branchCover);
             }
-        } else {
-            painted[line] = true;
-            hitCount[line] = hits;
-            this.branchCount[line] = branchCount;
-            branchCoverage[line] = branchCover;
-        }
+    	}
     }
 
     public void add(CoveragePaint child) {
-        ensureSize(child.painted.length);
-        for (int i = 0; i < child.painted.length; i++) {
-            if (child.painted[i]) {
-                if (painted[i]) {
-                    hitCount[i] += child.hitCount[i];
-                    if ((branchCount[i] = Math.max(branchCount[i], child.branchCount[i])) != 0) {
-                        branchCoverage[i] = Math.max(branchCoverage[i], child.branchCoverage[i]);
-                    }
-                } else {
-                    painted[i] = child.painted[i];
-                    hitCount[i] = child.hitCount[i];
-                    branchCount[i] = child.branchCount[i];
-                    branchCoverage[i] = child.branchCoverage[i];
-                }
-            }
-        }
+    	for(Map.Entry<Integer,CoveragePaintDetails> e: child.lines.entrySet()){
+			CoveragePaintDetails d=lines.get(e.getKey());
+			if (d!=null){
+				d.hitCount+=e.getValue().hitCount;
+				d.branchCount=Math.max(d.branchCount, e.getValue().branchCount);
+				if (d.branchCount!=0){
+					d.branchCoverage=Math.max(d.branchCoverage, e.getValue().branchCoverage);
+				}
+			} else {
+				CoveragePaintDetails dc=e.getValue();
+				d=new CoveragePaintDetails(dc.hitCount, dc.branchCount, dc.branchCoverage);
+				lines.put(e.getKey(), d);
+			}    		
+    	}
     }
 
     /**
@@ -138,13 +95,11 @@ public class CoveragePaint implements Serializable {
     public Ratio getLineCoverage() {
         int painted = 0;
         int covered = 0;
-        for (int i = 0; i < this.painted.length; i++) {
-            if (this.painted[i]) {
-                painted++;
-                if (hitCount[i] > 0) {
-                    covered++;
-                }
-            }
+        for (CoveragePaintDetails d: lines.values()){
+            painted++;
+            if (d.hitCount > 0) {
+                covered++;
+            }        		
         }
         return Ratio.create(covered, painted);
     }
@@ -157,9 +112,9 @@ public class CoveragePaint implements Serializable {
     public Ratio getConditionalCoverage() {
         long maxTotal = 0;
         long total = 0;
-        for (int i = 0; i < this.branchCount.length; i++) {
-            maxTotal += this.branchCount[i];
-            total += this.branchCoverage[i];
+        for (CoveragePaintDetails d: lines.values()){
+            maxTotal += d.branchCount;
+            total += d.branchCoverage;        		
         }
         return Ratio.create(total, maxTotal);
     }
@@ -177,31 +132,33 @@ public class CoveragePaint implements Serializable {
     }
 
     public boolean isPainted(int line) {
-        if (line > 0 && line < painted.length) {
-            return painted[line];
-        }
-        return false;
+    	return (lines.get(line)==null?false:true);
     }
 
     public int getHits(int line) {
-        if (line > 0 && line < painted.length) {
-            return hitCount[line];
-        }
-        return 0;
+		CoveragePaintDetails d=lines.get(line);
+		if (d==null){
+			return 0;
+		} else {
+            return d.hitCount;
+		}
     }
 
     public int getBranchTotal(int line) {
-        if (line > 0 && line < painted.length) {
-            return branchCount[line];
-        }
-        return 0;
+		CoveragePaintDetails d=lines.get(line);
+		if (d==null){
+			return 0;
+		} else {
+            return d.branchCount;
+		}
     }
 
     public int getBranchCoverage(int line) {
-        if (line > 0 && line < painted.length) {
-            return branchCoverage[line];
-        }
-        return 0;
+		CoveragePaintDetails d=lines.get(line);
+		if (d==null){
+			return 0;
+		} else {
+            return d.branchCoverage;    			
+		}
     }
-
 }
