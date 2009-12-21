@@ -63,7 +63,7 @@ table.source tr.noCover {
 }
 
 div.percentgraph {
-    background-color: #f02020;
+    background-color: #ff9090;
     border: #808080 1px solid;
     height: 1.1em;
     margin: 0px;
@@ -72,7 +72,7 @@ div.percentgraph {
 }
 
 div.percentgraph div.greenbar {
-    background-color: #00f000;
+    background-color: #80ff80;
     height: 1.1em;
     margin: 0px;
     padding: 0px;
