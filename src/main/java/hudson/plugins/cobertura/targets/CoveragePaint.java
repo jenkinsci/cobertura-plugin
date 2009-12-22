@@ -94,15 +94,13 @@ public class CoveragePaint implements Serializable {
      * @return Value for property 'lineCoverage'.
      */
     public Ratio getLineCoverage() {
-        int painted = 0;
         int covered = 0;
         for (CoveragePaintDetails d: lines.values()){
-            painted++;
             if (d.hitCount > 0) {
                 covered++;
             }        		
         }
-        return Ratio.create(covered, painted);
+        return Ratio.create(covered, lines.size());
     }
 
     /**

@@ -12,7 +12,8 @@ import static hudson.plugins.cobertura.targets.CoverageElement.*;
 import static hudson.plugins.cobertura.targets.CoverageMetric.*;
 
 /**
- * TODO javadoc.
+ * Rules that determines how coverage ratio of children are aggregated into that of the parent.
+ *
  *
  * @author Stephen Connolly
  * @since 22-Aug-2007 18:08:46
@@ -40,56 +41,11 @@ public class CoverageAggreagtionRule implements Serializable {
         Map<CoverageMetric, Ratio> result = new EnumMap<CoverageMetric,Ratio>(CoverageMetric.class);
         result.putAll(runningTotal);
         for (CoverageAggreagtionRule rule : INITIAL_RULESET) {
-            if (rule.source.equals(source) && rule.input.equals(input)) {
-                if (result.containsKey(rule.output)) {
-                    Ratio prevTotal = result.get(rule.output);
-                    switch (rule.mode) {
-                        case SUM:
-                            result.put(rule.output, Ratio.create(prevTotal.numerator + inputResult.numerator,
-                                    prevTotal.denominator + inputResult.denominator));
-                            break;
-                        case COUNT_NON_ZERO:
-                            if (Math.abs(inputResult.denominator) > 1e-7) {
-                                // we are only interested in counting cases where the denominator is non-zero
-                                if (Math.abs(inputResult.numerator) > 1e-7) {
-                                    result.put(rule.output, Ratio.create(prevTotal.numerator + 1,
-                                            prevTotal.denominator + 1));
-                                } else {
-                                    result.put(rule.output, Ratio.create(prevTotal.numerator,
-                                            prevTotal.denominator + 1));
-                                }
-                            }
-                            break;
-                        case PRODUCT:
-                            result.put(rule.output, Ratio.create(prevTotal.numerator * inputResult.numerator,
-                                    prevTotal.denominator * inputResult.denominator));
-                            break;
-                        case NONE:
-                            break;
-                        default:
-                            break;
-                    }
-                } else {
-                    switch (rule.mode) {
-                        case SUM:
-                        case PRODUCT:
-                            result.put(rule.output, inputResult);
-                            break;
-                        case COUNT_NON_ZERO:
-                            if (Math.abs(inputResult.denominator) > 1e-7) {
-                                // we are only interested in counting cases where the denominator is non-zero
-                                if (Math.abs(inputResult.numerator) > 1e-7) {
-                                    result.put(rule.output, Ratio.create(1, 1));
-                                } else {
-                                    result.put(rule.output, Ratio.create(0, 1));
-                                }
-                            }
-                            break;
-                        case NONE:
-                        default:
-                            break;
-                    }
-                }
+            if (rule.source==source && rule.input==input) {
+                Ratio prevTotal = result.get(rule.output);
+                if (prevTotal==null)    prevTotal = rule.mode.ZERO;
+
+                result.put(rule.output, rule.mode.aggregate(prevTotal,inputResult));
             }
         }
         return result;
