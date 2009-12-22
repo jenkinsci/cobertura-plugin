@@ -39,13 +39,14 @@ public enum CoverageAggregationMode {
             return Ratio.create(a.numerator * b.numerator, a.denominator * b.denominator);
         }
     },
+
     /**
-     * Count number of data that is non-zero.
+     * Treat (0/0) as "no data", then compute "# of non-zero data/# of data."
      */
     COUNT_NON_ZERO(Ratio.create(0,0)) {
         public Ratio aggregate(Ratio a, Ratio b) {
             if (Math.abs(b.denominator) < 1e-7)
-                return a;       // 0/0 doesn't contribute to the math in this method.
+                return a;       // 0/0 is treated as "no data"
             return Ratio.create(a.numerator + (Math.abs(b.numerator) > 1e-7 ? 1:0),    a.denominator + 1);
         }};
 

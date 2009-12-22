@@ -51,6 +51,10 @@ public class CoverageAggreagtionRule implements Serializable {
         return result;
     }
 
+    // read (a,b,c,d) as "b metric of a is aggregated into d metric of the parent by using method c."
+    // for example, line coverage of a Java method is SUMed up to the line coverage of a Java class (its parent) (1st line),
+    // the method coverage of a Java class is # of methods that have some coverage among # of methods that have any code (3rd line.)
+    // and so on.
     private static final CoverageAggreagtionRule INITIAL_RULESET[] = {
             new CoverageAggreagtionRule(JAVA_METHOD, LINE,          SUM, LINE),
             new CoverageAggreagtionRule(JAVA_METHOD, CONDITIONAL,   SUM, CONDITIONAL),
