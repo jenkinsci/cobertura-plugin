@@ -306,7 +306,7 @@ public class CoverageResult implements Serializable {
     public void updateMetric(CoverageMetric metric, Ratio additionalResult) {
         if (localResults.containsKey(metric)) {
             Ratio existingResult = localResults.get(metric);
-            localResults.put(metric, CoverageAggreagtionRule.combine(metric, existingResult, additionalResult));
+            localResults.put(metric, CoverageAggregationRule.combine(metric, existingResult, additionalResult));
         } else {
             localResults.put(metric, additionalResult);
         }
@@ -335,7 +335,7 @@ public class CoverageResult implements Serializable {
                 paint.add(child.paint);
             }
             for (Map.Entry<CoverageMetric, Ratio> childResult : child.aggregateResults.entrySet()) {
-                aggregateResults.putAll(CoverageAggreagtionRule.aggregate(child.getElement(),
+                aggregateResults.putAll(CoverageAggregationRule.aggregate(child.getElement(),
                         childResult.getKey(), childResult.getValue(), aggregateResults));
             }
         }
