@@ -1,7 +1,7 @@
 package hudson.plugins.cobertura.targets;
 
 /**
- * TODO javadoc.
+ * Type of program construct being covered.
  *
  * @author Stephen Connolly
  * @since 22-Aug-2007 18:36:01

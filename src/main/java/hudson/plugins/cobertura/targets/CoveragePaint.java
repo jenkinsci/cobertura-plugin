@@ -3,11 +3,12 @@ package hudson.plugins.cobertura.targets;
 import hudson.plugins.cobertura.Ratio;
 
 import java.io.Serializable;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TODO javadoc.
+ * Line-by-line coverage information.
  *
  * @author Stephen Connolly
  * @since 29-Aug-2007 17:44:29
@@ -36,7 +37,7 @@ public class CoveragePaint implements Serializable {
 		}
 	}
 
-	protected Map<Integer,CoveragePaintDetails> lines=new HashMap<Integer,CoveragePaintDetails>();
+	protected Map<Integer/*line number*/,CoveragePaintDetails> lines=new HashMap<Integer,CoveragePaintDetails>();
 	
 	public CoveragePaint(CoverageElement source) {
 //		there were no getters against the source ...
@@ -125,14 +126,14 @@ public class CoveragePaint implements Serializable {
      * @return Value for property 'results'.
      */
     public Map<CoverageMetric, Ratio> getResults() {
-        Map<CoverageMetric, Ratio> result = new HashMap<CoverageMetric, Ratio>();
+        Map<CoverageMetric, Ratio> result = new EnumMap<CoverageMetric,Ratio>(CoverageMetric.class);
         result.put(CoverageMetric.LINE, getLineCoverage());
         result.put(CoverageMetric.CONDITIONAL, getConditionalCoverage());
         return result;
     }
 
     public boolean isPainted(int line) {
-    	return (lines.get(line)==null?false:true);
+    	return lines.get(line) != null;
     }
 
     public int getHits(int line) {

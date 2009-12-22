@@ -3,7 +3,7 @@ package hudson.plugins.cobertura.targets;
 import hudson.plugins.cobertura.Ratio;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -32,7 +32,8 @@ public class CoverageAggreagtionRule implements Serializable {
                                                        CoverageMetric input,
                                                        Ratio inputResult,
                                                        Map<CoverageMetric, Ratio> runningTotal) {
-        Map<CoverageMetric, Ratio> result = new HashMap<CoverageMetric, Ratio>(runningTotal);
+        Map<CoverageMetric, Ratio> result = new EnumMap<CoverageMetric,Ratio>(CoverageMetric.class);
+        result.putAll(runningTotal);
         for (CoverageAggreagtionRule rule : INITIAL_RULESET) {
             if (rule.source.equals(source) && rule.input.equals(input)) {
                 if (result.containsKey(rule.output)) {

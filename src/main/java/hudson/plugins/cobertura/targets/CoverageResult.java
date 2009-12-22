@@ -24,35 +24,44 @@ import org.jfree.ui.RectangleInsets;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * TODO javadoc.
+ * Coverage result for a specific programming element. 
+ *
+ * <p>
+ * Instances of {@link CoverageResult} form a tree structure to progressively represent smaller elements.
  *
  * @author Stephen Connolly
  * @since 22-Aug-2007 18:47:10
  */
 public class CoverageResult implements Serializable {
+    /**
+     * The type of the programming element.
+     */
     private final CoverageElement element;
-    private final Map<CoverageMetric, Ratio> aggregateResults = new HashMap<CoverageMetric, Ratio>();
-    private final Map<CoverageMetric, Ratio> localResults = new HashMap<CoverageMetric, Ratio>();
+    /**
+     * Name of the programming element that this result object represent, such as package name, class name, method name, etc.
+     */
+    private final String name;
+    private final Map<CoverageMetric,Ratio> aggregateResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
+    private final Map<CoverageMetric,Ratio> localResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
     private final CoverageResult parent;
     private final CoveragePaint paint;
     private final Map<String, CoverageResult> children = new HashMap<String, CoverageResult>();
-    private final String name;
     private String relativeSourcePath;
 
     public AbstractBuild<?, ?> owner = null;
@@ -196,7 +205,7 @@ public class CoverageResult implements Serializable {
      * @return Value for property 'childElements'.
      */
     public Set<CoverageElement> getChildElements() {
-        Set<CoverageElement> result = new HashSet<CoverageElement>();
+        Set<CoverageElement> result = EnumSet.noneOf(CoverageElement.class);
         for (CoverageResult child : children.values()) {
             result.add(child.element);
         }
@@ -284,7 +293,7 @@ public class CoverageResult implements Serializable {
      * @return Value for property 'metrics'.
      */
     public Set<CoverageMetric> getMetrics() {
-        return Collections.unmodifiableSet(new TreeSet(aggregateResults.keySet()));
+        return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
     }
 
     public void updateMetric(CoverageMetric metric, Ratio additionalResult) {

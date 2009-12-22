@@ -3,8 +3,8 @@ package hudson.plugins.cobertura.targets;
 import hudson.plugins.cobertura.Ratio;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class CoverageTarget implements Serializable {
 
-    private Map<CoverageMetric, Integer> targets = new HashMap<CoverageMetric, Integer>();
+    private Map<CoverageMetric, Integer> targets = new EnumMap<CoverageMetric, Integer>(CoverageMetric.class);
 
     /**
      * Constructs a new CoverageTarget.
@@ -57,7 +57,7 @@ public class CoverageTarget implements Serializable {
     }
 
     public Set<CoverageMetric> getFailingMetrics(CoverageResult coverage) {
-        Set<CoverageMetric> result = new HashSet<CoverageMetric>();
+        Set<CoverageMetric> result = EnumSet.noneOf(CoverageMetric.class);
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = coverage.getCoverage(target.getKey());
             if (observed != null && observed.getPercentage() < target.getValue()) {
@@ -74,7 +74,7 @@ public class CoverageTarget implements Serializable {
 
     public Map<CoverageMetric, Integer> getRangeScores(CoverageTarget min, Map<CoverageMetric, Ratio> results) {
         Integer j;
-        Map<CoverageMetric, Integer> result = new HashMap<CoverageMetric, Integer>();
+        Map<CoverageMetric, Integer> result = new EnumMap<CoverageMetric, Integer>(CoverageMetric.class);
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = results.get(target.getKey());
             if (observed != null) {
@@ -101,7 +101,7 @@ public class CoverageTarget implements Serializable {
      * @return Value for property 'targets'.
      */
     public Set<CoverageMetric> getTargets() {
-        Set<CoverageMetric> targets = new HashSet<CoverageMetric>();
+        Set<CoverageMetric> targets = EnumSet.noneOf(CoverageMetric.class);
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             if (target.getValue() != null) {
                 targets.add(target.getKey());

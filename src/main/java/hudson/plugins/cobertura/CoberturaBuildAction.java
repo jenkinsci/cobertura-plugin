@@ -1,10 +1,17 @@
 package hudson.plugins.cobertura;
 
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.HealthReport;
+import hudson.model.HealthReportingAction;
+import hudson.model.Result;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
-import hudson.util.*;
+import hudson.util.ChartUtil;
+import hudson.util.ColorPalette;
+import hudson.util.DataSetBuilder;
+import hudson.util.DescribableList;
+import hudson.util.ShiftedCategoryAxis;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -17,17 +24,17 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+import org.jvnet.localizer.Localizable;
 import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.jvnet.localizer.Localizable;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +49,9 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     private final AbstractBuild<?, ?> owner;
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
+    /**
+     * Overall coverage result.
+     */
     private Map<CoverageMetric, Ratio> result;
     private HealthReport health = null;
 
@@ -73,7 +83,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
             
         if (result == null) {
             CoverageResult projectCoverage = getResult();
-            result = new HashMap<CoverageMetric, Ratio>();
+            result = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
             result.putAll(projectCoverage.getResults());
         }
         Map<CoverageMetric, Integer> scores = healthyTarget.getRangeScores(unhealthyTarget, result);
@@ -177,7 +187,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         this.onlyStable = onlyStable;
         r.setOwner(owner);
         if (result == null) {
-            result = new HashMap<CoverageMetric, Ratio>();
+            result = new EnumMap<CoverageMetric,Ratio>(CoverageMetric.class);
             result.putAll(r.getResults());
         }
         getBuildHealth(); // populate the health field so we don't have to parse everything all the time
