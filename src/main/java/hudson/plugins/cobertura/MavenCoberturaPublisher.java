@@ -227,7 +227,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
          * {@inheritDoc}
          */
         public String getDisplayName() {
-            return "Publish Cobertura Coverage Report";
+            return Messages.MavenCoberturaPublisher_displayName();
         }
 
         /**

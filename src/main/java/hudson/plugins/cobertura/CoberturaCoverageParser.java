@@ -113,7 +113,7 @@ class CoberturaXmlHandler extends DefaultHandler {
     public void startDocument() throws SAXException {
         super.startDocument();
         if (this.rootCoverage == null) {
-            this.rootCoverage = new CoverageResult(CoverageElement.PROJECT, null, "Cobertura Coverage Report");
+            this.rootCoverage = new CoverageResult(CoverageElement.PROJECT, null, Messages.CoberturaCoverageParser_name());
         }
         stack.clear();
         inSource = false;

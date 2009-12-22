@@ -49,7 +49,7 @@ public class MavenCoberturaAggregatedReport implements MavenAggregatedReport {
      * {@inheritDoc}
      */
     public String getDisplayName() {
-        return "Coverage Report";
+        return Messages.MavenCoberturaAggregatedReport_displayName();
     }
 
     /**

@@ -128,7 +128,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      * {@inheritDoc}
      */
     public String getDisplayName() {
-        return "Coverage Report";  //To change body of implemented methods use File | Settings | File Templates.
+        return Messages.CoberturaBuildAction_displayName();  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**

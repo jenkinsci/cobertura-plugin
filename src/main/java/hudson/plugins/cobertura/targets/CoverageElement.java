@@ -7,11 +7,11 @@ package hudson.plugins.cobertura.targets;
  * @since 22-Aug-2007 18:36:01
  */
 public enum CoverageElement {
-    PROJECT("Project"),
-    JAVA_PACKAGE("Package", PROJECT),
-    JAVA_FILE("File", JAVA_PACKAGE),
-    JAVA_CLASS("Class", JAVA_FILE),
-    JAVA_METHOD("Method", JAVA_CLASS);
+    PROJECT(Messages.CoverageElement_Project()),
+    JAVA_PACKAGE(Messages.CoverageElement_Package(), PROJECT),
+    JAVA_FILE(Messages.CoverageElement_File(), JAVA_PACKAGE),
+    JAVA_CLASS(Messages.CoverageElement_Class(), JAVA_FILE),
+    JAVA_METHOD(Messages.CoverageElement_Method(), JAVA_CLASS);
 
     private final CoverageElement parent;
     private final String displayName;

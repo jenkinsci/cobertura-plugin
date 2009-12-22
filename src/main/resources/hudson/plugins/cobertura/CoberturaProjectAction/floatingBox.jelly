@@ -3,7 +3,7 @@
     <j:set var="lastResult" value="${from.lastResult.result}"/>
     <j:if test="${lastResult != null}">
         <div class="test-trend-caption">
-            Code Coverage
+            ${%Code Coverage}
         </div>
 
         <j:choose>

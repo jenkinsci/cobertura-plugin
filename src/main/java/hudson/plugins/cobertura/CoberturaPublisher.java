@@ -356,7 +356,7 @@ public class CoberturaPublisher extends Recorder {
          * This human readable name is used in the configuration screen.
          */
         public String getDisplayName() {
-            return "Publish Cobertura Coverage Report";
+            return Messages.CoberturaPublisher_displayName();
         }
 
         /**

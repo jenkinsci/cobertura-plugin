@@ -45,7 +45,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      * {@inheritDoc}
      */
     public String getDisplayName() {
-        return "Coverage Report";
+        return Messages.CoberturaProjectAction_displayName();
     }
 
     /**

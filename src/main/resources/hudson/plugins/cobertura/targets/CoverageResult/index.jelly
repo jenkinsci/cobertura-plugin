@@ -3,14 +3,14 @@
     <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags" css="/plugin/cobertura/css/style.css">
         <st:include it="${it.owner}" page="sidepanel.jelly"/>
         <l:main-panel>
-            <h1>Code Coverage</h1>
+            <h1>${%Code Coverage}</h1>
             <j:forEach var="parent" items="${it.parents}">
                 <a href="${it.relativeUrl(parent)}">${parent.xmlTransform(parent.name)}</a>
                 &gt;
             </j:forEach>
             <h2>${it.xmlTransform(it.name)}</h2>
             <j:set var="metrics" value="${it.metrics}"/>
-            <h3>Trend</h3>
+            <h3>${%Trend}</h3>
             <j:if test="${it.previousResult != null}">
             <img src="graph" width="500px" height="200px"/>
             </j:if>
@@ -44,10 +44,10 @@
             </j:if>
 
 
-            <h3>${it.element.displayName} Coverage Summary</h3>
+            <h3>${it.element.displayName} ${%Coverage Summary}</h3>
             <table border="1px" class="pane">
                 <tr>
-                    <td>Name</td>
+                    <td>${%Name}</td>
                     <j:forEach var="metric" items="${metrics}">
                         <td>${metric.name}</td>
                     </j:forEach>
@@ -68,7 +68,7 @@
             </table>
 
             <j:if test="${it.sourceCodeLevel}">
-                <h3>Source</h3>
+                <h3>${%Source}</h3>
                 <j:choose>
                     <j:when test="${it.sourceFileAvailable}">
                         <div style="overflow-x:scroll;">
@@ -85,19 +85,11 @@
                     </j:when>
                     <j:otherwise>
                         <p>
-                            <i>Source code is unavailable.</i> Some possible reasons are:
+                            <i>${%Source code is unavailable.}</i> ${%Some possible reasons are:}
                             <ul>
-                                <li>
-                                    This is not the most recent build (to save on disk space, this plugin only keeps the
-                                    most recent build's source code).
-                                </li>
-                                <li>
-                                    Cobertura found the source code but did not provide enough information to locate the
-                                    source code.
-                                </li>
-                                <li>
-                                    Cobertura could not find the source code, so this plugin has no hope of finding it.
-                                </li>
+                                <li>${%reason.1}</li>
+                                <li>${%reason.2}</li>
+                                <li>${%reason.3}</li>
                             </ul>
                         </p>
                     </j:otherwise>
@@ -106,10 +98,10 @@
 
             <j:forEach var="element" items="${it.childElements}">
                 <j:set var="childMetrics" value="${it.getChildMetrics(element)}"/>
-                <h3>Coverage Breakdown by ${element.displayName}</h3>
+                <h3>${%coverage.breakdown.by(element.displayName)}</h3>
                 <table border="1px" class="pane sortable">
                     <tr>
-                        <td>Name</td>
+                        <td>${%Name}</td>
                         <j:forEach var="metric" items="${childMetrics}">
                             <td>${metric.name}</td>
                         </j:forEach>
@@ -131,7 +123,7 @@
                                         </tr></table></td>
                                     </j:when>
                                     <j:otherwise>
-                                        <td data="101">N/A</td>
+                                        <td data="101">${%N/A}</td>
                                     </j:otherwise>
                                 </j:choose>
                             </j:forEach>

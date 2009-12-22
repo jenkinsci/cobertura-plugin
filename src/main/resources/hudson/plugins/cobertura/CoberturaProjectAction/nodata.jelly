@@ -3,13 +3,12 @@
     <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags" css="/plugin/cobertura/css/style.css">
         <st:include it="${it.project}" page="sidepanel.jelly"/>
         <l:main-panel>
-            <h1>No valid coverage data available</h1>
+            <h1>${%No valid coverage data available}</h1>
             <p>
-                Tracking and trending code coverage works best when like is compared with like. In this regard it is
-                best to only track builds when all unit tests are passing.
+                ${%description.1}
             </p>
             <p>
-                This plugin will not report code coverage until there is at least one stable build.
+                ${%description.2}
             </p>
         </l:main-panel>
     </l:layout>
