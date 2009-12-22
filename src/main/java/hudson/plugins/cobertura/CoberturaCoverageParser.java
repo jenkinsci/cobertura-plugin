@@ -13,7 +13,11 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -87,6 +91,9 @@ public class CoberturaCoverageParser {
     }
 }
 
+/**
+ * Parses coverage XML data.
+ */
 class CoberturaXmlHandler extends DefaultHandler {
     private CoverageResult rootCoverage;
     private Stack<CoverageResult> stack = new Stack<CoverageResult>();
@@ -118,7 +125,7 @@ class CoberturaXmlHandler extends DefaultHandler {
      */
     public void endDocument() throws SAXException {
         if (!stack.empty() || inSource || inSources) {
-            throw new SAXException("Unbalanced parse of cobertua coverage results.");
+            throw new SAXException("Unbalanced parse of cobertura coverage results.");
         }
         super.endDocument();    //To change body of overridden methods use File | Settings | File Templates.
     }

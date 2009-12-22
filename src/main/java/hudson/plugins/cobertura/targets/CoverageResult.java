@@ -57,11 +57,18 @@ public class CoverageResult implements Serializable {
      * Name of the programming element that this result object represent, such as package name, class name, method name, etc.
      */
     private final String name;
+
+    // these two pointers form a tree structure where edges are names.
+    private final CoverageResult parent;
+    private final Map<String, CoverageResult> children = new HashMap<String, CoverageResult>();
+
     private final Map<CoverageMetric,Ratio> aggregateResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
     private final Map<CoverageMetric,Ratio> localResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
-    private final CoverageResult parent;
+
+    /**
+     * Line-by-line coverage information. Computed lazily, since it's memory intensive.
+     */
     private final CoveragePaint paint;
-    private final Map<String, CoverageResult> children = new HashMap<String, CoverageResult>();
     private String relativeSourcePath;
 
     public AbstractBuild<?, ?> owner = null;
