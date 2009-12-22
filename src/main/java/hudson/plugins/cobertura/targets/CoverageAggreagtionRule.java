@@ -6,6 +6,11 @@ import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
 
+import static hudson.plugins.cobertura.targets.CoverageAggregationMode.COUNT_NON_ZERO;
+import static hudson.plugins.cobertura.targets.CoverageAggregationMode.SUM;
+import static hudson.plugins.cobertura.targets.CoverageElement.*;
+import static hudson.plugins.cobertura.targets.CoverageMetric.*;
+
 /**
  * TODO javadoc.
  *
@@ -13,10 +18,10 @@ import java.util.Map;
  * @since 22-Aug-2007 18:08:46
  */
 public class CoverageAggreagtionRule implements Serializable {
-    private final CoverageMetric output;
-    private final CoverageAggregationMode mode;
-    private final CoverageMetric input;
     private final CoverageElement source;
+    private final CoverageMetric input;
+    private final CoverageAggregationMode mode;
+    private final CoverageMetric output;
 
     public CoverageAggreagtionRule(CoverageElement source,
                                    CoverageMetric input,
@@ -91,45 +96,27 @@ public class CoverageAggreagtionRule implements Serializable {
     }
 
     private static final CoverageAggreagtionRule INITIAL_RULESET[] = {
-            new CoverageAggreagtionRule(CoverageElement.JAVA_METHOD, CoverageMetric.LINE,
-                    CoverageAggregationMode.SUM, CoverageMetric.LINE),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_METHOD, CoverageMetric.CONDITIONAL,
-                    CoverageAggregationMode.SUM, CoverageMetric.CONDITIONAL),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_METHOD, CoverageMetric.LINE,
-                    CoverageAggregationMode.COUNT_NON_ZERO, CoverageMetric.METHOD),
+            new CoverageAggreagtionRule(JAVA_METHOD, LINE,          SUM, LINE),
+            new CoverageAggreagtionRule(JAVA_METHOD, CONDITIONAL,   SUM, CONDITIONAL),
+            new CoverageAggreagtionRule(JAVA_METHOD, LINE,          COUNT_NON_ZERO, METHOD),
 
-            new CoverageAggreagtionRule(CoverageElement.JAVA_CLASS, CoverageMetric.LINE,
-                    CoverageAggregationMode.SUM, CoverageMetric.LINE),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_CLASS, CoverageMetric.CONDITIONAL,
-                    CoverageAggregationMode.SUM, CoverageMetric.CONDITIONAL),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_CLASS, CoverageMetric.METHOD,
-                    CoverageAggregationMode.SUM, CoverageMetric.METHOD),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_CLASS, CoverageMetric.LINE,
-                    CoverageAggregationMode.COUNT_NON_ZERO, CoverageMetric.CLASSES),
+            new CoverageAggreagtionRule(JAVA_CLASS, LINE,           SUM, LINE),
+            new CoverageAggreagtionRule(JAVA_CLASS, CONDITIONAL,    SUM, CONDITIONAL),
+            new CoverageAggreagtionRule(JAVA_CLASS, METHOD,         SUM, METHOD),
+            new CoverageAggreagtionRule(JAVA_CLASS, LINE,           COUNT_NON_ZERO, CLASSES),
 
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.LINE,
-                    CoverageAggregationMode.SUM, CoverageMetric.LINE),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.CONDITIONAL,
-                    CoverageAggregationMode.SUM, CoverageMetric.CONDITIONAL),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.METHOD,
-                    CoverageAggregationMode.SUM, CoverageMetric.METHOD),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.CLASSES,
-                    CoverageAggregationMode.SUM, CoverageMetric.CLASSES),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_FILE, CoverageMetric.LINE,
-                    CoverageAggregationMode.COUNT_NON_ZERO, CoverageMetric.FILES),
+            new CoverageAggreagtionRule(JAVA_FILE, LINE,            SUM, LINE),
+            new CoverageAggreagtionRule(JAVA_FILE, CONDITIONAL,     SUM, CONDITIONAL),
+            new CoverageAggreagtionRule(JAVA_FILE, METHOD,          SUM, METHOD),
+            new CoverageAggreagtionRule(JAVA_FILE, CLASSES,         SUM, CLASSES),
+            new CoverageAggreagtionRule(JAVA_FILE, LINE,            COUNT_NON_ZERO, FILES),
 
-            new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.LINE,
-                    CoverageAggregationMode.SUM, CoverageMetric.LINE),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.CONDITIONAL,
-                    CoverageAggregationMode.SUM, CoverageMetric.CONDITIONAL),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.METHOD,
-                    CoverageAggregationMode.SUM, CoverageMetric.METHOD),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.CLASSES,
-                    CoverageAggregationMode.SUM, CoverageMetric.CLASSES),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.FILES,
-                    CoverageAggregationMode.SUM, CoverageMetric.FILES),
-            new CoverageAggreagtionRule(CoverageElement.JAVA_PACKAGE, CoverageMetric.LINE,
-                    CoverageAggregationMode.COUNT_NON_ZERO, CoverageMetric.PACKAGES),
+            new CoverageAggreagtionRule(JAVA_PACKAGE, LINE,         SUM, LINE),
+            new CoverageAggreagtionRule(JAVA_PACKAGE, CONDITIONAL,  SUM, CONDITIONAL),
+            new CoverageAggreagtionRule(JAVA_PACKAGE, METHOD,       SUM, METHOD),
+            new CoverageAggreagtionRule(JAVA_PACKAGE, CLASSES,      SUM, CLASSES),
+            new CoverageAggreagtionRule(JAVA_PACKAGE, FILES,        SUM, FILES),
+            new CoverageAggreagtionRule(JAVA_PACKAGE, LINE,         COUNT_NON_ZERO, PACKAGES),
     };
 
     public static Ratio combine(CoverageMetric metric, Ratio existingResult, Ratio additionalResult) {
