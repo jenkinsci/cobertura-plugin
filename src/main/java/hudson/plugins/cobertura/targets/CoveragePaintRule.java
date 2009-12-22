@@ -24,8 +24,8 @@ public class CoveragePaintRule implements Serializable {
 
     public static CoveragePaint makePaint(CoverageElement element) {
         for (CoveragePaintRule rule : INITIAL_RULESET) {
-            if (element.equals(rule.element)
-                    || (element.equals(rule.element.getParent()) && !CoverageAggregationMode.NONE.equals(rule.mode))) {
+            if (element==rule.element
+                    || (element==rule.element.getParent() && CoverageAggregationMode.NONE!=rule.mode)) {
                 return new CoveragePaint(element);
             }
         }
@@ -34,8 +34,8 @@ public class CoveragePaintRule implements Serializable {
 
     public static boolean propagatePaintToParent(CoverageElement element) {
         for (CoveragePaintRule rule : INITIAL_RULESET) {
-            if (element.equals(rule.element)) {
-                return !CoverageAggregationMode.NONE.equals(rule.mode);
+            if (element==rule.element) {
+                return CoverageAggregationMode.NONE!=rule.mode;
             }
         }
         return false;
