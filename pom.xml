@@ -10,9 +10,16 @@
 
     <artifactId>cobertura</artifactId>
     <packaging>hpi</packaging>
-    <version>0.8.11-SNAPSHOT</version>
+    <version>0.8.10-SNAPSHOT</version>
     <name>Hudson Cobertura plugin</name>
     <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
+
+    <developers>
+        <developer>
+            <id>stephenconnolly</id>
+            <name>Stephen Connolly</name>
+        </developer>
+    </developers>
 
     <profiles>
         <profile>
