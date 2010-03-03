@@ -1,6 +1,7 @@
 package hudson.plugins.cobertura.targets;
 
 import hudson.model.AbstractBuild;
+import hudson.model.Api;
 import hudson.model.Run;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.Ratio;
@@ -23,6 +24,8 @@ import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.export.ExportedBean;
 
 import java.awt.*;
 import java.io.File;
@@ -48,8 +51,14 @@ import java.util.TreeSet;
  * @author Stephen Connolly
  * @since 22-Aug-2007 18:47:10
  */
+@ExportedBean(defaultVisibility=2)
 public class CoverageResult implements Serializable {
     /**
+	 * Generated
+	 */
+	private static final long serialVersionUID = -3524882671364156445L;
+	
+	/**
      * The type of the programming element.
      */
     private final CoverageElement element;
@@ -240,12 +249,21 @@ public class CoverageResult implements Serializable {
     }
 
     /**
+     * Getter for keys of property 'children'.
+     *
+     * @return Value for keys of property 'children'.
+     */
+    public Set<String> getChildren() {
+        return children.keySet();
+    }
+
+    /**
      * Getter for property 'children'.
      *
      * @return Value for property 'children'.
      */
-    public Set<String> getChildren() {
-        return children.keySet();
+    public Map<String, CoverageResult> getChildrenReal() {
+        return children;
     }
 
     /**
@@ -253,8 +271,18 @@ public class CoverageResult implements Serializable {
      *
      * @return Value for property 'results'.
      */
-    public Map<CoverageMetric, Ratio> getResults() {
+     public Map<CoverageMetric, Ratio> getResults() {
         return Collections.unmodifiableMap(aggregateResults);
+    }
+
+    /**
+     * Getter for property 'results'.
+     *
+     * @return Value for property 'results'.
+     */
+    @Exported(name="results")
+    public CoverageTree getResultsAPI() {
+    	return new CoverageTree(name, aggregateResults, children);
     }
 
     public String urlTransform(String name) {
@@ -482,5 +510,9 @@ public class CoverageResult implements Serializable {
             result.put(relativeSourcePath, paint);
         }
         return result;
+    }
+    
+    public Api getApi(){
+    	return new Api(this);
     }
 }
