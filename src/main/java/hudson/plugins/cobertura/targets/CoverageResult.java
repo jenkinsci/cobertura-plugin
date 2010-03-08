@@ -183,7 +183,7 @@ public class CoverageResult implements Serializable {
      * @return Value for property 'sourceFileAvailable'.
      */
     public boolean isSourceFileAvailable() {
-        return owner == owner.getProject().getLastStableBuild() && getSourceFile().exists();
+        return owner == owner.getProject().getLastSuccessfulBuild() && getSourceFile().exists();
     }
 
     /**
