@@ -4,26 +4,49 @@ package hudson.plugins.cobertura.targets;
  * Type of program construct being covered.
  *
  * @author Stephen Connolly
+ * @author manolo
+ * 
  * @since 22-Aug-2007 18:36:01
  */
 public enum CoverageElement {
-    PROJECT(Messages.CoverageElement_Project()),
-    JAVA_PACKAGE(Messages.CoverageElement_Package(), PROJECT),
-    JAVA_FILE(Messages.CoverageElement_File(), JAVA_PACKAGE),
-    JAVA_CLASS(Messages.CoverageElement_Class(), JAVA_FILE),
-    JAVA_METHOD(Messages.CoverageElement_Method(), JAVA_CLASS);
+  
+    PROJECT(new HasName() {
+      public String getName() {
+        return Messages.CoverageElement_Project();
+      }
+    }),
+    JAVA_PACKAGE(new HasName() {
+      public String getName() {
+        return Messages.CoverageElement_Package();
+      }
+    }, PROJECT),
+    JAVA_FILE(new HasName() {
+      public String getName() {
+        return Messages.CoverageElement_File();
+      }
+    }, JAVA_PACKAGE),
+    JAVA_CLASS(new HasName() {
+      public String getName() {
+        return Messages.CoverageElement_Class();
+      }
+    }, JAVA_FILE),
+    JAVA_METHOD(new HasName() {
+      public String getName() {
+        return Messages.CoverageElement_Method();
+      }
+    }, JAVA_CLASS);
 
     private final CoverageElement parent;
-    private final String displayName;
+    private final HasName hasName;
 
-    CoverageElement(String displayName) {
+    private CoverageElement(HasName hasName) {
         this.parent = null;
-        this.displayName = displayName;
+        this.hasName = hasName;
     }
 
-    CoverageElement(String displayName, CoverageElement parent) {
+    private CoverageElement(HasName hasName, CoverageElement parent) {
         this.parent = parent;
-        this.displayName = displayName;
+        this.hasName = hasName;
     }
 
     /**
@@ -36,11 +59,14 @@ public enum CoverageElement {
     }
 
     /**
-     * Getter for property 'displayName'.
+     * Return displayName of this coverage element.
+     * 
+     * Note: This getter has to be evaluated each time in a non static
+     * way because the user could change its language
      *
      * @return Value for property 'displayName'.
      */
     public String getDisplayName() {
-        return displayName;
+        return hasName.getName();
     }
 }

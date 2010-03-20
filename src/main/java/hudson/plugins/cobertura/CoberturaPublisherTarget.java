@@ -113,6 +113,7 @@ public final class CoberturaPublisherTarget {
         /**
          * {@inheritDoc}
          */
+        @SuppressWarnings("unchecked")
         public Object convert(Class type, Object value) {
             return CoverageMetric.valueOf(value.toString());
         }

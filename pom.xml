@@ -19,6 +19,10 @@
             <id>stephenconnolly</id>
             <name>Stephen Connolly</name>
         </developer>
+        <developer>
+            <id>manuel_carrasco</id>
+            <name>Manuel Carrasco</name>
+        </developer>
     </developers>
 
     <profiles>

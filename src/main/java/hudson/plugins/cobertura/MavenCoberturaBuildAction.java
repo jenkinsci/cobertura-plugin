@@ -19,6 +19,7 @@ import java.util.logging.Logger;
  * @since 18-Dec-2007 11:11:23
  */
 public class MavenCoberturaBuildAction extends CoberturaBuildAction implements AggregatableAction {
+    @SuppressWarnings("unused")
     private static final Logger LOGGER = Logger.getLogger(MavenCoberturaBuildAction.class.getName());
 
     MavenCoberturaBuildAction(MavenBuild build, CoverageResult r, CoverageTarget healthyTarget, CoverageTarget unhealthyTarget, boolean onlyStable) {

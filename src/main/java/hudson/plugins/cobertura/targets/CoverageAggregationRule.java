@@ -19,6 +19,7 @@ import static hudson.plugins.cobertura.targets.CoverageMetric.*;
  * @since 22-Aug-2007 18:08:46
  */
 public class CoverageAggregationRule implements Serializable {
+    private static final long serialVersionUID = 3610276359557022488L;
     private final CoverageElement source;
     private final CoverageMetric input;
     private final CoverageAggregationMode mode;

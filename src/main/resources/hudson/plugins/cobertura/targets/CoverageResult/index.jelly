@@ -43,8 +43,7 @@
                 </div>
             </j:if>
 
-
-            <h3>${it.element.displayName} ${%Coverage Summary}</h3>
+            <h3>${%coverage.summary.by(it.element.displayName)}</h3>
             <table border="1px" class="pane">
                 <tr>
                     <td>${%Name}</td>

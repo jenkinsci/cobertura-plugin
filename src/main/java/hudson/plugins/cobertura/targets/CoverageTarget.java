@@ -16,6 +16,8 @@ import java.util.Set;
  */
 public class CoverageTarget implements Serializable {
 
+    private static final long serialVersionUID = -1230271515322670492L;
+    
     private Map<CoverageMetric, Integer> targets = new EnumMap<CoverageMetric, Integer>(CoverageMetric.class);
 
     /**

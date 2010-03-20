@@ -9,6 +9,7 @@ import java.io.Serializable;
  * @since 29-Aug-2007 18:13:22
  */
 public class CoveragePaintRule implements Serializable {
+    private static final long serialVersionUID = 1039455096344866574L;
     private final CoverageElement element;
     private final CoverageAggregationMode mode;
 

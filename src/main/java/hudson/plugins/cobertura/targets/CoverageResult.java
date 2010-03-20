@@ -345,7 +345,7 @@ public class CoverageResult implements Serializable {
      *
      * @return Value for property 'owner'.
      */
-    public AbstractBuild getOwner() {
+    public AbstractBuild<?,?> getOwner() {
         return owner;
     }
 
@@ -354,7 +354,7 @@ public class CoverageResult implements Serializable {
      *
      * @param owner Value to set for property 'owner'.
      */
-    public void setOwner(AbstractBuild owner) {
+    public void setOwner(AbstractBuild<?,?> owner) {
         this.owner = owner;
         aggregateResults.clear();
         for (CoverageResult child : children.values()) {
@@ -385,7 +385,7 @@ public class CoverageResult implements Serializable {
             if (owner == null) {
                 return null;
             }
-            Run prevBuild = owner.getPreviousNotFailedBuild();
+            Run<?,?> prevBuild = owner.getPreviousNotFailedBuild();
             if (prevBuild == null) {
                 return null;
             }
@@ -427,7 +427,7 @@ public class CoverageResult implements Serializable {
             return;
         }
 
-        AbstractBuild build = getOwner();
+        AbstractBuild<?,?> build = getOwner();
         Calendar t = build.getTimestamp();
 
         if (req.checkIfModified(t, rsp))
@@ -486,7 +486,7 @@ public class CoverageResult implements Serializable {
         rangeAxis.setLowerBound(0);
 
         final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-        renderer.setStroke(new BasicStroke(2.0f));
+        renderer.setBaseStroke(new BasicStroke(2.0f));
         ColorPalette.apply(renderer);
 
         // crop extra space around the graph

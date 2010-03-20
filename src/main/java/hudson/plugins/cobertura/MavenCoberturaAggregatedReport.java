@@ -19,7 +19,9 @@ import java.util.logging.Logger;
  * @since 18-Dec-2007 11:12:44
  */
 public class MavenCoberturaAggregatedReport implements MavenAggregatedReport {
+    @SuppressWarnings("unused")
     private static final Logger LOGGER = Logger.getLogger(MavenCoberturaAggregatedReport.class.getName());
+    @SuppressWarnings("unused")
     private final MavenModuleSetBuild owner;
 
     public MavenCoberturaAggregatedReport(MavenModuleSetBuild owner) {

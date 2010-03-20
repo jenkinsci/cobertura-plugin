@@ -194,7 +194,7 @@ public class CoberturaPublisher extends Recorder {
      * Gets the directory where the Cobertura Report is stored for the given project.
      */
     /*package*/
-    static File[] getCoberturaReports(AbstractBuild build) {
+    static File[] getCoberturaReports(AbstractBuild<?,?> build) {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
     }
 
@@ -411,6 +411,7 @@ public class CoberturaPublisher extends Recorder {
             return instance;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;

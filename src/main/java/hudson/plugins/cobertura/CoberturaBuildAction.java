@@ -62,6 +62,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     public HealthReport getBuildHealth() {
         if (health != null) {
             return health;
@@ -158,7 +159,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      * Gets the previous {@link CoberturaBuildAction} of the given build.
      */
     /*package*/
-    static CoberturaBuildAction getPreviousResult(AbstractBuild start) {
+    static CoberturaBuildAction getPreviousResult(AbstractBuild<?,?> start) {
         AbstractBuild<?, ?> b = start;
         while (true) {
             b = b.getPreviousNotFailedBuild();
@@ -295,7 +296,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         rangeAxis.setLowerBound(0);
 
         final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-        renderer.setStroke(new BasicStroke(2.0f));
+        renderer.setBaseStroke(new BasicStroke(2.0f));
         ColorPalette.apply(renderer);
 
         // crop extra space around the graph

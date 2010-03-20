@@ -242,6 +242,8 @@ public class MavenCoberturaPublisher extends MavenReporter {
     private static final long serialVersionUID = 1L;
 
     private static class MavenCoberturaActionAdder implements MavenBuildProxy.BuildCallable<Boolean, IOException> {
+        private static final long serialVersionUID = -5470450037371279762L;
+        @SuppressWarnings("unused")
         private final BuildListener listener;
 
         public MavenCoberturaActionAdder(BuildListener listener) {
