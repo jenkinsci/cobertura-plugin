@@ -5,7 +5,7 @@
         <l:main-panel>
             <h1>${%Code Coverage}</h1>
             <j:forEach var="parent" items="${it.parents}">
-                <a href="${it.relativeUrl(parent)}">${parent.xmlTransform(parent.name)}</a>
+                <a href="${it.relativeUrl(parent)}">${parent.xmlTransform(parent.name)} </a>
                 &gt;
             </j:forEach>
             <h2>${it.xmlTransform(it.name)}</h2>
