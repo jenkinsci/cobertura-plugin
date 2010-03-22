@@ -1,6 +1,8 @@
 package hudson.plugins.cobertura;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 /**
  * Represents <tt>x/y</tt> where x={@link #numerator} and y={@link #denominator}.
@@ -42,9 +44,16 @@ final public class Ratio implements Serializable {
      * Gets the percentage in float.
      */
     public float getPercentageFloat() {
-        if (Float.compare(denominator, numerator) == 0)
-            return 100; // fix the 0/0 case without being as big a hack!
-        return 100 * numerator / denominator;
+        return denominator == 0 ? 0 : (100 * numerator / denominator);
+    }
+    
+    static NumberFormat dataFormat = new DecimalFormat("000.00");
+
+    /**
+     * Gets the percentage as a formated string used for sorting the html table
+     */
+    public String getPercentageString() {
+      return dataFormat.format(getPercentageFloat());
     }
 
     /**

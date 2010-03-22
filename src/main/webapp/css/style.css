@@ -18,6 +18,10 @@ table.source td {
     font-family: courier, monospace;
 }
 
+table.source .text {
+	margin-top: -1px;
+}
+
 table.source td.line {
     text-align: right;
     border-width: 0px 1px 0px 0px;
@@ -108,9 +112,16 @@ table.percentgraph tr.percentgraph {
     padding: 0px;
 }
 
-table.percentgraph td.percentgraph {
+table.percentgraph td {
     border: 0px;
     margin: 0px;
     padding: 0px;
     padding-left: 4px;
+}
+
+table.percentgraph td.data {
+  text-align: right;
+}
+.center {
+  text-align: center;
 }

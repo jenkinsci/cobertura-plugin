@@ -117,7 +117,7 @@ public class CoverageResult implements Serializable {
      * @return Value for property 'name'.
      */
     public String getName() {
-        return name;
+        return name == null || name.trim().length() == 0 ? Messages.CoverageElement_Project() : name;
     }
 
     /**
