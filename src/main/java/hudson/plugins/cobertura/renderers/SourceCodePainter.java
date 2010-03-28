@@ -69,8 +69,8 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
                     output.println("<td class=\"line\">" + line + "</td>");
                     output.println("<td class=\"hits\"/>");
                 }
-                output.println("<td class=\"code\">" + content.replaceAll("\\&", "&amp;").replaceAll("\\<", "&lt;")
-                        .replaceAll("\\>", "&gt;").replaceAll("\\\\[nr]", "").replace(" ", "&nbsp;")
+                output.println("<td class=\"code\">" + content.replace("&", "&amp;").replace("<", "&lt;")
+                        .replace(">", "&gt;").replace("\n", "").replace("\r", "").replace(" ", "&nbsp;")
                         .replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
                         + "</td>");
                 output.println("</tr>");
