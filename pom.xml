@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jvnet.hudson.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>1.319</version>
+        <version>1.332</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -64,5 +64,11 @@
         <version>2.4</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+  		<groupId>org.jvnet.hudson.plugins</groupId>
+  		<artifactId>dashboard-view</artifactId>
+  		<version>1.1</version>
+  		<optional>true</optional>
+  	</dependency>
     </dependencies>
 </project>
