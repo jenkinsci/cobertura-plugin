@@ -32,24 +32,24 @@ THE SOFTWARE.
 		    <j:otherwise>
 		     <tr>
 		      <td>
-		        <table class="pane sortable" id="warnings-table">
+		        <table class="pane sortable" id="warnings-table" style="margin-top: 0px;">
 		          <tr>
 		            <td width="30%" initialSortDir="down" class="pane-header">${%Job}</td>
-		            <td width="10%" class="pane-header">${%Package}</td>
-		            <td width="10%" class="pane-header">${%File}</td>
-		            <td width="10%" class="pane-header">${%Class}</td>
+		            <td width="10%" class="pane-header">${%Classes}</td>
+		            <td width="10%" class="pane-header">${%Conditionals}</td>
+		            <td width="10%" class="pane-header">${%Files}</td>
 		            <td width="10%" class="pane-header">${%Lines}</td>
-		            <td width="10%" class="pane-header">${%Branches}</td>
+		            <td width="10%" class="pane-header">${%Packages}</td>
 		          </tr>
 		          <tbody>
 				      <j:forEach var="r" items="${coverageResults}">
 				        <j:set var="result" value="${it.getCoverageResult(r)}"/>
 				      	<j:set var="metrics" value="${result.metrics}"/>
-				        <tr>
-					  	    <td><t:buildLink jobName="${r.parent.name}" job="${r.parent}" number="${r.number}" href="${r.url}" /></td>
-					        <j:forEach var="metric" items="${metrics}">
-					        	<td> ${result.getCoverage(metric).percentage}%</td>
-					        </j:forEach>
+			            <tr style="border-top: 0px; border: 1px #bbb solid;">
+				  	        <td><t:buildLink jobName="${r.parent.name}" job="${r.parent}" number="${r.number}" href="${r.url}" /></td>
+				            <j:forEach var="metric" items="${metrics}">
+				        	    <td> ${result.getCoverage(metric).percentage}%</td>
+				            </j:forEach>
 				        </tr>
 				      </j:forEach>
 				     </tbody>

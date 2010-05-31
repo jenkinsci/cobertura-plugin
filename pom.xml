@@ -67,7 +67,7 @@
       <dependency>
   		<groupId>org.jvnet.hudson.plugins</groupId>
   		<artifactId>dashboard-view</artifactId>
-  		<version>1.1</version>
+  		<version>1.6</version>
   		<optional>true</optional>
   	</dependency>
     </dependencies>

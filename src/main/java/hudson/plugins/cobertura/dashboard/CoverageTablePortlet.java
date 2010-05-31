@@ -58,7 +58,7 @@ public class CoverageTablePortlet extends DashboardPortlet {
 
 		@Override
 		public String getDisplayName() {
-			return "Coverages";
+			return "Code Coverages";
 		}
 	}
 }
