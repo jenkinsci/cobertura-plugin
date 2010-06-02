@@ -65,7 +65,7 @@ public class CoverageTablePortlet extends DashboardPortlet {
 			Set<CoverageMetric> metrics = result.getMetrics();
 			
 			if( result.getMetrics().size() > 0 ) {
-				for (CoverageMetric metric: CoverageMetric.values()) {
+				for (CoverageMetric metric: metrics) {
 					if(totalRatioMap.get(metric) == null){
 						totalRatioMap.put(metric, result.getCoverage(metric));
 					} else{
