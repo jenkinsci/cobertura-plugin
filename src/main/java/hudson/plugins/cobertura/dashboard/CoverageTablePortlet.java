@@ -74,6 +74,10 @@ public class CoverageTablePortlet extends DashboardPortlet {
 						totalRatioMap.put(metric, Ratio.create(sumNumerator, sumDenominator));
 					}
 				}
+			} else {
+				for (CoverageMetric metric: CoverageMetric.values()) {
+					totalRatioMap.put(metric, Ratio.create(0, 0));
+				}
 			}
 		}
 		return totalRatioMap;
