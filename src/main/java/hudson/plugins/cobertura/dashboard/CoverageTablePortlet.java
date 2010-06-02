@@ -6,11 +6,15 @@ import hudson.model.Hudson;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.cobertura.Ratio;
+import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.view.dashboard.DashboardPortlet;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Set;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -21,7 +25,7 @@ public class CoverageTablePortlet extends DashboardPortlet {
 		super(name);
 	}
 
-	public Collection<Run> getCoverageResults() {
+	public Collection<Run> getCoverageRuns() {
 		LinkedList<Run> allResults = new LinkedList<Run>();
 
 		for (Job job : getDashboard().getJobs()) {
@@ -43,6 +47,36 @@ public class CoverageTablePortlet extends DashboardPortlet {
 	public CoverageResult getCoverageResult(Run run){
 		CoberturaBuildAction rbb = run.getAction(CoberturaBuildAction.class);
 		return rbb.getResult();
+	}
+	
+	public HashMap<CoverageMetric, Ratio> getTotalCoverageRatio(){
+		HashMap<CoverageMetric, Ratio> totalRatioMap = new HashMap<CoverageMetric, Ratio>();
+		for (Job job : getDashboard().getJobs()) {
+			// Find the latest completed coverage data
+			Run run = job.getLastCompletedBuild();
+			if(run == null) continue;
+			
+			CoberturaBuildAction rbb = run
+					.getAction(CoberturaBuildAction.class);
+
+			CoverageResult result = rbb.getResult();
+			Set<CoverageMetric> metrics = result.getMetrics();
+			
+			if( result.getMetrics().size() > 0 ) {
+				for (CoverageMetric metric: CoverageMetric.values()) {
+					if(totalRatioMap.get(metric) == null){
+						totalRatioMap.put(metric, result.getCoverage(metric));
+					} else{
+						float currentNumerator = totalRatioMap.get(metric).numerator;
+						float CurrentDenominator = totalRatioMap.get(metric).denominator;
+						float sumNumerator = currentNumerator + result.getCoverage(metric).numerator;
+						float sumDenominator = CurrentDenominator + result.getCoverage(metric).denominator;
+						totalRatioMap.put(metric, Ratio.create(sumNumerator, sumDenominator));
+					}
+				}
+			}
+		}
+		return totalRatioMap;
 	}
 
 	public static class DescriptorImpl extends Descriptor<DashboardPortlet> {
