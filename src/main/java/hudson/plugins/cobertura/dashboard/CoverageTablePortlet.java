@@ -29,8 +29,8 @@ public class CoverageTablePortlet extends DashboardPortlet {
 		LinkedList<Run> allResults = new LinkedList<Run>();
 
 		for (Job job : getDashboard().getJobs()) {
-			// Find the latest completed coverage data
-			Run run = job.getLastCompletedBuild();
+			// Find the latest successful coverage data
+			Run run = job.getLastSuccessfulBuild();
 			if(run == null) continue;
 			
 			CoberturaBuildAction rbb = run
@@ -52,13 +52,15 @@ public class CoverageTablePortlet extends DashboardPortlet {
 	public HashMap<CoverageMetric, Ratio> getTotalCoverageRatio(){
 		HashMap<CoverageMetric, Ratio> totalRatioMap = new HashMap<CoverageMetric, Ratio>();
 		for (Job job : getDashboard().getJobs()) {
-			// Find the latest completed coverage data
-			Run run = job.getLastCompletedBuild();
+			// Find the latest successful coverage data
+			Run run = job.getLastSuccessfulBuild();
 			if(run == null) continue;
 			
 			CoberturaBuildAction rbb = run
 					.getAction(CoberturaBuildAction.class);
 
+			if( rbb == null ) continue;
+			
 			CoverageResult result = rbb.getResult();
 			Set<CoverageMetric> metrics = result.getMetrics();
 			
@@ -73,10 +75,6 @@ public class CoverageTablePortlet extends DashboardPortlet {
 						float sumDenominator = CurrentDenominator + result.getCoverage(metric).denominator;
 						totalRatioMap.put(metric, Ratio.create(sumNumerator, sumDenominator));
 					}
-				}
-			} else {
-				for (CoverageMetric metric: CoverageMetric.values()) {
-					totalRatioMap.put(metric, Ratio.create(0, 0));
 				}
 			}
 		}
