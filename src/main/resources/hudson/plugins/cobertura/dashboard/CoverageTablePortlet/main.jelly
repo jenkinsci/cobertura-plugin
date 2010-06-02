@@ -53,7 +53,7 @@ THE SOFTWARE.
 							    </j:when>
 							<j:otherwise>
 					            <j:forEach var="metric" items="${metrics}">
-					        	    <td> ${result.getCoverage(metric).percentage}% ${result.getCoverage(metric).numerator}/${result.getCoverage(metric).denominator}</td>
+					        	    <td> ${result.getCoverage(metric).percentage}% ${result.getCoverage(metric)}</td>
 					            </j:forEach>
 					        </j:otherwise>
 					       </j:choose>
@@ -62,9 +62,9 @@ THE SOFTWARE.
 				        <tr>
 				         <j:set var="result" value="${it.getCoverageResult(coverageRuns[0])}"/>
 				         <j:set var="metrics" value="${result.metrics}"/>
-				         <td><b>Total:</b></td>
+				         <td><b>Total</b></td>
 				            <j:forEach var="metric" items="${metrics}">
-				        	    <td> ${it.getTotalCoverageRatio().get(metric).percentage}% ${it.getTotalCoverageRatio().get(metric).numerator}/${it.getTotalCoverageRatio().get(metric).denominator}</td>
+				        	    <td> ${it.getTotalCoverageRatio().get(metric).percentage}% ${it.getTotalCoverageRatio().get(metric)}</td>
 				            </j:forEach>
 				        </tr>
 				     </tbody>
