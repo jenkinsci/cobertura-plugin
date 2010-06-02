@@ -64,17 +64,15 @@ public class CoverageTablePortlet extends DashboardPortlet {
 			CoverageResult result = rbb.getResult();
 			Set<CoverageMetric> metrics = result.getMetrics();
 			
-			if( result.getMetrics().size() > 0 ) {
-				for (CoverageMetric metric: metrics) {
-					if(totalRatioMap.get(metric) == null){
-						totalRatioMap.put(metric, result.getCoverage(metric));
-					} else{
-						float currentNumerator = totalRatioMap.get(metric).numerator;
-						float CurrentDenominator = totalRatioMap.get(metric).denominator;
-						float sumNumerator = currentNumerator + result.getCoverage(metric).numerator;
-						float sumDenominator = CurrentDenominator + result.getCoverage(metric).denominator;
-						totalRatioMap.put(metric, Ratio.create(sumNumerator, sumDenominator));
-					}
+			for (CoverageMetric metric: metrics) {
+				if(totalRatioMap.get(metric) == null){
+					totalRatioMap.put(metric, result.getCoverage(metric));
+				} else{
+					float currentNumerator = totalRatioMap.get(metric).numerator;
+					float CurrentDenominator = totalRatioMap.get(metric).denominator;
+					float sumNumerator = currentNumerator + result.getCoverage(metric).numerator;
+					float sumDenominator = CurrentDenominator + result.getCoverage(metric).denominator;
+					totalRatioMap.put(metric, Ratio.create(sumNumerator, sumDenominator));
 				}
 			}
 		}
