@@ -46,7 +46,7 @@ final public class Ratio implements Serializable {
      * For error cases of x/0, return 0% as x is unexpected ammout.
      */
     public float getPercentageFloat() {
-        return denominator == 0 ? (numerator == 0 ? 100.0 : 0.0) : (100 * numerator / denominator);
+        return denominator == 0 ? (numerator == 0 ? 100.0f : 0.0f) : (100 * numerator / denominator);
     }
     
     static NumberFormat dataFormat = new DecimalFormat("000.00");
