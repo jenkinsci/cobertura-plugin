@@ -10,7 +10,7 @@
 
     <artifactId>cobertura</artifactId>
     <packaging>hpi</packaging>
-    <version>0.8.12-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>Hudson Cobertura plugin</name>
     <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
 
