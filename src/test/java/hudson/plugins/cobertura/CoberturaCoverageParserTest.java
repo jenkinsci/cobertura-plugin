@@ -78,7 +78,7 @@ public class CoberturaCoverageParserTest extends TestCase {
         assertEquals(1, paths.size());
     }
 
-    public void atestParse2() throws Exception {
+    public void testParse2() throws Exception {
         CoverageResult result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage-with-data.xml"), null);
         result.setOwner(null);
         print(result, 0);
@@ -100,7 +100,7 @@ public class CoberturaCoverageParserTest extends TestCase {
         assertEquals(Ratio.create(4, 4), subResult.getCoverage(CoverageMetric.METHOD));
     }
 
-    public void atestParseMultiPackage() throws Exception {
+    public void testParseMultiPackage() throws Exception {
 //        ProjectCoverage result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage-two-packages.xml"));
 //        result = CoberturaCoverageParser.trimPaths(result, "C:\\local\\maven\\helpers\\hudson\\cobertura\\");
 //        assertNotNull(result);
@@ -117,7 +117,7 @@ public class CoberturaCoverageParserTest extends TestCase {
      * 
      * @since 28-Apr-2009
      */
-    public void atestParseMemoryUsage() throws Exception {
+    public void testParseMemoryUsage() throws Exception {
         Map<String, Long> files = new LinkedHashMap<String, Long>();
         files.put("coverage.xml", 100000L);
         files.put("coverage-with-data.xml", 100000L);
