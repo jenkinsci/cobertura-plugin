@@ -18,10 +18,12 @@
         <developer>
             <id>stephenconnolly</id>
             <name>Stephen Connolly</name>
+            <email>stephenconnolly@dev.java.net</email>
         </developer>
         <developer>
             <id>manuel_carrasco</id>
-            <name>Manuel Carrasco</name>
+            <name>Manuel Carrasco Monino</name>
+            <email>manolo@apache</email>
         </developer>
     </developers>
 
