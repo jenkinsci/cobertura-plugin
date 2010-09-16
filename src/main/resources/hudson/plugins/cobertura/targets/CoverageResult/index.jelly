@@ -1,6 +1,6 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags" css="/plugin/cobertura/css/style.css">
+    <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags" css="/plugin/cobertura/css/style.css" norefresh="true">
         <st:include it="${it.owner}" page="sidepanel.jelly"/>
         <l:main-panel>
             <h1>${%Code Coverage}</h1>
@@ -56,7 +56,7 @@
                     <j:forEach var="metric" items="${metrics}">
                         <td data="${it.getCoverage(metric).percentageString}">
                             <table class="percentgraph" cellpadding="0px" cellspacing="0px">
-                                <tr class="percentgraph">                                   
+                                <tr class="percentgraph">
                                     <td width="40" class="data">${it.getCoverage(metric).percentage}%</td>
                                     <td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width: ${it.getCoverage(metric).percentageFloat}px;"><span class="text">${it.getCoverage(metric)}</span></div></div></td>
                                 </tr>
@@ -88,7 +88,7 @@
                                 <j:choose>
                                     <j:when test="${childResult!=null and childResult.denominator != 0}">
                                         <td  data="${childResult.percentageString}">
-                                          <table class="percentgraph" cellpadding="0px" cellspacing="0px"><tr class="percentgraph">         
+                                          <table class="percentgraph" cellpadding="0px" cellspacing="0px"><tr class="percentgraph">
                                             <td width="40" class="data">${childResult.percentage}%</td>
                                             <td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width: ${childResult.percentageFloat}px;"><span class="text">${childResult}</span></div></div></td>
                                           </tr></table>
@@ -103,7 +103,7 @@
                     </j:forEach>
                 </table>
             </j:forEach>
-            
+
             <j:if test="${it.sourceCodeLevel}">
                 <h3>${%Source}</h3>
                 <j:choose>
@@ -131,7 +131,7 @@
                         </p>
                     </j:otherwise>
                 </j:choose>
-            </j:if>            
+            </j:if>
         </l:main-panel>
     </l:layout>
 </j:jelly>
