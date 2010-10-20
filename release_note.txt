@@ -1,0 +1,3 @@
+1.1-p1 (2010.10.22)
+- Fix for 2 byte encoding
+- Add the link to the each line in source code.

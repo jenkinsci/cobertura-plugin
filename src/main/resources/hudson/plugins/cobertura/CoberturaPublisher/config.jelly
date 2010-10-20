@@ -8,6 +8,11 @@
              description="${%only.stable.builds.description}" >
        <f:checkbox name="cobertura.onlyStable" checked="${instance.onlyStable}" />                                                                                        
     </f:entry>      
+    <f:entry title="${%Source Encoding}"
+             description="${%source.encoding.description}" field="sourceEncoding">
+       <f:enum>${it.encodingName}</f:enum>
+    </f:entry>      
+
     <f:entry title="${%Coverage Metric Targets}"
              description="${%metric.targets.description(rootURL)}">
         <f:repeatable var="inst" varStatus="instStatus" items="${descriptor.getTargets(instance)}">

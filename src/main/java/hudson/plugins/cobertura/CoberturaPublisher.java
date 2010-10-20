@@ -6,6 +6,7 @@ import hudson.Launcher;
 import hudson.Util;
 import hudson.model.*;
 import hudson.plugins.cobertura.renderers.SourceCodePainter;
+import hudson.plugins.cobertura.renderers.SourceEncoding;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
@@ -37,15 +38,17 @@ public class CoberturaPublisher extends Recorder {
     private CoverageTarget unhealthyTarget;
     private CoverageTarget failingTarget;
     public static final CoberturaReportFilenameFilter COBERTURA_FILENAME_FILTER = new CoberturaReportFilenameFilter();
+	private final SourceEncoding sourceEncoding;
 
     /**
      * @param coberturaReportFile the report directory
      * @stapler-constructor
      */
     @DataBoundConstructor 
-    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable) {
+    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, SourceEncoding sourceEncoding) {
         this.coberturaReportFile = coberturaReportFile;
         this.onlyStable = onlyStable;
+		this.sourceEncoding = sourceEncoding;
         this.healthyTarget = new CoverageTarget();
         this.unhealthyTarget = new CoverageTarget();
         this.failingTarget = new CoverageTarget();
@@ -271,7 +274,7 @@ public class CoberturaPublisher extends Recorder {
             final FilePath paintedSourcesPath = new FilePath(new File(build.getProject().getRootDir(), "cobertura"));
             paintedSourcesPath.mkdirs();
             SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths,
-                    result.getPaintedSources(), listener);
+                    result.getPaintedSources(), listener, getSourceEncoding());
 
             moduleRoot.act(painter);
 
@@ -321,7 +324,11 @@ public class CoberturaPublisher extends Recorder {
         return DESCRIPTOR;
     }
 
-    /**
+    public SourceEncoding getSourceEncoding() {
+		return sourceEncoding;
+	}
+
+	/**
      * Descriptor should be singleton.
      */
     @Extension
@@ -403,7 +410,7 @@ public class CoberturaPublisher extends Recorder {
          */
         @Override
         public CoberturaPublisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            CoberturaPublisher instance = req.bindParameters(CoberturaPublisher.class, "cobertura.");
+            CoberturaPublisher instance = req.bindJSON(CoberturaPublisher.class, formData);
             ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
             List<CoberturaPublisherTarget> targets = req
                     .bindParametersToList(CoberturaPublisherTarget.class, "cobertura.target.");

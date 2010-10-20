@@ -4,13 +4,13 @@
     <parent>
         <groupId>org.jvnet.hudson.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>1.332</version>
+        <version>1.321</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>cobertura</artifactId>
     <packaging>hpi</packaging>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1-p1-SNAPSHOT</version>
     <name>Hudson Cobertura plugin</name>
     <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
 
