@@ -14,6 +14,10 @@
     <name>Hudson Cobertura plugin</name>
     <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
     <developers>
         <developer>
             <id>stephenconnolly</id>
