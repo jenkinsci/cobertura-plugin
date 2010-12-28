@@ -6,7 +6,6 @@
     <groupId>org.jvnet.hudson.plugins</groupId>
     <artifactId>plugin</artifactId>
     <version>1.321</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>cobertura</artifactId>
@@ -84,4 +83,45 @@
       <optional>true</optional>
     </dependency>
   </dependencies>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.3.2</version>
+          <configuration>
+            <source>1.5</source>
+            <target>1.5</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.7.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>1.0-beta-1</version>
+        </plugin>      
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.4.3</version>
+        </plugin>               
+      </plugins>
+    </pluginManagement> 
+  </build>
+  
+  <distributionManagement>
+    <!--  maven3 doesn't support anymore id local -->
+    <snapshotRepository>
+      <!-- prevent accidental deployment of SNAPSHOTS to repository -->
+      <id>local.repository</id>
+      <url>file:.</url>
+    </snapshotRepository>
+  </distributionManagement>  
+  
 </project>
