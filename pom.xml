@@ -19,6 +19,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <scm>
+   <connection>scm:git:git://github.com/hudson/cobertura-plugin.git</connection>
+   <developerConnection>scm:git:git@github.com:hudson/cobertura-plugin.git</developerConnection>
+   <url>https://github.com/hudson/cobertura-plugin</url>
+  </scm>
+
   <developers>
     <developer>
       <id>stephenconnolly</id>
