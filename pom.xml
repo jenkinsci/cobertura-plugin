@@ -1,80 +1,81 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.jvnet.hudson.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>1.321</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+  <parent>
+    <groupId>org.jvnet.hudson.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.321</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-    <artifactId>cobertura</artifactId>
-    <packaging>hpi</packaging>
-    <version>1.1-p1-SNAPSHOT</version>
-    <name>Hudson Cobertura plugin</name>
-    <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
+  <artifactId>cobertura</artifactId>
+  <packaging>hpi</packaging>
+  <version>1.1-p1-SNAPSHOT</version>
+  <name>Hudson Cobertura plugin</name>
+  <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-    <developers>
-        <developer>
-            <id>stephenconnolly</id>
-            <name>Stephen Connolly</name>
-            <email>stephenconnolly@dev.java.net</email>
-        </developer>
-        <developer>
-            <id>manuel_carrasco</id>
-            <name>Manuel Carrasco Monino</name>
-            <email>manolo@apache</email>
-        </developer>
-    </developers>
+  <developers>
+    <developer>
+      <id>stephenconnolly</id>
+      <name>Stephen Connolly</name>
+      <email>stephenconnolly@dev.java.net</email>
+    </developer>
+    <developer>
+      <id>manuel_carrasco</id>
+      <name>Manuel Carrasco Monino</name>
+      <email>manolo@apache</email>
+    </developer>
+  </developers>
 
-    <profiles>
-        <profile>
-            <id>cobertura</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>cobertura-maven-plugin</artifactId>
-                        <configuration>
-                            <formats>
-                                <format>xml</format>
-                                <format>html</format>
-                            </formats>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>cobertura</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+  <profiles>
+    <profile>
+      <id>cobertura</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>cobertura-maven-plugin</artifactId>
+            <configuration>
+              <formats>
+                <format>xml</format>
+                <format>html</format>
+              </formats>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>cobertura</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
-    <dependencies>
-      <dependency>
-        <groupId>org.jvnet.hudson.main</groupId>
-        <artifactId>maven-plugin</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.easymock</groupId>
-        <artifactId>easymockclassextension</artifactId>
-        <version>2.4</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-  		<groupId>org.jvnet.hudson.plugins</groupId>
-  		<artifactId>dashboard-view</artifactId>
-  		<version>1.6</version>
-  		<optional>true</optional>
-  	</dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.jvnet.hudson.main</groupId>
+      <artifactId>maven-plugin</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymockclassextension</artifactId>
+      <version>2.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jvnet.hudson.plugins</groupId>
+      <artifactId>dashboard-view</artifactId>
+      <version>1.6</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
 </project>
