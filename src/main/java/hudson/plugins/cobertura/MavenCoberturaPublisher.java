@@ -39,8 +39,8 @@ public class MavenCoberturaPublisher extends MavenReporter {
 			PlexusConfiguration c = mojo.configuration.getChild("formats");
 			if (c == null) {
 				listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
-				PlexusConfiguration fmts = new XmlPlexusConfiguration("formats");
-				PlexusConfiguration fmt = new XmlPlexusConfiguration("format");
+				XmlPlexusConfiguration fmts = new XmlPlexusConfiguration("formats");
+				XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
 				fmt.setValue("html"); // this is in by default
 				fmts.addChild(fmt);
 				fmt = new XmlPlexusConfiguration("format");
@@ -60,7 +60,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 					listener.getLogger().println("[HUDSON] cobertura-maven-plugin already configured with xml reports enabled");
 				} else {
 					listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
-					PlexusConfiguration fmt = new XmlPlexusConfiguration("format");
+					XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
 					fmt.setValue("xml"); // need this
 					c.addChild(fmt);
 				}
