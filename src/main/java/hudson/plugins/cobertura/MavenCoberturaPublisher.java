@@ -21,10 +21,13 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
  * Created by IntelliJ IDEA. User: stephen Date: 17-Nov-2007 Time: 19:08:46
@@ -35,18 +38,26 @@ public class MavenCoberturaPublisher extends MavenReporter {
 	public boolean preExecute(MavenBuildProxy build, MavenProject pom, MojoInfo mojo, BuildListener listener) throws InterruptedException,
 			IOException {
 		if (isCoberturaReport(mojo)) {
+		    boolean maven3orLater = maven3orLater( build.getMavenBuildInformation().getMavenVersion());
 			// tell cobertura:cobertura to generate the XML report
 			PlexusConfiguration c = mojo.configuration.getChild("formats");
 			if (c == null) {
-				listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
-				XmlPlexusConfiguration fmts = new XmlPlexusConfiguration("formats");
-				XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
-				fmt.setValue("html"); // this is in by default
-				fmts.addChild(fmt);
-				fmt = new XmlPlexusConfiguration("format");
-				fmt.setValue("xml"); // need this
-				fmts.addChild(fmt);
-				mojo.configuration.addChild(fmts);
+			    listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
+			    
+                Xpp3Dom fmts = new Xpp3Dom("formats");
+                Xpp3Dom fmt = new Xpp3Dom("format");
+                fmt.setValue("html"); // this is in by default
+                fmts.addChild(fmt);
+                Xpp3Dom fmt2 = new Xpp3Dom("format");
+                fmt2.setValue("xml"); // need this
+                fmts.addChild(fmt2);			    
+			    
+			    if (!maven3orLater) {
+    				XmlPlexusConfiguration xmlPlexusConfiguration = new XmlPlexusConfiguration(fmts);
+    				mojo.configuration.addChild(xmlPlexusConfiguration);
+			    } else {
+			        mojo.mojoExecution.setConfiguration( fmts );
+			    }
 			} else {
 				PlexusConfiguration[] fmts = c.getChildren("format");
 				boolean xmlConfigured = false;
@@ -60,9 +71,20 @@ public class MavenCoberturaPublisher extends MavenReporter {
 					listener.getLogger().println("[HUDSON] cobertura-maven-plugin already configured with xml reports enabled");
 				} else {
 					listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
-					XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
-					fmt.setValue("xml"); // need this
-					c.addChild(fmt);
+					if (!maven3orLater) {
+					    XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
+					    fmt.setValue("xml"); // need this
+					    c.addChild(fmt);
+					} else {
+                       Xpp3Dom fmt = new Xpp3Dom("format");
+                       fmt.setValue("xml");
+                       Xpp3Dom formats = mojo.mojoExecution.getConfiguration().getChild( "formats" );
+                       if (formats == null) {
+                           formats = new Xpp3Dom( "formats" );
+                           mojo.mojoExecution.getConfiguration().addChild( formats );
+                       }
+                       formats.addChild( fmt );
+					}
 				}
 			}
 		}
@@ -268,4 +290,12 @@ public class MavenCoberturaPublisher extends MavenReporter {
 			return true;
 		}
 	}
+	
+    public boolean maven3orLater(String mavenVersion) {
+        // null or empty so false !
+        if (StringUtils.isBlank( mavenVersion )) {
+            return false;
+        }
+        return new ComparableVersion (mavenVersion).compareTo( new ComparableVersion ("3.0") ) >= 0;
+    }	
 }
