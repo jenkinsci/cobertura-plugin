@@ -16,15 +16,15 @@ import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.renderers.SourceEncoding;
 import hudson.plugins.cobertura.targets.CoverageResult;
 
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
-import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 
 /**
  * Created by IntelliJ IDEA. User: stephen Date: 17-Nov-2007 Time: 19:08:46
@@ -36,11 +36,11 @@ public class MavenCoberturaPublisher extends MavenReporter {
 			IOException {
 		if (isCoberturaReport(mojo)) {
 			// tell cobertura:cobertura to generate the XML report
-			XmlPlexusConfiguration c = (XmlPlexusConfiguration) mojo.configuration.getChild("formats");
+			PlexusConfiguration c = mojo.configuration.getChild("formats");
 			if (c == null) {
 				listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
-				XmlPlexusConfiguration fmts = new XmlPlexusConfiguration("formats");
-				XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
+				PlexusConfiguration fmts = new XmlPlexusConfiguration("formats");
+				PlexusConfiguration fmt = new XmlPlexusConfiguration("format");
 				fmt.setValue("html"); // this is in by default
 				fmts.addChild(fmt);
 				fmt = new XmlPlexusConfiguration("format");
@@ -48,9 +48,9 @@ public class MavenCoberturaPublisher extends MavenReporter {
 				fmts.addChild(fmt);
 				mojo.configuration.addChild(fmts);
 			} else {
-				XmlPlexusConfiguration[] fmts = (XmlPlexusConfiguration[]) c.getChildren("format");
+				PlexusConfiguration[] fmts = c.getChildren("format");
 				boolean xmlConfigured = false;
-				for (XmlPlexusConfiguration fmt : fmts) {
+				for (PlexusConfiguration fmt : fmts) {
 					if ("xml".equalsIgnoreCase(fmt.getValue().trim())) {
 						xmlConfigured = true;
 						break;
@@ -60,7 +60,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 					listener.getLogger().println("[HUDSON] cobertura-maven-plugin already configured with xml reports enabled");
 				} else {
 					listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
-					XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
+					PlexusConfiguration fmt = new XmlPlexusConfiguration("format");
 					fmt.setValue("xml"); // need this
 					c.addChild(fmt);
 				}
