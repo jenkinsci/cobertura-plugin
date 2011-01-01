@@ -16,7 +16,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <hudsonCoreVersion>1.392-SNAPSHOT</hudsonCoreVersion>
+    <hudsonCoreVersion>1.392</hudsonCoreVersion>
   </properties>
 
   <scm>
