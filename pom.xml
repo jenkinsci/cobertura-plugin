@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jvnet.hudson.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.391</version>
+    <version>1.393</version>
   </parent>
 
   <artifactId>cobertura</artifactId>
@@ -117,6 +117,10 @@
       <id>local.repository</id>
       <url>file:.</url>
     </snapshotRepository>
+    <repository>
+      <id>java.net-m2-repository</id>
+      <url>http://maven.hudson-labs.org:8081/content/repositories/releases/</url>
+    </repository>
   </distributionManagement>  
 
   <profiles>
