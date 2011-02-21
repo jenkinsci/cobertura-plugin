@@ -10,7 +10,7 @@
   <artifactId>cobertura</artifactId>
   <packaging>hpi</packaging>
   <version>1.2-SNAPSHOT</version>
-  <name>Hudson Cobertura plugin</name>
+  <name>Jenkins Cobertura plugin</name>
   <url>http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin</url>
 
   <properties>
@@ -19,9 +19,9 @@
   </properties>
 
   <scm>
-   <connection>scm:git:git://github.com/hudson/cobertura-plugin.git</connection>
-   <developerConnection>scm:git:git@github.com:hudson/cobertura-plugin.git</developerConnection>
-   <url>https://github.com/hudson/cobertura-plugin</url>
+   <connection>scm:git:git://github.com/jenkinsci/cobertura-plugin.git</connection>
+   <developerConnection>scm:git:git@github.com:jenkinsci/cobertura-plugin.git</developerConnection>
+   <url>https://github.com/jenkinsci/cobertura-plugin</url>
   </scm>
 
   <developers>
