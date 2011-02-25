@@ -44,7 +44,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 			// tell cobertura:cobertura to generate the XML report
 			PlexusConfiguration c = mojo.configuration.getChild("formats");
 			if (c == null) {
-			    listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
+			    listener.getLogger().println("[JENKINS] Configuring cobertura-maven-plugin to enable xml reports");
 			    
                 Xpp3Dom fmts = new Xpp3Dom("formats");
                 Xpp3Dom fmt = new Xpp3Dom("format");
@@ -70,9 +70,9 @@ public class MavenCoberturaPublisher extends MavenReporter {
 					}
 				}
 				if (xmlConfigured) {
-					listener.getLogger().println("[HUDSON] cobertura-maven-plugin already configured with xml reports enabled");
+					listener.getLogger().println("[JENKINS] cobertura-maven-plugin already configured with xml reports enabled");
 				} else {
-					listener.getLogger().println("[HUDSON] Configuring cobertura-maven-plugin to enable xml reports");
+					listener.getLogger().println("[JENKINS] Configuring cobertura-maven-plugin to enable xml reports");
 					if (!maven3orLater) {
 					    XmlPlexusConfiguration fmt = new XmlPlexusConfiguration("format");
 					    fmt.setValue("xml"); // need this
@@ -120,26 +120,26 @@ public class MavenCoberturaPublisher extends MavenReporter {
 				}
 			}
 			if (!haveXMLReport) {
-				listener.getLogger().println("[HUDSON] I could not auto-configure the cobertura-maven-plugin to generate xml reports");
-				listener.getLogger().println("[HUDSON] If the cobertura plugin needs was configured to generate xml reports, e.g.");
-				listener.getLogger().println("[HUDSON]     ...");
-				listener.getLogger().println("[HUDSON]     <plugin>");
-				listener.getLogger().println("[HUDSON]       <groupId>org.codehaus.mojo</groupId>");
-				listener.getLogger().println("[HUDSON]       <artifactId>codehaus-maven-plugin</artifactId>");
-				listener.getLogger().println("[HUDSON]       ...");
-				listener.getLogger().println("[HUDSON]       <configuration>");
-				listener.getLogger().println("[HUDSON]         ...");
-				listener.getLogger().println("[HUDSON]         <formats>");
-				listener.getLogger().println("[HUDSON]           ...");
-				listener.getLogger().println("[HUDSON]           <format>xml</format> <!-- ensure this format is present -->");
-				listener.getLogger().println("[HUDSON]           ...");
-				listener.getLogger().println("[HUDSON]         </formats>");
-				listener.getLogger().println("[HUDSON]         ...");
-				listener.getLogger().println("[HUDSON]       </configuration>");
-				listener.getLogger().println("[HUDSON]       ...");
-				listener.getLogger().println("[HUDSON]     </plugin>");
-				listener.getLogger().println("[HUDSON]     ...");
-				listener.getLogger().println("[HUDSON] Code coverage reports would be enabled");
+				listener.getLogger().println("[JENKINS] I could not auto-configure the cobertura-maven-plugin to generate xml reports");
+				listener.getLogger().println("[JENKINS] If the cobertura plugin needs was configured to generate xml reports, e.g.");
+				listener.getLogger().println("[JENKINS]     ...");
+				listener.getLogger().println("[JENKINS]     <plugin>");
+				listener.getLogger().println("[JENKINS]       <groupId>org.codehaus.mojo</groupId>");
+				listener.getLogger().println("[JENKINS]       <artifactId>codehaus-maven-plugin</artifactId>");
+				listener.getLogger().println("[JENKINS]       ...");
+				listener.getLogger().println("[JENKINS]       <configuration>");
+				listener.getLogger().println("[JENKINS]         ...");
+				listener.getLogger().println("[JENKINS]         <formats>");
+				listener.getLogger().println("[JENKINS]           ...");
+				listener.getLogger().println("[JENKINS]           <format>xml</format> <!-- ensure this format is present -->");
+				listener.getLogger().println("[JENKINS]           ...");
+				listener.getLogger().println("[JENKINS]         </formats>");
+				listener.getLogger().println("[JENKINS]         ...");
+				listener.getLogger().println("[JENKINS]       </configuration>");
+				listener.getLogger().println("[JENKINS]       ...");
+				listener.getLogger().println("[JENKINS]     </plugin>");
+				listener.getLogger().println("[JENKINS]     ...");
+				listener.getLogger().println("[JENKINS] Code coverage reports would be enabled");
 				build.setResult(Result.UNSTABLE);
 				return true;
 			}
@@ -151,7 +151,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 
 		File reportFile = new File(outputDir, "coverage.xml");
 		if (!reportFile.exists()) {
-			listener.getLogger().println("[HUDSON] Cobertura report not generated (probably this module is not a java module)");
+			listener.getLogger().println("[JENKINS] Cobertura report not generated (probably this module is not a java module)");
 			return true;
 		}
 
@@ -161,7 +161,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 
 		try {
 			target.mkdirs();
-			listener.getLogger().println("[HUDSON] Recording coverage results");
+			listener.getLogger().println("[JENKINS] Recording coverage results");
 			reportFilePath.copyTo(target.child("coverage.xml"));
 		} catch (IOException e) {
 			Util.displayIOException(e, listener);
@@ -191,13 +191,13 @@ public class MavenCoberturaPublisher extends MavenReporter {
 
 			new FilePath(pom.getBasedir()).act(painter);
 			if (!build.execute(new MavenCoberturaActionAdder(listener))) {
-				listener.getLogger().println("[HUDSON] Unable to add link to cobertura results");
+				listener.getLogger().println("[JENKINS] Unable to add link to cobertura results");
 				build.setResult(Result.FAILURE);
 				return true;
 			}
 
 		} else {
-			listener.getLogger().println("[HUDSON] Unable to parse coverage results.");
+			listener.getLogger().println("[JENKINS] Unable to parse coverage results.");
 			build.setResult(Result.FAILURE);
 			return true;
 		}
