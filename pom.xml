@@ -2,20 +2,19 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.jvnet.hudson.plugins</groupId>
+    <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.393</version>
+    <version>1.397</version>
   </parent>
 
   <artifactId>cobertura</artifactId>
   <packaging>hpi</packaging>
   <version>1.2-SNAPSHOT</version>
-  <name>Jenkins Cobertura plugin</name>
+  <name>Jenkins Cobertura Plugin</name>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Cobertura+Plugin</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <hudsonCoreVersion>1.393</hudsonCoreVersion>
   </properties>
 
   <scm>
@@ -39,31 +38,10 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jvnet.hudson.main</groupId>
+      <groupId>org.jenkins-ci.main</groupId>
       <artifactId>maven-plugin</artifactId>
-      <version>${hudsonCoreVersion}</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>org.jvnet.hudson.main</groupId>
-      <artifactId>hudson-core</artifactId>
-      <version>${hudsonCoreVersion}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jvnet.hudson.main</groupId>
-      <artifactId>hudson-war</artifactId>
-      <version>${hudsonCoreVersion}</version>
-      <scope>test</scope>
-      <type>war</type>
-    </dependency>    
-    <dependency>
-      <groupId>org.jvnet.hudson.main</groupId>
-      <artifactId>hudson-test-harness</artifactId>
-      <version>${hudsonCoreVersion}</version>
-      <scope>test</scope>
-    </dependency>    
-        
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymockclassextension</artifactId>
@@ -114,19 +92,6 @@
     </pluginManagement> 
   </build>
   
-  <distributionManagement>
-    <!--  maven3 doesn't support anymore id local -->
-    <snapshotRepository>
-      <!-- prevent accidental deployment of SNAPSHOTS to repository -->
-      <id>local.repository</id>
-      <url>file:.</url>
-    </snapshotRepository>
-    <repository>
-      <id>java.net-m2-repository</id>
-      <url>http://maven.hudson-labs.org:8081/content/repositories/releases/</url>
-    </repository>
-  </distributionManagement>  
-
   <profiles>
     <profile>
       <id>cobertura</id>
@@ -183,32 +148,5 @@
         </plugins>
       </build>
     </profile>   
-    
   </profiles>
-  
-  <repositories>
-    <repository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories> 
 </project>
