@@ -18,6 +18,8 @@ import hudson.plugins.cobertura.targets.CoverageResult;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -218,8 +220,8 @@ public class MavenCoberturaPublisher extends MavenReporter {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Action getProjectAction(MavenModule project) {
-		return new CoberturaProjectAction(project);
+	public Collection<? extends Action> getProjectActions(MavenModule project) {
+		return Collections.singleton(new CoberturaProjectAction(project));
 	}
 
 	/**
