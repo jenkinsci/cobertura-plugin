@@ -156,4 +156,13 @@
       </build>
     </profile>   
   </profiles>
+  
+  
+  <repositories>
+      <repository>
+          <id>m.g.o-public</id>
+          <url>http://maven.glassfish.org/content/groups/public/</url>
+      </repository>
+  </repositories>
+    
 </project>
