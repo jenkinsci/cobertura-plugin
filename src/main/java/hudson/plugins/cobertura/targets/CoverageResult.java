@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +70,7 @@ public class CoverageResult implements Serializable {
 
     // these two pointers form a tree structure where edges are names.
     private final CoverageResult parent;
-    private final Map<String, CoverageResult> children = new HashMap<String, CoverageResult>();
+    private final Map<String, CoverageResult> children = new TreeMap<String, CoverageResult>();
 
     private final Map<CoverageMetric,Ratio> aggregateResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
     private final Map<CoverageMetric,Ratio> localResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
