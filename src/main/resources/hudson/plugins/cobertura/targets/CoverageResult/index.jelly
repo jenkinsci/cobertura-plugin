@@ -115,7 +115,7 @@
                                         <th colspan="3">${it.relativeSourcePath}</th>
                                     </tr>
                                 </thead>
-                                ${it.sourceFileContent}
+                                <pre>${it.sourceFileContent}</pre>
 
                             </table>
                         </div>
