@@ -3,31 +3,13 @@ package hudson.plugins.cobertura.targets;
 import hudson.model.AbstractBuild;
 import hudson.model.Api;
 import hudson.model.Run;
+import hudson.plugins.cobertura.Chartable;
 import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.cobertura.CoverageChart;
 import hudson.plugins.cobertura.Ratio;
 import hudson.util.ChartUtil;
-import hudson.util.ColorPalette;
-import hudson.util.DataSetBuilder;
-import hudson.util.ShiftedCategoryAxis;
 import hudson.util.TextFile;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
-import org.jfree.chart.title.LegendTitle;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.RectangleInsets;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.export.Exported;
-import org.kohsuke.stapler.export.ExportedBean;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,11 +19,17 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.jfree.chart.JFreeChart;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.export.ExportedBean;
 
 /**
  * Coverage result for a specific programming element. 
@@ -53,7 +41,7 @@ import java.util.TreeSet;
  * @since 22-Aug-2007 18:47:10
  */
 @ExportedBean(defaultVisibility=2)
-public class CoverageResult implements Serializable {
+public class CoverageResult implements Serializable, Chartable {
     /**
 	 * Generated
 	 */
@@ -434,66 +422,8 @@ public class CoverageResult implements Serializable {
         if (req.checkIfModified(t, rsp))
             return; // up to date
 
-        DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
-
-        for (CoverageResult a = this; a != null; a = a.getPreviousResult()) {
-            ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(a.getOwner());
-            for (Map.Entry<CoverageMetric, Ratio> value : a.aggregateResults.entrySet()) {
-                dsb.add(value.getValue().getPercentageFloat(), value.getKey().getName(), label);
-            }
-        }
-
-        ChartUtil.generateGraph(req, rsp, createChart(dsb.build()), 500, 200);
-    }
-
-    private JFreeChart createChart(CategoryDataset dataset) {
-
-        final JFreeChart chart = ChartFactory.createLineChart(
-                null,                   // chart title
-                null,                   // unused
-                "%",                    // range axis label
-                dataset,                  // data
-                PlotOrientation.VERTICAL, // orientation
-                true,                     // include legend
-                true,                     // tooltips
-                false                     // urls
-        );
-
-        // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
-
-        final LegendTitle legend = chart.getLegend();
-        legend.setPosition(RectangleEdge.RIGHT);
-
-        chart.setBackgroundPaint(Color.white);
-
-        final CategoryPlot plot = chart.getCategoryPlot();
-
-        // plot.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 5.0, 5.0, 5.0, 5.0));
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setOutlinePaint(null);
-        plot.setRangeGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.black);
-
-        CategoryAxis domainAxis = new ShiftedCategoryAxis(null);
-        plot.setDomainAxis(domainAxis);
-        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
-        domainAxis.setLowerMargin(0.0);
-        domainAxis.setUpperMargin(0.0);
-        domainAxis.setCategoryMargin(0.0);
-
-        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        rangeAxis.setUpperBound(100);
-        rangeAxis.setLowerBound(0);
-
-        final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-        renderer.setBaseStroke(new BasicStroke(2.0f));
-        ColorPalette.apply(renderer);
-
-        // crop extra space around the graph
-        plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
-
-        return chart;
+        JFreeChart chart = new CoverageChart( this ).createChart();
+        ChartUtil.generateGraph(req, rsp, chart, 500, 400);
     }
 
     /**
