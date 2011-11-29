@@ -95,9 +95,13 @@ public class CoberturaCoverageParser {
  * Parses coverage XML data.
  */
 class CoberturaXmlHandler extends DefaultHandler {
+    private static final String DEFAULT_PACKAGE = "<default>";
+    // patterns static for performance ("Instances of Pattern are immutable and are safe for use by multiple concurrent threads" according to javadoc)
+    private static final Pattern CONDITION_COVERAGE_PATTERN = Pattern.compile("(\\d*)\\s*\\%\\s*\\((\\d*)/(\\d*)\\)");
+    private static final Pattern METHOD_SIGNATURE_PATTERN = Pattern.compile("\\((.*)\\)(.*)");
+    private static final Pattern METHOD_ARGS_PATTERN = Pattern.compile("\\[*([TL][^\\;]*\\;)|([ZCBSIFJDV])");
     private CoverageResult rootCoverage;
     private Stack<CoverageResult> stack = new Stack<CoverageResult>();
-    private static final String DEFAULT_PACKAGE = "<default>";
     private Set<String> sourcePaths = new HashSet<String>();
     private boolean inSources = false;
     private boolean inSource = false;
@@ -198,8 +202,11 @@ class CoberturaXmlHandler extends DefaultHandler {
                 if (conditionCoverage != null) {
                     // some cases in the wild have branch = true but no condition-coverage attribute
 
-                    // should be of the format xxx% (yyy/zzz)
-                    Matcher matcher = Pattern.compile("(\\d*)\\%\\s*\\((\\d*)/(\\d*)\\)").matcher(conditionCoverage);
+                    // should be of the format xxx% (yyy/zzz),
+                    // or xxx % (yyy/zzz) for French,
+                    // because cobertura uses the default locale as said in
+                    // http://sourceforge.net/tracker/?func=detail&aid=3296149&group_id=130558&atid=720015
+                    Matcher matcher = CONDITION_COVERAGE_PATTERN.matcher(conditionCoverage);
                     if (matcher.matches()) {
                         assert matcher.groupCount() == 3;
                         final String numeratorStr = matcher.group(2);
@@ -231,19 +238,18 @@ class CoberturaXmlHandler extends DefaultHandler {
     }
 
     private String buildMethodName(String name, String signature) {
-        Matcher signatureMatcher = Pattern.compile("\\((.*)\\)(.*)").matcher(signature);
+        Matcher signatureMatcher = METHOD_SIGNATURE_PATTERN.matcher(signature);
         StringBuilder methodName = new StringBuilder();
         if (signatureMatcher.matches()) {
-            Pattern argMatcher = Pattern.compile("\\[*([TL][^\\;]*\\;)|([ZCBSIFJDV])");
             String returnType = signatureMatcher.group(2);
-            Matcher matcher = argMatcher.matcher(returnType);
+            Matcher matcher = METHOD_ARGS_PATTERN.matcher(returnType);
             if (matcher.matches()) {
                 methodName.append(parseMethodArg(matcher.group()));
                 methodName.append(' ');
             }
             methodName.append(name);
             String args = signatureMatcher.group(1);
-            matcher = argMatcher.matcher(args);
+            matcher = METHOD_ARGS_PATTERN.matcher(args);
             methodName.append('(');
             boolean first = true;
             while (matcher.find()) {
