@@ -4,7 +4,15 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.*;
+import hudson.maven.ExecutedMojo;
+import hudson.maven.MavenBuild;
+import hudson.maven.MavenModuleSetBuild;
+import hudson.model.Action;
+import hudson.model.BuildListener;
+import hudson.model.Result;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractItem;
+import hudson.model.AbstractProject;
 import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.renderers.SourceEncoding;
 import hudson.plugins.cobertura.targets.CoverageMetric;
@@ -14,15 +22,23 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import net.sf.json.JSONObject;
+
+import org.apache.commons.beanutils.ConvertUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Cobertura {@link Publisher}.
@@ -212,6 +228,21 @@ public class CoberturaPublisher extends Recorder {
             listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
             return true;
         }
+        // Make sure Cobertura actually ran
+        if(build instanceof MavenBuild) {
+          MavenBuild mavenBuild = (MavenBuild)build;
+          if(didCoberturaRun(mavenBuild) == false) {
+            listener.getLogger().println("Skipping Cobertura coverage report as mojo did not run.");
+            return true;
+          }
+        } else if(build instanceof MavenModuleSetBuild) {
+          MavenModuleSetBuild moduleSetBuild = (MavenModuleSetBuild)build;
+          if(didCoberturaRun(moduleSetBuild.getModuleLastBuilds().values()) == false) {
+            listener.getLogger().println("Skipping Cobertura coverage report as mojo did not run.");
+            return true;
+          }
+        }
+        
         listener.getLogger().println("Publishing Cobertura coverage report...");
         final FilePath[] moduleRoots = build.getModuleRoots();
         final boolean multipleModuleRoots =
@@ -433,5 +464,21 @@ public class CoberturaPublisher extends Recorder {
             // TODO take this out of an anonymous inner class, create a singleton and use a Regex to match the name
             return name.startsWith("coverage") && name.endsWith(".xml");
         }
+    }
+
+    private boolean didCoberturaRun(Iterable<MavenBuild> mavenBuilds) {
+      for(MavenBuild build: mavenBuilds) { 
+        if(didCoberturaRun(build)) return true;
+      }
+      return false;
+    }
+    
+    private boolean didCoberturaRun(MavenBuild mavenBuild) {
+      for(ExecutedMojo mojo : mavenBuild.getExecutedMojos()) {
+        if(mojo.groupId.equals("org.codehaus.mojo") && mojo.artifactId.equals("cobertura-maven-plugin")) {
+          return true;
+        }
+      }
+      return false;
     }
 }
