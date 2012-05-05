@@ -9,7 +9,7 @@
 
   <artifactId>cobertura</artifactId>
   <packaging>hpi</packaging>
-  <version>1.4</version>
+  <version>1.5-SNAPSHOT</version>
   <name>Jenkins Cobertura Plugin</name>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Cobertura+Plugin</url>
 
