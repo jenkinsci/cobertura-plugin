@@ -81,7 +81,7 @@ public class CoverageTablePortlet extends DashboardPortlet {
 
 	public static class DescriptorImpl extends Descriptor<DashboardPortlet> {
 
-		@Extension
+		@Extension(optional = true)
 		public static DescriptorImpl newInstance() {
 			if (Hudson.getInstance().getPlugin("dashboard-view") != null) {
 				return new DescriptorImpl();
