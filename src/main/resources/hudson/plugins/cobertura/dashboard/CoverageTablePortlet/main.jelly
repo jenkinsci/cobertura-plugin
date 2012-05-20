@@ -34,11 +34,12 @@ THE SOFTWARE.
 		      <td>
 		        <table class="pane sortable" id="warnings-table" style="margin-top: 0px;">
 		          <tr>
-		            <td width="30%" initialSortDir="down" class="pane-header">${%Job}</td>
+		            <td width="40%" initialSortDir="down" class="pane-header">${%Job}</td>
 		            <td width="10%" class="pane-header">${%Classes}</td>
 		            <td width="10%" class="pane-header">${%Conditionals}</td>
 		            <td width="10%" class="pane-header">${%Files}</td>
 		            <td width="10%" class="pane-header">${%Lines}</td>
+		            <td width="10%" class="pane-header">${%Methods}</td>
 		            <td width="10%" class="pane-header">${%Packages}</td>
 		          </tr>
 		          <tbody>
@@ -49,22 +50,22 @@ THE SOFTWARE.
 				  	        <td><t:buildLink jobName="${r.parent.name}" job="${r.parent}" number="${r.number}" href="${r.url}" /></td>
 				  	        <j:choose>
 							    <j:when test="${empty(metrics)}">
-							      <td colspan="5">${%N/A}</td>
+							      <td colspan="6">${%N/A}</td>
 							    </j:when>
 							<j:otherwise>
 					            <j:forEach var="metric" items="${metrics}">
-					        	    <td> ${result.getCoverage(metric).percentage}% ${result.getCoverage(metric)}</td>
+					        	    <td style="text-align: right;" data="${result.getCoverage(metric)}"> ${result.getCoverage(metric).percentage}% ${result.getCoverage(metric)}</td>
 					            </j:forEach>
 					        </j:otherwise>
 					       </j:choose>
 				        </tr>
 				      </j:forEach>
-				        <tr>
+				        <tr class="sortbottom">
 				         <j:set var="result" value="${it.getCoverageResult(coverageRuns[0])}"/>
 				         <j:set var="metrics" value="${result.metrics}"/>
-				         <td><b>Total</b></td>
+				         <td class="pane-header"><b>${%Total}</b></td>
 				            <j:forEach var="metric" items="${metrics}">
-				        	    <td> ${it.getTotalCoverageRatio().get(metric).percentage}% ${it.getTotalCoverageRatio().get(metric)}</td>
+				        	    <td class="pane-header" style="text-align: right;"> ${it.getTotalCoverageRatio().get(metric).percentage}% ${it.getTotalCoverageRatio().get(metric)}</td>
 				            </j:forEach>
 				        </tr>
 				     </tbody>
