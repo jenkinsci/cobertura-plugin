@@ -92,7 +92,7 @@ public class CoverageTablePortlet extends DashboardPortlet {
 
 		@Override
 		public String getDisplayName() {
-			return "Code Coverages";
+			return "Code Coverages(Cobertura)";
 		}
 	}
 }
