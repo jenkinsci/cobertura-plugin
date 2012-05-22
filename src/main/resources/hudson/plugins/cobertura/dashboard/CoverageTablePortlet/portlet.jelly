@@ -23,7 +23,7 @@ THE SOFTWARE.
 -->
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:dp="/hudson/plugins/view/dashboard" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" >
-	  <dp:decorate portlet="${it}" width="1">
+	  <dp:decorate portlet="${it}" width="7">
 		  <j:set var="coverageRuns" value="${it.getCoverageRuns()}"/>
 		  <j:choose>
 		    <j:when test="${empty(coverageRuns)}">
@@ -34,13 +34,13 @@ THE SOFTWARE.
 		      <td>
 		        <table class="pane sortable" id="warnings-table" style="margin-top: 0px;">
 		          <tr>
-		            <td width="40%" initialSortDir="down" class="pane-header">${%Job}</td>
-		            <td width="10%" class="pane-header">${%Classes}</td>
-		            <td width="10%" class="pane-header">${%Conditionals}</td>
-		            <td width="10%" class="pane-header">${%Files}</td>
-		            <td width="10%" class="pane-header">${%Lines}</td>
-		            <td width="10%" class="pane-header">${%Methods}</td>
-		            <td width="10%" class="pane-header">${%Packages}</td>
+		            <td width="40%" initialSortDir="down" class="pane-header" style="text-align: center;">${%Job}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Classes}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Conditionals}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Files}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Lines}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Methods}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Packages}</td>
 		          </tr>
 		          <tbody>
 				      <j:forEach var="r" items="${coverageRuns}">
@@ -54,7 +54,7 @@ THE SOFTWARE.
 							    </j:when>
 							<j:otherwise>
 					            <j:forEach var="metric" items="${metrics}">
-					        	    <td style="text-align: right;" data="${result.getCoverage(metric)}"> ${result.getCoverage(metric).percentage}%</td>
+					        	    <td class="pane" style="text-align: right;" data="${result.getCoverage(metric)}"> ${result.getCoverage(metric).percentage}%</td>
 					            </j:forEach>
 					        </j:otherwise>
 					       </j:choose>
