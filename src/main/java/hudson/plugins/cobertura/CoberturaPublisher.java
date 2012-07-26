@@ -49,6 +49,10 @@ public class CoberturaPublisher extends Recorder {
 
     private final String coberturaReportFile;
     private final boolean onlyStable;
+    private final boolean failUnhealthy;
+    private final boolean failUnstable;
+    private final boolean autoUpdateHealth;
+    private final boolean autoUpdateStability;
     
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
@@ -61,9 +65,13 @@ public class CoberturaPublisher extends Recorder {
      * @stapler-constructor
      */
     @DataBoundConstructor 
-    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, SourceEncoding sourceEncoding) {
+    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability, SourceEncoding sourceEncoding) {
         this.coberturaReportFile = coberturaReportFile;
         this.onlyStable = onlyStable;
+        this.failUnhealthy = failUnhealthy;
+        this.failUnstable = failUnstable;
+        this.autoUpdateHealth = autoUpdateHealth;
+        this.autoUpdateStability = autoUpdateStability;
 		this.sourceEncoding = sourceEncoding;
         this.healthyTarget = new CoverageTarget();
         this.unhealthyTarget = new CoverageTarget();
@@ -145,6 +153,42 @@ public class CoberturaPublisher extends Recorder {
      */
     public boolean getOnlyStable() {
         return onlyStable;
+    }
+    
+    /**
+     * Getter for property 'failUnhealthy'.
+     *
+     * @return Value for property 'failUnhealthy'.
+     */
+    public boolean getFailUnhealthy() {
+        return failUnhealthy;
+    }
+    
+    /**
+     * Getter for property 'failUnstable'.
+     *
+     * @return Value for property 'failUnstable'.
+     */
+    public boolean getFailUnstable() {
+        return failUnstable;
+    }
+    
+    /**
+     * Getter for property 'autoUpdateHealth'.
+     *
+     * @return Value for property 'autoUpdateHealth'.
+     */
+    public boolean getAutoUpdateHealth() {
+        return autoUpdateHealth;
+    }
+    
+    /**
+     * Getter for property 'autoUpdateStability'.
+     *
+     * @return Value for property 'autoUpdateStability'.
+     */
+    public boolean getAutoUpdateStability() {
+        return autoUpdateStability;
     }
 
     /**
@@ -301,6 +345,7 @@ public class CoberturaPublisher extends Recorder {
             }
         }
         if (result != null) {
+        	listener.getLogger().println("Cobertura coverage report found.");
             result.setOwner(build);
             final FilePath paintedSourcesPath = new FilePath(new File(build.getProject().getRootDir(), "cobertura"));
             paintedSourcesPath.mkdirs();
@@ -310,7 +355,7 @@ public class CoberturaPublisher extends Recorder {
             moduleRoot.act(painter);
 
             final CoberturaBuildAction action = CoberturaBuildAction.load(build, result, healthyTarget,
-                    unhealthyTarget, getOnlyStable());
+                    unhealthyTarget, getOnlyStable(), getFailUnhealthy(), getFailUnstable(), getAutoUpdateHealth(), getAutoUpdateStability());
 
             build.getActions().add(action);
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
@@ -319,8 +364,40 @@ public class CoberturaPublisher extends Recorder {
                 for (CoverageMetric metric : failingMetrics) {
                     listener.getLogger().println("    " + metric.getName());
                 }
-                listener.getLogger().println("Setting Build to unstable.");
-                build.setResult(Result.UNSTABLE);
+                if(!getFailUnstable())
+                {
+                	listener.getLogger().println("Setting Build to unstable.");
+                	build.setResult(Result.UNSTABLE);
+                }
+                else
+                {
+                	listener.getLogger().println("Failing build due to unstability.");
+                	build.setResult(Result.FAILURE);
+                }
+            }
+            if(getFailUnhealthy())
+            {
+            	Set<CoverageMetric> unhealthyMetrics = unhealthyTarget.getFailingMetrics(result);
+            	if (!unhealthyMetrics.isEmpty()) {
+            		listener.getLogger().println("Unhealthy for the following metrics:");
+            		for (CoverageMetric metric : unhealthyMetrics) {
+            			listener.getLogger().println("    " + metric.getName());
+            		}
+                	listener.getLogger().println("Failing build because it is unhealthy.");
+            		build.setResult(Result.FAILURE);
+            	}
+            }
+            if(build.getResult() == Result.SUCCESS)
+            {	
+            	if(getAutoUpdateHealth())
+            	{
+            		setNewPercentages(result, true, listener);
+            	}
+            	
+            	if(getAutoUpdateStability())
+            	{
+            		setNewPercentages(result, false, listener);
+            	}
             }
         } else {
             listener.getLogger().println("No coverage results were successfully parsed.  Did you generate " +
@@ -330,7 +407,45 @@ public class CoberturaPublisher extends Recorder {
 
         return true;
     }
-
+    
+	/**
+     * Changes unhealthy or unstable percentage fields for ratcheting.
+     */
+    public void setNewPercentages(CoverageResult result, boolean select, BuildListener listener)
+    {
+		Set<CoverageMetric> healthyMetrics = healthyTarget.getAllMetrics(result);
+		int newPercent;
+		int oldPercent;
+		if(!healthyMetrics.isEmpty())
+		{
+			for (CoverageMetric metric : healthyMetrics)
+			{    
+				newPercent = healthyTarget.getObservedPercent(result, metric);
+				if(select)
+				{
+					oldPercent = unhealthyTarget.getSetPercent(result, metric);
+				}
+				else
+				{
+					oldPercent = failingTarget.getSetPercent(result, metric);
+				}
+				if(newPercent > oldPercent)
+				{
+					if(select)
+					{
+						unhealthyTarget.setTarget(metric, newPercent);
+    					listener.getLogger().println("    " + metric.getName() + "'s new health minimum is: " + newPercent);
+					}
+					else
+					{
+						failingTarget.setTarget(metric, newPercent);
+    					listener.getLogger().println("    " + metric.getName() + "'s new stability minimum is: " + newPercent);
+					}
+				}
+			}
+		}
+    }
+    
     /**
      * {@inheritDoc}
      */

@@ -70,6 +70,39 @@ public class CoverageTarget implements Serializable {
         return result;
     }
 
+    public Set<CoverageMetric> getAllMetrics(CoverageResult coverage) {
+        Set<CoverageMetric> result = EnumSet.noneOf(CoverageMetric.class);
+        for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
+            Ratio observed = coverage.getCoverage(target.getKey());
+            if (observed != null) {
+                result.add(target.getKey());
+            }
+        }
+
+        return result;
+    }
+    
+    public int getObservedPercent(CoverageResult coverage, CoverageMetric key)
+    {
+        for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
+            Ratio observed = coverage.getCoverage(target.getKey());
+            if (target.getKey() == key) {
+            	return observed.getPercentage();
+            }
+        }
+        return 0;
+    }
+    
+    public int getSetPercent(CoverageResult coverage, CoverageMetric key)
+    {
+        for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
+            if (target.getKey() == key) {
+            	return target.getValue();
+            }
+        }
+        return 0;
+    }
+    
     public Map<CoverageMetric, Integer> getRangeScores(CoverageTarget min, CoverageResult coverage) {
         return getRangeScores(min, coverage.getResults());
     }
