@@ -411,7 +411,7 @@ public class CoberturaPublisher extends Recorder {
 	/**
      * Changes unhealthy or unstable percentage fields for ratcheting.
      */
-    public void setNewPercentages(CoverageResult result, boolean select, BuildListener listener)
+    private void setNewPercentages(CoverageResult result, boolean select, BuildListener listener)
     {
 		Set<CoverageMetric> healthyMetrics = healthyTarget.getAllMetrics(result);
 		int newPercent;
