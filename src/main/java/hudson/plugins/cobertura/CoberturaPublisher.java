@@ -361,8 +361,10 @@ public class CoberturaPublisher extends Recorder {
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
             if (!failingMetrics.isEmpty()) {
                 listener.getLogger().println("Code coverage enforcement failed for the following metrics:");
+                int oldStabilityPercent;
                 for (CoverageMetric metric : failingMetrics) {
-                    listener.getLogger().println("    " + metric.getName());
+                	oldStabilityPercent = failingTarget.getSetPercent(result, metric);
+                    listener.getLogger().println("    " + metric.getName() + "'s stability is " + oldStabilityPercent);
                 }
                 if(!getFailUnstable())
                 {
@@ -380,8 +382,10 @@ public class CoberturaPublisher extends Recorder {
             	Set<CoverageMetric> unhealthyMetrics = unhealthyTarget.getFailingMetrics(result);
             	if (!unhealthyMetrics.isEmpty()) {
             		listener.getLogger().println("Unhealthy for the following metrics:");
+            		int oldHealthyPercent;
             		for (CoverageMetric metric : unhealthyMetrics) {
-            			listener.getLogger().println("    " + metric.getName());
+            			oldHealthyPercent = unhealthyTarget.getSetPercent(result, metric);
+            			listener.getLogger().println("    " + metric.getName() + "'s health is " + oldHealthyPercent);
             		}
                 	listener.getLogger().println("Failing build because it is unhealthy.");
             		build.setResult(Result.FAILURE);
