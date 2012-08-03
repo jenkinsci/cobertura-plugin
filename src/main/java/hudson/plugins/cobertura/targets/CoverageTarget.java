@@ -62,7 +62,7 @@ public class CoverageTarget implements Serializable {
         Set<CoverageMetric> result = EnumSet.noneOf(CoverageMetric.class);
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = coverage.getCoverage(target.getKey());
-            if (observed != null && observed.getPercentage() < target.getValue()) {
+            if (observed != null && observed.getPercentageFloat() < (float)(target.getValue()/100000f)) {
                 result.add(target.getKey());
             }
         }
@@ -82,22 +82,22 @@ public class CoverageTarget implements Serializable {
         return result;
     }
     
-    public int getObservedPercent(CoverageResult coverage, CoverageMetric key)
+    public float getObservedPercent(CoverageResult coverage, CoverageMetric key)
     {
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = coverage.getCoverage(target.getKey());
             if (target.getKey() == key) {
-            	return observed.getPercentage();
+            	return observed.getPercentageFloat();
             }
         }
         return 0;
     }
     
-    public int getSetPercent(CoverageResult coverage, CoverageMetric key)
+    public float getSetPercent(CoverageResult coverage, CoverageMetric key)
     {
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             if (target.getKey() == key) {
-            	return target.getValue();
+            	return (float)(target.getValue()/100000f);
             }
         }
         return 0;
@@ -113,7 +113,7 @@ public class CoverageTarget implements Serializable {
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = results.get(target.getKey());
             if (observed != null) {
-                j = CoverageTarget.calcRangeScore(target.getValue(), min.targets.get(target.getKey()), observed.getPercentage());
+                j = CoverageTarget.calcRangeScore(target.getValue()/100000, min.targets.get(target.getKey()), observed.getPercentage());
                 result.put(target.getKey(), Integer.valueOf(j));
             }
         }

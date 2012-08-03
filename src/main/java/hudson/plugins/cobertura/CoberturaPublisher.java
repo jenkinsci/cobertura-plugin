@@ -85,13 +85,19 @@ public class CoberturaPublisher extends Recorder {
      */
     public List<CoberturaPublisherTarget> getTargets() {
         Map<CoverageMetric, CoberturaPublisherTarget> targets = new TreeMap<CoverageMetric, CoberturaPublisherTarget>();
+        float checker;
         for (CoverageMetric metric : healthyTarget.getTargets()) {
             CoberturaPublisherTarget target = targets.get(metric);
             if (target == null) {
                 target = new CoberturaPublisherTarget();
                 target.setMetric(metric);
             }
-            target.setHealthy(healthyTarget.getTarget(metric));
+            checker = (float)healthyTarget.getTarget(metric)/100000f;
+            if(checker <= 0.001f)
+            {
+            	checker = (float)(Math.round(checker*100000f));
+            }
+            target.setHealthy(checker);
             targets.put(metric, target);
         }
         for (CoverageMetric metric : unhealthyTarget.getTargets()) {
@@ -100,7 +106,12 @@ public class CoberturaPublisher extends Recorder {
                 target = new CoberturaPublisherTarget();
                 target.setMetric(metric);
             }
-            target.setUnhealthy(unhealthyTarget.getTarget(metric));
+            checker = (float)unhealthyTarget.getTarget(metric)/100000f;
+            if(checker <= 0.001f)
+            {
+            	checker = (float)(Math.round(checker*100000f));
+            }
+            target.setUnhealthy(checker);
             targets.put(metric, target);
         }
         for (CoverageMetric metric : failingTarget.getTargets()) {
@@ -109,7 +120,12 @@ public class CoberturaPublisher extends Recorder {
                 target = new CoberturaPublisherTarget();
                 target.setMetric(metric);
             }
-            target.setUnstable(failingTarget.getTarget(metric));
+            checker = (float)failingTarget.getTarget(metric)/100000f;
+            if(checker <= 0.001f)
+            {
+            	checker = (float)(Math.round(checker*100000f));
+            }
+            target.setUnstable(checker);
             targets.put(metric, target);
         }
         List<CoberturaPublisherTarget> result = new ArrayList<CoberturaPublisherTarget>(targets.values());
@@ -125,15 +141,22 @@ public class CoberturaPublisher extends Recorder {
         healthyTarget.clear();
         unhealthyTarget.clear();
         failingTarget.clear();
+        float rounded;
         for (CoberturaPublisherTarget target : targets) {
             if (target.getHealthy() != null) {
-                healthyTarget.setTarget(target.getMetric(), target.getHealthy());
+            	rounded = (Math.round((float)100f*target.getHealthy()));
+            	rounded = roundDecimalFloat(rounded);
+                healthyTarget.setTarget(target.getMetric(), (int)((float)100000f*rounded));
             }
             if (target.getUnhealthy() != null) {
-                unhealthyTarget.setTarget(target.getMetric(), target.getUnhealthy());
+            	rounded = (Math.round((float)100f*target.getUnhealthy()));
+            	rounded = roundDecimalFloat(rounded);
+                unhealthyTarget.setTarget(target.getMetric(), (int)((float)100000f*rounded));
             }
             if (target.getUnstable() != null) {
-                failingTarget.setTarget(target.getMetric(), target.getUnstable());
+            	rounded = (Math.round((float)100f*target.getUnstable()));
+            	rounded = roundDecimalFloat(rounded);
+                failingTarget.setTarget(target.getMetric(), (int)((float)100000f*rounded));
             }
         }
     }
@@ -361,10 +384,12 @@ public class CoberturaPublisher extends Recorder {
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
             if (!failingMetrics.isEmpty()) {
                 listener.getLogger().println("Code coverage enforcement failed for the following metrics:");
-                int oldStabilityPercent;
+                float oldStabilityPercent;
+                float setStabilityPercent;
                 for (CoverageMetric metric : failingMetrics) {
-                	oldStabilityPercent = failingTarget.getSetPercent(result, metric);
-                    listener.getLogger().println("    " + metric.getName() + "'s stability is " + oldStabilityPercent);
+                	oldStabilityPercent = failingTarget.getObservedPercent(result, metric);
+                	setStabilityPercent = failingTarget.getSetPercent(result, metric);
+                	listener.getLogger().println("    " + metric.getName() + "'s stability is " + roundDecimalFloat(oldStabilityPercent*100f) + " and set mininum stability is " + roundDecimalFloat(setStabilityPercent*100f) + ".");
                 }
                 if(!getFailUnstable())
                 {
@@ -382,10 +407,12 @@ public class CoberturaPublisher extends Recorder {
             	Set<CoverageMetric> unhealthyMetrics = unhealthyTarget.getFailingMetrics(result);
             	if (!unhealthyMetrics.isEmpty()) {
             		listener.getLogger().println("Unhealthy for the following metrics:");
-            		int oldHealthyPercent;
+            		float oldHealthyPercent;
+            		float setHealthyPercent;
             		for (CoverageMetric metric : unhealthyMetrics) {
-            			oldHealthyPercent = unhealthyTarget.getSetPercent(result, metric);
-            			listener.getLogger().println("    " + metric.getName() + "'s health is " + oldHealthyPercent);
+            			oldHealthyPercent = unhealthyTarget.getObservedPercent(result, metric);
+            			setHealthyPercent = unhealthyTarget.getSetPercent(result, metric);
+            			listener.getLogger().println("    " + metric.getName() + "'s health is " + roundDecimalFloat(oldHealthyPercent*100f) + " and set minimum health is " + roundDecimalFloat(setHealthyPercent*100f) + ".");
             		}
                 	listener.getLogger().println("Failing build because it is unhealthy.");
             		build.setResult(Result.FAILURE);
@@ -418,32 +445,35 @@ public class CoberturaPublisher extends Recorder {
     private void setNewPercentages(CoverageResult result, boolean select, BuildListener listener)
     {
 		Set<CoverageMetric> healthyMetrics = healthyTarget.getAllMetrics(result);
-		int newPercent;
-		int oldPercent;
+		float newPercent;
+		float oldPercent;
 		if(!healthyMetrics.isEmpty())
 		{
 			for (CoverageMetric metric : healthyMetrics)
 			{    
 				newPercent = healthyTarget.getObservedPercent(result, metric);
+				newPercent = (float)(Math.round(newPercent*100f));
 				if(select)
 				{
 					oldPercent = unhealthyTarget.getSetPercent(result, metric);
+					oldPercent = (float)(Math.round(oldPercent*100f));
 				}
 				else
 				{
 					oldPercent = failingTarget.getSetPercent(result, metric);
+					oldPercent = (float)(Math.round(oldPercent*100f));
 				}
 				if(newPercent > oldPercent)
 				{
 					if(select)
 					{
-						unhealthyTarget.setTarget(metric, newPercent);
-    					listener.getLogger().println("    " + metric.getName() + "'s new health minimum is: " + newPercent);
+						unhealthyTarget.setTarget(metric, (int)(newPercent*1000f));
+    					listener.getLogger().println("    " + metric.getName() + "'s new health minimum is: " + roundDecimalFloat(newPercent));
 					}
 					else
 					{
-						failingTarget.setTarget(metric, newPercent);
-    					listener.getLogger().println("    " + metric.getName() + "'s new stability minimum is: " + newPercent);
+						failingTarget.setTarget(metric, (int)(newPercent*1000f));
+    					listener.getLogger().println("    " + metric.getName() + "'s new stability minimum is: " + roundDecimalFloat(newPercent));
 					}
 				}
 			}
@@ -532,9 +562,9 @@ public class CoberturaPublisher extends Recorder {
          */
         public List<CoberturaPublisherTarget> getDefaultTargets() {
             List<CoberturaPublisherTarget> result = new ArrayList<CoberturaPublisherTarget>();
-            result.add(new CoberturaPublisherTarget(CoverageMetric.METHOD, 80, null, null));
-            result.add(new CoberturaPublisherTarget(CoverageMetric.LINE, 80, null, null));
-            result.add(new CoberturaPublisherTarget(CoverageMetric.CONDITIONAL, 70, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.METHOD, 80f, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.LINE, 80f, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.CONDITIONAL, 70f, null, null));
             return result;
         }
 
@@ -599,5 +629,11 @@ public class CoberturaPublisher extends Recorder {
         }
       }
       return false;
+    }
+    
+    public float roundDecimalFloat(Float input) {
+    	float rounded = (float)Math.round(input);
+    	rounded = rounded/100f;
+    	return rounded;
     }
 }
