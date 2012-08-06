@@ -11,9 +11,9 @@ import org.apache.commons.beanutils.Converter;
  */
 public final class CoberturaPublisherTarget {
     private CoverageMetric metric;
-    private Integer healthy;
-    private Integer unhealthy;
-    private Integer unstable;
+    private Float healthy;
+    private Float unhealthy;
+    private Float unstable;
     public static final Converter CONVERTER = new TargetConverter();
 
 
@@ -30,7 +30,7 @@ public final class CoberturaPublisherTarget {
      * @param unstable
      * @stapler-constructor
      */
-    public CoberturaPublisherTarget(CoverageMetric metric, Integer healthy, Integer unhealthy, Integer unstable) {
+    public CoberturaPublisherTarget(CoverageMetric metric, Float healthy, Float unhealthy, Float unstable) {
         this.metric = metric;
         this.healthy = healthy;
         this.unhealthy = unhealthy;
@@ -60,8 +60,15 @@ public final class CoberturaPublisherTarget {
      *
      * @return Value for property 'healthy'.
      */
-    public Integer getHealthy() {
-        return healthy == null ? 80 : healthy;
+    public Float getHealthy() {
+        if(healthy == null)
+        {
+        	return 80f;
+        }
+        else
+        {
+        	return (float)(Math.round(healthy*100f)/100f);
+        }
     }
 
     /**
@@ -69,8 +76,23 @@ public final class CoberturaPublisherTarget {
      *
      * @param healthy Value to set for property 'healthy'.
      */
-    public void setHealthy(Integer healthy) {
-        this.healthy = healthy;
+    public void setHealthy(Float healthy) {
+    	if(healthy == null)
+    	{
+    		this.healthy = null;
+    	}
+    	else if (healthy < 0f)
+    	{
+    		this.healthy = 0f;
+    	}
+    	else if (healthy > 100f)
+    	{
+    		this.healthy = 100f;
+    	}
+    	else
+    	{
+    		this.healthy = (float)(Math.round(healthy*100f)/100f);
+    	}
     }
 
     /**
@@ -78,8 +100,15 @@ public final class CoberturaPublisherTarget {
      *
      * @return Value for property 'unhealthy'.
      */
-    public Integer getUnhealthy() {
-        return unhealthy == null ? 0 : unhealthy;
+    public Float getUnhealthy() {
+        if(unhealthy == null)
+        {
+        	return 0f;
+        }
+        else
+        {
+        	return (float)(Math.round(unhealthy*100f)/100f);
+        }
     }
 
     /**
@@ -87,8 +116,23 @@ public final class CoberturaPublisherTarget {
      *
      * @param unhealthy Value to set for property 'unhealthy'.
      */
-    public void setUnhealthy(Integer unhealthy) {
-        this.unhealthy = unhealthy;
+    public void setUnhealthy(Float unhealthy) {
+    	if(unhealthy == null)
+    	{
+    		this.unhealthy = null;
+    	}
+    	else if (unhealthy < 0f)
+    	{
+    		this.unhealthy = 0f;
+    	}
+    	else if (unhealthy > 100f)
+    	{
+    		this.unhealthy = 100f;
+    	}
+    	else
+    	{    		
+    		this.unhealthy = (float)(Math.round(unhealthy*100f)/100f);
+    	}
     }
 
     /**
@@ -96,8 +140,15 @@ public final class CoberturaPublisherTarget {
      *
      * @return Value for property 'unstable'.
      */
-    public Integer getUnstable() {
-        return unstable == null ? 0 : unstable;
+    public Float getUnstable() {
+        if(unstable == null)
+        {
+        	return 0f;
+        }
+        else
+        {
+        	return (float)(Math.round(unstable*100f)/100f);
+        }
     }
 
     /**
@@ -105,8 +156,23 @@ public final class CoberturaPublisherTarget {
      *
      * @param unstable Value to set for property 'unstable'.
      */
-    public void setUnstable(Integer unstable) {
-        this.unstable = unstable;
+    public void setUnstable(Float unstable) {
+    	if(unstable == null)
+    	{
+    		this.unstable = null;
+    	}
+    	else if (unstable < 0f)
+    	{
+    		this.unstable = 0f;
+    	}
+    	else if (unstable > 100f)
+    	{
+    		this.unstable = 100f;
+    	}
+    	else
+    	{
+    		this.unstable = (float)(Math.round(unstable*100f)/100f);
+    	}
     }
 
     private static class TargetConverter implements Converter {

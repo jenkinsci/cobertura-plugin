@@ -7,7 +7,23 @@
     <f:entry title="${%Consider only stable builds}"
              description="${%only.stable.builds.description}" >
        <f:checkbox name="cobertura.onlyStable" checked="${instance.onlyStable}" />                                                                                        
-    </f:entry>      
+    </f:entry>   
+    <f:entry title="${%Fail unhealthy builds}"
+             description="${%unhealthy.fail.builds.description}" >
+       <f:checkbox name="cobertura.failUnhealthy" checked="${instance.failUnhealthy}" />                                                                                        
+    </f:entry>  
+    <f:entry title="${%Fail unstable builds}"
+             description="${%unstable.fail.builds.description}" >
+       <f:checkbox name="cobertura.failUnstable" checked="${instance.failUnstable}" />                                                                                        
+    </f:entry>  
+    <f:entry title="${%Health auto update}"
+             description="${%auto.health.builds.description}" >
+       <f:checkbox name="cobertura.autoUpdateHealth" checked="${instance.autoUpdateHealth}" />                                                                                        
+    </f:entry>  
+    <f:entry title="${%Stability auto update}"
+             description="${%auto.stability.builds.description}" >
+       <f:checkbox name="cobertura.autoUpdateStability" checked="${instance.autoUpdateStability}" />                                                                                        
+    </f:entry>  
     <f:entry title="${%Source Encoding}"
              description="${%source.encoding.description}" field="sourceEncoding">
        <f:enum>${it.encodingName}</f:enum>
@@ -36,9 +52,7 @@
                             </select>
                         </td>
                         <td>
-                            <j:if test="${!loopStatus.first}">
-                                <f:repeatableDeleteButton/>
-                            </j:if>
+                            <f:repeatableDeleteButton/>
                         </td>
                         <th>
                             <img src="${rootURL}/images/16x16/health-80plus.gif" alt="100%"
