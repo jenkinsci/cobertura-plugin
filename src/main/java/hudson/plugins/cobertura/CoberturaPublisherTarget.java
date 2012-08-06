@@ -67,7 +67,7 @@ public final class CoberturaPublisherTarget {
         }
         else
         {
-        	return healthy;
+        	return (float)(Math.round(healthy*100f)/100f);
         }
     }
 

@@ -62,7 +62,7 @@ public class CoverageTarget implements Serializable {
         Set<CoverageMetric> result = EnumSet.noneOf(CoverageMetric.class);
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = coverage.getCoverage(target.getKey());
-            if (observed != null && observed.getPercentageFloat() < (float)(target.getValue()/100000f)) {
+            if (observed != null && roundFloatDecimal(observed.getPercentageFloat()) < (float)(target.getValue()/100000f)) {
                 result.add(target.getKey());
             }
         }
@@ -87,7 +87,7 @@ public class CoverageTarget implements Serializable {
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = coverage.getCoverage(target.getKey());
             if (target.getKey() == key) {
-            	return observed.getPercentageFloat();
+            	return roundFloatDecimal(observed.getPercentageFloat());
             }
         }
         return 0;
@@ -155,5 +155,11 @@ public class CoverageTarget implements Serializable {
 
     public void clear() {
         targets.clear();
+    }
+    
+    public float roundFloatDecimal(float input) {
+    	float rounded = (float)Math.round(input*100f);
+    	rounded = rounded/100f;
+    	return rounded;
     }
 }
