@@ -616,15 +616,16 @@ public class CoberturaPublisher extends Recorder {
     }
 
     private boolean didCoberturaRun(Iterable<MavenBuild> mavenBuilds) {
-      for(MavenBuild build: mavenBuilds) { 
+      for(MavenBuild build: mavenBuilds) {
         if(didCoberturaRun(build)) return true;
       }
       return false;
     }
-    
+
     private boolean didCoberturaRun(MavenBuild mavenBuild) {
       for(ExecutedMojo mojo : mavenBuild.getExecutedMojos()) {
-        if(mojo.groupId.equals("org.codehaus.mojo") && mojo.artifactId.equals("cobertura-maven-plugin")) {
+	  if(mojo.groupId.equals("org.codehaus.mojo") &&
+	     ( mojo.artifactId.equals("cobertura-maven-plugin") || mojo.artifactId.equals("cobertura-it-maven-plugin"))) {
           return true;
         }
       }

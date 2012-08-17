@@ -208,7 +208,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 	}
 
 	private boolean isCoberturaReport(MojoInfo mojo) {
-		if (!mojo.pluginName.matches("org.codehaus.mojo", "cobertura-maven-plugin"))
+		if (!mojo.pluginName.matches("org.codehaus.mojo", "cobertura-maven-plugin") || !mojo.pluginName.matches("org.codehaus.mojo", "cobertura-it-maven-plugin"))
 			return false;
 
 		if (!mojo.getGoal().equals("cobertura"))
