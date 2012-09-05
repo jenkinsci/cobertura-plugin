@@ -45,6 +45,13 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+
 /**
  * Cobertura {@link Publisher}.
  *
@@ -329,14 +336,29 @@ public class CoberturaPublisher extends Recorder {
                 public FilePath[] invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
                     FilePath[] r = new FilePath(f).list(coberturaReportFile);
 
-                    byte[] c = new byte[5];
+                    XMLInputFactory factory = XMLInputFactory.newInstance();
+                    factory.setProperty("javax.xml.stream.supportDTD", "false");
+
                     for (FilePath filePath : r) {
-                        InputStream is = filePath.read();
-                        int i = is.read(c, 0, 5);
-                        if (i < 0 || ! (new String(c).equals("<?xml")) ) {
+                        try {
+                            XMLEventReader reader = factory.createXMLEventReader(filePath.read());
+                            while (reader.hasNext()) {
+                                XMLEvent event = reader.nextEvent();
+                                if (event.isStartElement()) {
+                                    StartElement start = (StartElement) event;
+                                    if (start.getName().getLocalPart().equals("coverage")) {
+                                        // This is a cobertura coverage report file
+                                        break;
+                                    } else {
+                                        throw new IOException(filePath + " is not a cobertura coverage report, please check your report pattern");
+                                    }
+                                }
+                            }
+                            reader.close();
+                        } catch (XMLStreamException e) {
                             throw new IOException(filePath + " is not an XML file, please check your report pattern");
                         }
-                        is.close();
+
                     }
                     return r;
                 }
