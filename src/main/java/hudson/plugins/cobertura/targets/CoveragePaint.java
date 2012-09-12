@@ -20,7 +20,7 @@ public class CoveragePaint implements Serializable {
 	 */
 	private static final long serialVersionUID = -6265259191856193735L;
 
-	class CoveragePaintDetails implements Serializable {
+	static class CoveragePaintDetails implements Serializable {
 		/**
 		 * Generated
 		 */
