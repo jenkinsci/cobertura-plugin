@@ -18,14 +18,19 @@ import hudson.plugins.cobertura.renderers.SourceEncoding;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
+import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -39,6 +44,13 @@ import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 /**
  * Cobertura {@link Publisher}.
@@ -320,7 +332,37 @@ public class CoberturaPublisher extends Recorder {
 
         FilePath[] reports = new FilePath[0];
         try {
-            reports = moduleRoot.list(coberturaReportFile);
+            reports = moduleRoot.act(new FilePath.FileCallable<FilePath[]>() {
+                public FilePath[] invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+                    FilePath[] r = new FilePath(f).list(coberturaReportFile);
+
+                    XMLInputFactory factory = XMLInputFactory.newInstance();
+                    factory.setProperty("javax.xml.stream.supportDTD", "false");
+
+                    for (FilePath filePath : r) {
+                        try {
+                            XMLEventReader reader = factory.createXMLEventReader(filePath.read());
+                            while (reader.hasNext()) {
+                                XMLEvent event = reader.nextEvent();
+                                if (event.isStartElement()) {
+                                    StartElement start = (StartElement) event;
+                                    if (start.getName().getLocalPart().equals("coverage")) {
+                                        // This is a cobertura coverage report file
+                                        break;
+                                    } else {
+                                        throw new IOException(filePath + " is not a cobertura coverage report, please check your report pattern");
+                                    }
+                                }
+                            }
+                            reader.close();
+                        } catch (XMLStreamException e) {
+                            throw new IOException(filePath + " is not an XML file, please check your report pattern");
+                        }
+
+                    }
+                    return r;
+                }
+            });
 
             // if the build has failed, then there's not
             // much point in reporting an error
