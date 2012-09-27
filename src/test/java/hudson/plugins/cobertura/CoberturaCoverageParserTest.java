@@ -1,18 +1,17 @@
 package hudson.plugins.cobertura;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.TestCase;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
+import org.netbeans.insane.scanner.CountingVisitor;
+import org.netbeans.insane.scanner.ScannerUtils;
 
 /**
  * Unit tests for {@link CoberturaCoverageParser}.
@@ -24,14 +23,6 @@ import java.util.concurrent.Callable;
 public class CoberturaCoverageParserTest extends TestCase {
     public CoberturaCoverageParserTest(String name) {
         super(name);
-    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 
     public void testFailureMode1() throws Exception {
@@ -118,70 +109,39 @@ public class CoberturaCoverageParserTest extends TestCase {
      * @since 28-Apr-2009
      */
     public void testParseMemoryUsage() throws Exception {
-        Map<String, Long> files = new LinkedHashMap<String, Long>();
-        files.put("coverage.xml", 100000L);
-        files.put("coverage-with-data.xml", 100000L);
-        files.put("coverage-with-lots-of-data.xml", 2500000L);
+        Map<String,Integer> files = new LinkedHashMap<String,Integer>();
+        files.put("coverage.xml", 15488);
+        files.put("coverage-with-data.xml", 15568);
+        files.put("coverage-with-lots-of-data.xml", 316328);
         
-        for(Entry<String, Long> e : files.entrySet()) {
+        for (Map.Entry<String,Integer> e : files.entrySet()) {
             final String fileName = e.getKey();
-            long maxMemory = e.getValue();
-            Callable<CoverageResult> callable = new Callable<CoverageResult>() {
-                public CoverageResult call() throws Exception {
-                    InputStream in = getClass().getResourceAsStream(fileName);
-                    CoverageResult result = CoberturaCoverageParser.parse(in, null, null);
-                    result.setOwner(null);
-                    return result;
-                }
-            };
-            assertMaxMemoryUsage(fileName + " results", callable, maxMemory);
+            InputStream in = getClass().getResourceAsStream(fileName);
+            CoverageResult result = CoberturaCoverageParser.parse(in, null, null);
+            result.setOwner(null);
+            assertMaxMemoryUsage(fileName + " results", result, e.getValue());
         }
     }
     
     /**
-     * Tests the memory usage of a specified Callable.  The Callable should
-     * return the object that it is generating, so that it is not garbage
-     * collected until the proper point in the test.  The callable will be
-     * called 6 times.  The results of the first call are be ignored, to avoid
-     * pollution of the results by class initialization.  The amount of memory
-     * used in the other runs are averaged to produce the average memory usage
-     * for the Callable.  This number is then compared with the specified
+     * Tests the memory usage of a specified object.
+     * The memory usage is then compared with the specified
      * maximum desired memory usage.  If the average memory usage is greater
      * than the specified number, it will be reported as a failed assertion.
      * 
-     * @param description a plain-text description of the Callable, to be used
+     * @param description a plain-text description, to be used
      *          in diagnostic messages
-     * @param callable the callable for which to run a memory usage test
+     * @param o the object to measure
      * @param maxMemoryUsage the maximum desired memory usage for the Callable,
      *          in bytes 
      */
-    private static void assertMaxMemoryUsage(String description, Callable<? extends Object> callable, long maxMemoryUsage) throws Exception {
-      Runtime rt = Runtime.getRuntime();
-      final int iterations = 5;
-      long sum = 0;
-      for(int i=0; i<iterations+1; i++) {
-          rt.gc();
-          long startMemUsed = rt.totalMemory() - rt.freeMemory();
-          @SuppressWarnings("unused")
-          Object result = callable.call();
-          rt.gc();
-          long endMemUsed = rt.totalMemory() - rt.freeMemory();
-          long deltaMemUsed = endMemUsed - startMemUsed;
-          if(deltaMemUsed < 0) {
-              deltaMemUsed = 0;
-          }
-          if(i != 0) {
-              //Ignore the first iteration, due to class initialization
-              sum += deltaMemUsed;
-          }
-      }
-      long averageMemoryUsage = sum / iterations;
-      String message = description + " consume " + averageMemoryUsage + " bytes of memory on average, " + (averageMemoryUsage - maxMemoryUsage) + " bytes more than the specified limit of " + maxMemoryUsage + " bytes";
-      assertTrue(message, averageMemoryUsage < maxMemoryUsage);
-      System.out.println(description + " consume " + averageMemoryUsage + "/" + maxMemoryUsage + " bytes of memory");
+    private static void assertMaxMemoryUsage(String description, Object o, int maxMemoryUsage) throws Exception {
+        CountingVisitor v = new CountingVisitor();
+        ScannerUtils.scan(null, v, Collections.singleton(o), false);
+        long memoryUsage = v.getTotalSize();
+        String message = description + " consume " + memoryUsage + " bytes of memory on average, " + (memoryUsage - maxMemoryUsage) + " bytes more than the specified limit of " + maxMemoryUsage + " bytes";
+        assertTrue(message, memoryUsage <= maxMemoryUsage);
+        System.out.println(description + " consume " + memoryUsage + "/" + maxMemoryUsage + " bytes of memory");
     }
 
-    public static Test suite() {
-        return new TestSuite(CoberturaCoverageParserTest.class);
-    }
 }

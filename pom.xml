@@ -66,6 +66,12 @@
       <version>2.2</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.netbeans.modules</groupId>
+      <artifactId>org-netbeans-insane</artifactId>
+      <version>RELEASE72</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   
   <build>
@@ -166,6 +172,10 @@
       <repository>
           <id>repo.jenkins-ci.org</id>
           <url>http://repo.jenkins-ci.org/public/</url>
+      </repository>
+      <repository>
+          <id>netbeans</id>
+          <url>http://bits.netbeans.org/maven2/</url>
       </repository>
   </repositories>
     
