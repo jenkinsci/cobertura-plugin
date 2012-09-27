@@ -20,7 +20,7 @@ public class CoveragePaint implements Serializable {
 	 */
 	private static final long serialVersionUID = -6265259191856193735L;
 
-	static class CoveragePaintDetails implements Serializable {
+	private static class CoveragePaintDetails implements Serializable {
 		/**
 		 * Generated
 		 */
@@ -29,8 +29,7 @@ public class CoveragePaint implements Serializable {
 		int branchCount=0;
 		int branchCoverage=0;
 		
-		public CoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
-			super();
+		CoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
 			this.hitCount = hitCount;
 			this.branchCount = branchCount;
 			this.branchCoverage = branchCoverage;
@@ -43,7 +42,7 @@ public class CoveragePaint implements Serializable {
 //		there were no getters against the source ...
 //      this.source = source;
     }
-
+    
     public void paint(int line, int hits) {
     	CoveragePaintDetails d=lines.get(line);    		
     	if (d==null){
