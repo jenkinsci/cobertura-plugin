@@ -1,10 +1,12 @@
 package hudson.plugins.cobertura.targets;
 
+import gnu.trove.iterator.TIntObjectIterator;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import hudson.plugins.cobertura.Ratio;
 
 import java.io.Serializable;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,6 +21,8 @@ public class CoveragePaint implements Serializable {
 	 * Generated
 	 */
 	private static final long serialVersionUID = -6265259191856193735L;
+
+    private static final CoveragePaintDetails[] EMPTY = new CoveragePaintDetails[0];
 
 	private static class CoveragePaintDetails implements Serializable {
 		/**
@@ -36,7 +40,7 @@ public class CoveragePaint implements Serializable {
 		}
 	}
 
-	protected Map<Integer/*line number*/,CoveragePaintDetails> lines=new HashMap<Integer,CoveragePaintDetails>();
+	protected TIntObjectMap<CoveragePaintDetails> lines=new TIntObjectHashMap<CoveragePaintDetails>();
 	
 	public CoveragePaint(CoverageElement source) {
 //		there were no getters against the source ...
@@ -71,18 +75,20 @@ public class CoveragePaint implements Serializable {
     }
 
     public void add(CoveragePaint child) {
-    	for(Map.Entry<Integer,CoveragePaintDetails> e: child.lines.entrySet()){
-			CoveragePaintDetails d=lines.get(e.getKey());
+        TIntObjectIterator<CoveragePaintDetails> it = child.lines.iterator();
+        while (it.hasNext()) {
+            it.advance();
+			CoveragePaintDetails d=lines.get(it.key());
 			if (d!=null){
-				d.hitCount+=e.getValue().hitCount;
-				d.branchCount=Math.max(d.branchCount, e.getValue().branchCount);
+				d.hitCount+=it.value().hitCount;
+				d.branchCount=Math.max(d.branchCount, it.value().branchCount);
 				if (d.branchCount!=0){
-					d.branchCoverage=Math.max(d.branchCoverage, e.getValue().branchCoverage);
+					d.branchCoverage=Math.max(d.branchCoverage, it.value().branchCoverage);
 				}
 			} else {
-				CoveragePaintDetails dc=e.getValue();
+				CoveragePaintDetails dc=it.value();
 				d=new CoveragePaintDetails(dc.hitCount, dc.branchCount, dc.branchCoverage);
-				lines.put(e.getKey(), d);
+				lines.put(it.key(), d);
 			}    		
     	}
     }
@@ -94,7 +100,7 @@ public class CoveragePaint implements Serializable {
      */
     public Ratio getLineCoverage() {
         int covered = 0;
-        for (CoveragePaintDetails d: lines.values()){
+        for (CoveragePaintDetails d: lines.values(EMPTY)) {
             if (d.hitCount > 0) {
                 covered++;
             }        		
@@ -110,7 +116,7 @@ public class CoveragePaint implements Serializable {
     public Ratio getConditionalCoverage() {
         long maxTotal = 0;
         long total = 0;
-        for (CoveragePaintDetails d: lines.values()){
+        for (CoveragePaintDetails d: lines.values(EMPTY)) {
             maxTotal += d.branchCount;
             total += d.branchCoverage;        		
         }
