@@ -24,7 +24,7 @@ public class CoveragePaint implements Serializable {
 
     private static final CoveragePaintDetails[] EMPTY = new CoveragePaintDetails[0];
 
-	private static class CoveragePaintDetails implements Serializable {
+    private static class CoveragePaintDetails implements Serializable {
 		/**
 		 * Generated
 		 */
@@ -35,36 +35,78 @@ public class CoveragePaint implements Serializable {
          */
         private static final CoveragePaintDetails[] CONSTANTS = new CoveragePaintDetails[128];
 
+        /**
+         * Number of times this line is executed.
+         */
 		final int hitCount;
-        final int branchCount;
-        final int branchCoverage;
 
         static CoveragePaintDetails create(int hitCount, int branchCount, int branchCoverage) {
-            if (0<=hitCount && hitCount<CONSTANTS.length && branchCount==0 && branchCoverage==0) {
-                CoveragePaintDetails r = CONSTANTS[hitCount];
-                if (r==null)    CONSTANTS[hitCount]=r=new CoveragePaintDetails(hitCount,branchCount,branchCoverage);
-                return r;
+            if (branchCount==0 && branchCoverage==0) {
+                if (0<=hitCount && hitCount<CONSTANTS.length) {
+                    CoveragePaintDetails r = CONSTANTS[hitCount];
+                    if (r==null)    CONSTANTS[hitCount]=r=new CoveragePaintDetails(hitCount);
+                    return r;
+                }
+                return new CoveragePaintDetails(hitCount);
+            } else {
+                return new BranchingCoveragePaintDetails(hitCount,branchCount,branchCoverage);
             }
-            return new CoveragePaintDetails(hitCount,branchCount,branchCoverage);
         }
 
-		private CoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
+		private CoveragePaintDetails(int hitCount) {
 			this.hitCount = hitCount;
-			this.branchCount = branchCount;
-			this.branchCoverage = branchCoverage;
 		}
 
+        int branchCount() {
+            return 0;
+        }
+
+        int branchCoverage() {
+            return 0;
+        }
+
+        /**
+         * Do 'this+that' and return the new object.
+         */
         CoveragePaintDetails add(CoveragePaintDetails that) {
             return CoveragePaintDetails.create(
                     this.hitCount+that.hitCount,
                     // TODO find a better algorithm
-                    Math.max(this.branchCount,that.branchCount),
-                    Math.max(this.branchCoverage,that.branchCoverage)
+                    Math.max(this.branchCount(),that.branchCount()),
+                    Math.max(this.branchCoverage(),that.branchCoverage())
             );
         }
 	}
 
-	protected TIntObjectMap<CoveragePaintDetails> lines=new TIntObjectHashMap<CoveragePaintDetails>();
+    /**
+     * {@link CoveragePaintDetails} that has non-zero branch coverage numbers.
+     * This is relatively rare, so we use two classes to save 8 bytes of storing 0.
+     */
+    private static class BranchingCoveragePaintDetails extends CoveragePaintDetails {
+        final int branchCount;
+        final int branchCoverage;
+
+        private BranchingCoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
+            super(hitCount);
+            this.branchCount = branchCount;
+            this.branchCoverage = branchCoverage;
+        }
+
+        @Override
+        int branchCount() {
+            return branchCount;
+        }
+
+        @Override
+        int branchCoverage() {
+            return branchCoverage;
+        }
+
+        private static final long serialVersionUID = 1L;
+    }
+
+
+    protected TIntObjectMap<CoveragePaintDetails> lines=new TIntObjectHashMap<CoveragePaintDetails>();
 	
 	public CoveragePaint(CoverageElement source) {
 //		there were no getters against the source ...
@@ -120,8 +162,8 @@ public class CoveragePaint implements Serializable {
         long maxTotal = 0;
         long total = 0;
         for (CoveragePaintDetails d: lines.values(EMPTY)) {
-            maxTotal += d.branchCount;
-            total += d.branchCoverage;        		
+            maxTotal += d.branchCount();
+            total += d.branchCoverage();
         }
         return Ratio.create(total, maxTotal);
     }
@@ -156,7 +198,7 @@ public class CoveragePaint implements Serializable {
 		if (d==null){
 			return 0;
 		} else {
-            return d.branchCount;
+            return d.branchCount();
 		}
     }
 
@@ -165,7 +207,7 @@ public class CoveragePaint implements Serializable {
 		if (d==null){
 			return 0;
 		} else {
-            return d.branchCoverage;    			
+            return d.branchCoverage();
 		}
     }
 }
