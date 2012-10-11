@@ -29,15 +29,25 @@ public class CoveragePaint implements Serializable {
 		 * Generated
 		 */
 		private static final long serialVersionUID = -9097537016381444671L;
-		int hitCount=0;
-		int branchCount=0;
-		int branchCoverage=0;
-		
+
+		final int hitCount;
+        final int branchCount;
+        final int branchCoverage;
+
 		CoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
 			this.hitCount = hitCount;
 			this.branchCount = branchCount;
 			this.branchCoverage = branchCoverage;
 		}
+
+        CoveragePaintDetails add(CoveragePaintDetails that) {
+            return new CoveragePaintDetails(
+                    this.hitCount+that.hitCount,
+                    // TODO find a better algorithm
+                    Math.max(this.branchCount,that.branchCount),
+                    Math.max(this.branchCoverage,that.branchCoverage)
+            );
+        }
 	}
 
 	protected TIntObjectMap<CoveragePaintDetails> lines=new TIntObjectHashMap<CoveragePaintDetails>();
@@ -47,49 +57,28 @@ public class CoveragePaint implements Serializable {
 //      this.source = source;
     }
     
+    private void paint(int line, CoveragePaintDetails delta) {
+        CoveragePaintDetails d = lines.get(line);
+        if (d == null) {
+            lines.put(line, delta);
+        } else {
+            lines.put(line, d.add(delta));
+        }
+    }
+
     public void paint(int line, int hits) {
-    	CoveragePaintDetails d=lines.get(line);    		
-    	if (d==null){
-    		d=new CoveragePaintDetails(0, 0, 0);
-    		lines.put(line, d);
-    	}
-		d.hitCount+=hits;
+        paint(line, new CoveragePaintDetails(hits, 0, 0));
     }
 
     public void paint(int line, int hits, int branchCover, int branchCount) {
-    	CoveragePaintDetails d=lines.get(line);    		
-    	if (d==null){
-    		d=new CoveragePaintDetails(hits, branchCount, branchCover);
-    		lines.put(line, d);
-    	} else {    		
-    		d.hitCount+=hits;
-            if (d.branchCount == 0) {
-                d.branchCount = branchCount;
-                d.branchCoverage = branchCover;
-            } else {
-                // TODO find a better algorithm
-                d.branchCount = Math.max(d.branchCount, branchCount);
-                d.branchCoverage = Math.max(d.branchCoverage, branchCover);
-            }
-    	}
+        paint(line,new CoveragePaintDetails(hits, branchCount, branchCover));
     }
 
     public void add(CoveragePaint child) {
         TIntObjectIterator<CoveragePaintDetails> it = child.lines.iterator();
         while (it.hasNext()) {
             it.advance();
-			CoveragePaintDetails d=lines.get(it.key());
-			if (d!=null){
-				d.hitCount+=it.value().hitCount;
-				d.branchCount=Math.max(d.branchCount, it.value().branchCount);
-				if (d.branchCount!=0){
-					d.branchCoverage=Math.max(d.branchCoverage, it.value().branchCoverage);
-				}
-			} else {
-				CoveragePaintDetails dc=it.value();
-				d=new CoveragePaintDetails(dc.hitCount, dc.branchCount, dc.branchCoverage);
-				lines.put(it.key(), d);
-			}    		
+            paint(it.key(),it.value());
     	}
     }
 
