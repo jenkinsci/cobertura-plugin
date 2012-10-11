@@ -30,18 +30,32 @@ public class CoveragePaint implements Serializable {
 		 */
 		private static final long serialVersionUID = -9097537016381444671L;
 
+        /**
+         * Fly-weight object pool of (n,0,0) instances, which are very common.
+         */
+        private static final CoveragePaintDetails[] CONSTANTS = new CoveragePaintDetails[128];
+
 		final int hitCount;
         final int branchCount;
         final int branchCoverage;
 
-		CoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
+        static CoveragePaintDetails create(int hitCount, int branchCount, int branchCoverage) {
+            if (0<=hitCount && hitCount<CONSTANTS.length && branchCount==0 && branchCoverage==0) {
+                CoveragePaintDetails r = CONSTANTS[hitCount];
+                if (r==null)    CONSTANTS[hitCount]=r=new CoveragePaintDetails(hitCount,branchCount,branchCoverage);
+                return r;
+            }
+            return new CoveragePaintDetails(hitCount,branchCount,branchCoverage);
+        }
+
+		private CoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
 			this.hitCount = hitCount;
 			this.branchCount = branchCount;
 			this.branchCoverage = branchCoverage;
 		}
 
         CoveragePaintDetails add(CoveragePaintDetails that) {
-            return new CoveragePaintDetails(
+            return CoveragePaintDetails.create(
                     this.hitCount+that.hitCount,
                     // TODO find a better algorithm
                     Math.max(this.branchCount,that.branchCount),
@@ -67,11 +81,11 @@ public class CoveragePaint implements Serializable {
     }
 
     public void paint(int line, int hits) {
-        paint(line, new CoveragePaintDetails(hits, 0, 0));
+        paint(line, CoveragePaintDetails.create(hits, 0, 0));
     }
 
     public void paint(int line, int hits, int branchCover, int branchCount) {
-        paint(line,new CoveragePaintDetails(hits, branchCount, branchCover));
+        paint(line,CoveragePaintDetails.create(hits, branchCount, branchCover));
     }
 
     public void add(CoveragePaint child) {
