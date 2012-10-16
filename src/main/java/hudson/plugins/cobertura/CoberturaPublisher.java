@@ -332,37 +332,7 @@ public class CoberturaPublisher extends Recorder {
 
         FilePath[] reports = new FilePath[0];
         try {
-            reports = moduleRoot.act(new FilePath.FileCallable<FilePath[]>() {
-                public FilePath[] invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
-                    FilePath[] r = new FilePath(f).list(coberturaReportFile);
-
-                    XMLInputFactory factory = XMLInputFactory.newInstance();
-                    factory.setProperty("javax.xml.stream.supportDTD", "false");
-
-                    for (FilePath filePath : r) {
-                        try {
-                            XMLEventReader reader = factory.createXMLEventReader(filePath.read());
-                            while (reader.hasNext()) {
-                                XMLEvent event = reader.nextEvent();
-                                if (event.isStartElement()) {
-                                    StartElement start = (StartElement) event;
-                                    if (start.getName().getLocalPart().equals("coverage")) {
-                                        // This is a cobertura coverage report file
-                                        break;
-                                    } else {
-                                        throw new IOException(filePath + " is not a cobertura coverage report, please check your report pattern");
-                                    }
-                                }
-                            }
-                            reader.close();
-                        } catch (XMLStreamException e) {
-                            throw new IOException(filePath + " is not an XML file, please check your report pattern");
-                        }
-
-                    }
-                    return r;
-                }
-            });
+            reports = moduleRoot.act(new ParseReportCallable(coberturaReportFile));
 
             // if the build has failed, then there's not
             // much point in reporting an error
@@ -555,6 +525,47 @@ public class CoberturaPublisher extends Recorder {
      */
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+
+    public static class ParseReportCallable implements FilePath.FileCallable<FilePath[]> {
+        private static final long serialVersionUID = 1L;
+
+        private final String reportFilePath;
+
+        public ParseReportCallable(String reportFilePath) {
+            this.reportFilePath = reportFilePath;
+        }
+
+        public FilePath[] invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+            FilePath[] r = new FilePath(f).list(reportFilePath);
+
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            factory.setProperty("javax.xml.stream.supportDTD", "false");
+
+            for (FilePath filePath : r) {
+                try {
+                    XMLEventReader reader = factory.createXMLEventReader(filePath.read());
+                    while (reader.hasNext()) {
+                        XMLEvent event = reader.nextEvent();
+                        if (event.isStartElement()) {
+                            StartElement start = (StartElement) event;
+                            if (start.getName().getLocalPart().equals("coverage")) {
+                                // This is a cobertura coverage report file
+                                break;
+                            } else {
+                                throw new IOException(filePath + " is not a cobertura coverage report, please check your report pattern");
+                            }
+                        }
+                    }
+                    reader.close();
+                } catch (XMLStreamException e) {
+                    throw new IOException(filePath + " is not an XML file, please check your report pattern");
+                }
+
+            }
+            return r;
+        }
+    }
+
 
     /**
      * Descriptor for {@link CoberturaPublisher}. Used as a singleton. The class is marked as public so that it can be
