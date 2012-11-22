@@ -2,6 +2,7 @@ package hudson.plugins.cobertura.targets;
 
 import hudson.model.AbstractBuild;
 import hudson.model.Api;
+import hudson.model.Item;
 import hudson.model.Run;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.Ratio;
@@ -175,7 +176,10 @@ public class CoverageResult implements Serializable {
      * @return The file where the source file should be (if it exists)
      */
     private File getSourceFile() {
-        return new File(owner.getProject().getRootDir(), "cobertura/" + relativeSourcePath);
+        if(hasPermission()){
+            return new File(owner.getProject().getRootDir(), "cobertura/" + relativeSourcePath);
+        }
+        return null;
     }
 
     /**
@@ -184,7 +188,14 @@ public class CoverageResult implements Serializable {
      * @return Value for property 'sourceFileAvailable'.
      */
     public boolean isSourceFileAvailable() {
-        return owner == owner.getProject().getLastSuccessfulBuild() && getSourceFile().exists();
+        if(hasPermission()){
+            return owner == owner.getProject().getLastSuccessfulBuild() && getSourceFile().exists();
+        }
+        return false;
+    }
+
+    public boolean  hasPermission(){
+        return owner.hasPermission(Item.WORKSPACE);
     }
 
     /**
@@ -193,11 +204,14 @@ public class CoverageResult implements Serializable {
      * @return Value for property 'sourceFileContent'.
      */
     public String getSourceFileContent() {
-        try {
-            return new TextFile(getSourceFile()).read();
-        } catch (IOException e) {
-            return null;
+        if(hasPermission()){
+            try {
+                return new TextFile(getSourceFile()).read();
+            } catch (IOException e) {
+                return null;
+            }
         }
+        return null;
     }
 
     /**
