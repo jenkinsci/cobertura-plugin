@@ -12,7 +12,7 @@
             <j:set var="metrics" value="${it.metrics}"/>
             <h3>${%Trend}</h3>
             <j:if test="${it.previousResult != null}">
-            <img src="graph" width="500px" height="200px"/>
+                <img src="graph" width="500px" height="200px"/>
             </j:if>
             <j:if test="${it.previousResult == null}">
                 <div style="border: 1px solid #eee; width:500px; ">
@@ -88,10 +88,10 @@
                                 <j:choose>
                                     <j:when test="${childResult!=null and childResult.denominator != 0}">
                                         <td  data="${childResult.percentageString}">
-                                          <table class="percentgraph" cellpadding="0px" cellspacing="0px"><tr class="percentgraph">
-                                            <td width="40" class="data">${childResult.percentage}%</td>
-                                            <td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width: ${childResult.percentageFloat}px;"><span class="text">${childResult}</span></div></div></td>
-                                          </tr></table>
+                                            <table class="percentgraph" cellpadding="0px" cellspacing="0px"><tr class="percentgraph">
+                                                <td width="40" class="data">${childResult.percentage}%</td>
+                                                <td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width: ${childResult.percentageFloat}px;"><span class="text">${childResult}</span></div></div></td>
+                                            </tr></table>
                                         </td>
                                     </j:when>
                                     <j:otherwise>
@@ -111,9 +111,9 @@
                         <div style="overflow-x:scroll;">
                             <table class="source">
                                 <thead>
-                                    <tr>
-                                        <th colspan="3">${it.relativeSourcePath}</th>
-                                    </tr>
+                                <tr>
+                                    <th colspan="3">${it.relativeSourcePath}</th>
+                                </tr>
                                 </thead>
                                 <pre>${it.sourceFileContent}</pre>
 
@@ -127,6 +127,7 @@
                                 <li>${%reason.1}</li>
                                 <li>${%reason.2}</li>
                                 <li>${%reason.3}</li>
+                                <li>${%reason.4}</li>
                             </ul>
                         </p>
                     </j:otherwise>
