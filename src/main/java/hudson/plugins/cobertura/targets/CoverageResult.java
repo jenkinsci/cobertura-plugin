@@ -423,7 +423,7 @@ public class CoverageResult implements Serializable, Chartable {
             return; // up to date
 
         JFreeChart chart = new CoverageChart( this ).createChart();
-        ChartUtil.generateGraph(req, rsp, chart, 500, 400);
+        ChartUtil.generateGraph(req, rsp, chart, 500, 200);
     }
 
     /**

@@ -19,7 +19,7 @@ public class ChartTest
 	@Test(expected = NullPointerException.class)
 	public void noGraph() throws IOException
 	{
-		new CoverageChart( null );
+		new CoverageChart( null, true );
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -27,7 +27,7 @@ public class ChartTest
 	{
 		ctl = EasyMock.createControl();
 		CoverageResult result = new CoverageResultBuilder( ctl ).data().create();
-		new CoverageChart( result );
+		new CoverageChart( result, true );
 	}
 
 	@SuppressWarnings("unchecked")
@@ -36,7 +36,7 @@ public class ChartTest
 	{
 		ctl = EasyMock.createControl();
 		CoverageResult result = new CoverageResultBuilder( ctl ).data().data().create();
-		CoverageChart chartData = new CoverageChart( result );
+		CoverageChart chartData = new CoverageChart( result, true );
 		Assert.assertEquals( 74, chartData.getLowerBound() );
 		Assert.assertEquals( 101, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2" ), chartData.getDataset().getColumnKeys() );
@@ -54,7 +54,7 @@ public class ChartTest
 				.result( 100, 100, 200, 300, 400, 500 )//
 				.result( 100, 200, 300, 400, 500, 600 )//
 				.create();
-		CoverageChart chartData = new CoverageChart( result );
+		CoverageChart chartData = new CoverageChart( result, true );
 		Assert.assertEquals( 9, chartData.getLowerBound() );
 		Assert.assertEquals( 61, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3" ), chartData.getDataset().getColumnKeys() );
@@ -72,7 +72,7 @@ public class ChartTest
 				.result( 0 )//
 				.result( 1000 )//
 				.result( 1000 ).create();
-		CoverageChart chartData = new CoverageChart( result );
+		CoverageChart chartData = new CoverageChart( result, true );
 		Assert.assertEquals( -1, chartData.getLowerBound() );
 		Assert.assertEquals( 101, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
@@ -90,14 +90,30 @@ public class ChartTest
 				.result( 115 )//
 				.result( 108 )//
 				.result( 111, 108, 107, 114, 113, 109 ).create();
-		CoverageChart chartData = new CoverageChart( result );
+		CoverageChart chartData = new CoverageChart( result, true );
 		Assert.assertEquals( 10, chartData.getLowerBound() );
 		Assert.assertEquals( 12, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
 		complete( chartData, "temp/chart_closeup.png" );
-
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void nozoom() throws IOException
+	{
+		ctl = EasyMock.createControl();
+		CoverageResult result = new CoverageResultBuilder( ctl )//
+				.result( 105 )//
+				.result( 115 )//
+				.result( 108 )//
+				.result( 111, 108, 107, 114, 113, 109 ).create();
+		CoverageChart chartData = new CoverageChart( result, false );
+		Assert.assertEquals( -1, chartData.getLowerBound() );
+		Assert.assertEquals( 101, chartData.getUpperBound() );
+		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
+		complete( chartData, "temp/chart_nozoom.png" );
+	}
+	
 	protected void complete( CoverageChart chartData, String filename ) throws IOException
 	{
 		ctl.verify();

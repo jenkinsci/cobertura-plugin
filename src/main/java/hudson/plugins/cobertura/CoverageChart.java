@@ -22,6 +22,7 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+import org.jfree.util.Log;
 
 public class CoverageChart
 {
@@ -33,6 +34,14 @@ public class CoverageChart
 	 * @pre chartable!=null && chartable.getPreviousResult()!=null
 	 */
 	public CoverageChart( Chartable chartable )
+	{
+		this( chartable, isZoomCoverageChart( chartable ) );
+	}
+
+	/**
+	 * @pre chartable!=null && chartable.getPreviousResult()!=null
+	 */
+	protected CoverageChart( Chartable chartable, boolean zoomCoverageChart )
 	{
 		if( chartable == null ) throw new NullPointerException( "Cannot draw null-chart" );
 		if( chartable.getPreviousResult() == null ) throw new NullPointerException( "Need at least two result to draw a chart" );
@@ -49,10 +58,34 @@ public class CoverageChart
 				max = Math.max( max, value.getValue().getPercentage() );
 			}
 		}
-		int range=max-min;
+		int range = max - min;
 		this.dataset = dsb.build();
-		this.lowerBound = min - 1;
-		this.upperBound = max + (range < 5 ? 0 : 1);
+		if( zoomCoverageChart )
+		{
+			this.lowerBound = min - 1;
+			this.upperBound = max + (range < 5 ? 0 : 1);
+		}
+		else
+		{
+			this.lowerBound = -1;
+			this.upperBound = 101;
+		}
+	}
+
+	protected static boolean isZoomCoverageChart( Chartable chartable )
+	{
+		if( chartable == null ) return false;
+		CoberturaPublisher cp = (CoberturaPublisher) chartable.getOwner().getProject().getPublishersList().get( CoberturaPublisher.DESCRIPTOR );
+		boolean zoomCoverageChart = false;
+		if( cp != null )
+		{
+			zoomCoverageChart = cp.getZoomCoverageChart();
+		}
+		else
+		{
+			Log.warn( "Couldn't find CoberturaPublisher to decide if the graph should be zoomed" );
+		}
+		return zoomCoverageChart;
 	}
 
 	public JFreeChart createChart()
