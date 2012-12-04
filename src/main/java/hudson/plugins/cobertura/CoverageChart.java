@@ -29,8 +29,13 @@ public class CoverageChart
 	private int					lowerBound;
 	private int					upperBound;
 
+	/**
+	 * @pre chartable!=null && chartable.getPreviousResult()!=null
+	 */
 	public CoverageChart( Chartable chartable )
 	{
+		if( chartable == null ) throw new NullPointerException( "Cannot draw null-chart" );
+		if( chartable.getPreviousResult() == null ) throw new NullPointerException( "Need at least two result to draw a chart" );
 		DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
 		int min = 100;
 		int max = 0;
@@ -44,10 +49,10 @@ public class CoverageChart
 				max = Math.max( max, value.getValue().getPercentage() );
 			}
 		}
-
+		int range=max-min;
 		this.dataset = dsb.build();
-		this.lowerBound = min;
-		this.upperBound = max+1;
+		this.lowerBound = min - 1;
+		this.upperBound = max + (range < 5 ? 0 : 1);
 	}
 
 	public JFreeChart createChart()
@@ -100,6 +105,11 @@ public class CoverageChart
 		return chart;
 	}
 
+	protected CategoryDataset getDataset()
+	{
+		return dataset;
+	}
+
 	protected int getLowerBound()
 	{
 		return lowerBound;
@@ -108,10 +118,5 @@ public class CoverageChart
 	protected int getUpperBound()
 	{
 		return upperBound;
-	}
-
-	protected CategoryDataset getDataset()
-	{
-		return dataset;
 	}
 }

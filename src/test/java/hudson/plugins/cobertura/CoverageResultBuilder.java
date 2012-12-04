@@ -49,7 +49,7 @@ public class CoverageResultBuilder
 		for( CoverageResult result: results )
 		{
 			build = ctl.createMock( FreeStyleBuild.class );
-
+			build.number = c;
 			CoberturaBuildAction action = new CoberturaBuildAction( build, result, new CoverageTarget(), new CoverageTarget(), true, false, false, false, false )
 			{
 				@Override
@@ -60,9 +60,9 @@ public class CoverageResultBuilder
 				}
 			};
 
-			if( c < results.size() ) EasyMock.expect( build.getAction( CoberturaBuildAction.class ) ).andReturn( action );
-			EasyMock.expect( build.getDisplayName() ).andReturn( String.valueOf( c ) ).atLeastOnce();
-			EasyMock.expect( build.getPreviousNotFailedBuild() ).andReturn( prevBuild );
+			EasyMock.expect( build.getAction( CoberturaBuildAction.class ) ).andReturn( action ).anyTimes();
+			EasyMock.expect( build.getDisplayName() ).andReturn( "#" + String.valueOf( c ) ).anyTimes();
+			EasyMock.expect( build.getPreviousNotFailedBuild() ).andReturn( prevBuild ).anyTimes();
 
 			result.setOwner( build );
 
@@ -95,6 +95,39 @@ public class CoverageResultBuilder
 			};
 		} );
 		return this;
+	}
+
+	/**
+	 * using Ratio.create(param,1000)
+	 */
+	public CoverageResultBuilder result( final int classes, final int contitional, final int files, final int line, final int method, final int packages )
+	{
+		results.add( new CoverageResult( CoverageElement.PROJECT, null, null )
+		{
+			private static final long	serialVersionUID	= 1L;
+
+			public Map<CoverageMetric, Ratio> getResults()
+			{
+				Map<CoverageMetric, Ratio> results = new HashMap<CoverageMetric, Ratio>();
+				results.put( CoverageMetric.CLASSES, Ratio.create( classes, 1000 ) );
+				results.put( CoverageMetric.CONDITIONAL, Ratio.create( contitional, 1000 ) );
+				results.put( CoverageMetric.FILES, Ratio.create( files, 1000 ) );
+				results.put( CoverageMetric.LINE, Ratio.create( line, 1000 ) );
+				results.put( CoverageMetric.METHOD, Ratio.create( method, 1000 ) );
+				results.put( CoverageMetric.PACKAGES, Ratio.create( packages, 1000 ) );
+				return Collections.unmodifiableMap( results );
+
+			};
+		} );
+		return this;
+	}
+	
+	/**
+	 * using Ratio.create(param,1000) for all metrix
+	 */
+	public CoverageResultBuilder result( final int coverage )
+	{
+		return result( coverage, coverage, coverage, coverage, coverage, coverage );
 	}
 
 }
