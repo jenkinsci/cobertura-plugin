@@ -7,5 +7,6 @@ package hudson.plugins.cobertura.targets;
  * @since 20-Mar-2010 08:59:50
  */
 public interface HasName {
-  public String getName();
+
+    public String getName();
 }

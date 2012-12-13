@@ -17,7 +17,7 @@ import java.util.Set;
 public class CoverageTarget implements Serializable {
 
     private static final long serialVersionUID = -1230271515322670492L;
-    
+
     private Map<CoverageMetric, Integer> targets = new EnumMap<CoverageMetric, Integer>(CoverageMetric.class);
 
     /**
@@ -62,7 +62,7 @@ public class CoverageTarget implements Serializable {
         Set<CoverageMetric> result = EnumSet.noneOf(CoverageMetric.class);
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = coverage.getCoverage(target.getKey());
-            if (observed != null && roundFloatDecimal(observed.getPercentageFloat()) < (float)(target.getValue()/100000f)) {
+            if (observed != null && roundFloatDecimal(observed.getPercentageFloat()) < (float) (target.getValue() / 100000f)) {
                 result.add(target.getKey());
             }
         }
@@ -81,28 +81,26 @@ public class CoverageTarget implements Serializable {
 
         return result;
     }
-    
-    public float getObservedPercent(CoverageResult coverage, CoverageMetric key)
-    {
+
+    public float getObservedPercent(CoverageResult coverage, CoverageMetric key) {
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = coverage.getCoverage(target.getKey());
             if (target.getKey() == key) {
-            	return roundFloatDecimal(observed.getPercentageFloat());
+                return roundFloatDecimal(observed.getPercentageFloat());
             }
         }
         return 0;
     }
-    
-    public float getSetPercent(CoverageResult coverage, CoverageMetric key)
-    {
+
+    public float getSetPercent(CoverageResult coverage, CoverageMetric key) {
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             if (target.getKey() == key) {
-            	return (float)(target.getValue()/100000f);
+                return (float) (target.getValue() / 100000f);
             }
         }
         return 0;
     }
-    
+
     public Map<CoverageMetric, Integer> getRangeScores(CoverageTarget min, CoverageResult coverage) {
         return getRangeScores(min, coverage.getResults());
     }
@@ -113,7 +111,7 @@ public class CoverageTarget implements Serializable {
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = results.get(target.getKey());
             if (observed != null) {
-                j = CoverageTarget.calcRangeScore(target.getValue()/100000, min.targets.get(target.getKey()), observed.getPercentage());
+                j = CoverageTarget.calcRangeScore(target.getValue() / 100000, min.targets.get(target.getKey()), observed.getPercentage());
                 result.put(target.getKey(), Integer.valueOf(j));
             }
         }
@@ -121,12 +119,22 @@ public class CoverageTarget implements Serializable {
     }
 
     private static int calcRangeScore(Integer max, Integer min, int value) {
-        if (min == null || min < 0) min = 0;
-        if (max == null || max > 100) max = 100;
-        if (min > max) min = max - 1;
+        if (min == null || min < 0) {
+            min = 0;
+        }
+        if (max == null || max > 100) {
+            max = 100;
+        }
+        if (min > max) {
+            min = max - 1;
+        }
         int result = (int) (100f * (value - min.floatValue()) / (max.floatValue() - min.floatValue()));
-        if (result < 0) return 0;
-        if (result > 100) return 100;
+        if (result < 0) {
+            return 0;
+        }
+        if (result > 100) {
+            return 100;
+        }
         return result;
     }
 
@@ -156,10 +164,10 @@ public class CoverageTarget implements Serializable {
     public void clear() {
         targets.clear();
     }
-    
+
     public float roundFloatDecimal(float input) {
-    	float rounded = (float)Math.round(input*100f);
-    	rounded = rounded/100f;
-    	return rounded;
+        float rounded = (float) Math.round(input * 100f);
+        rounded = rounded / 100f;
+        return rounded;
     }
 }

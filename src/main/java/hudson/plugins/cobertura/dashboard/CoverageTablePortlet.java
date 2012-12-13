@@ -20,79 +20,85 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class CoverageTablePortlet extends DashboardPortlet {
 
-	@DataBoundConstructor
-	public CoverageTablePortlet(String name) {
-		super(name);
-	}
+    @DataBoundConstructor
+    public CoverageTablePortlet(String name) {
+        super(name);
+    }
 
-	public Collection<Run> getCoverageRuns() {
-		LinkedList<Run> allResults = new LinkedList<Run>();
+    public Collection<Run> getCoverageRuns() {
+        LinkedList<Run> allResults = new LinkedList<Run>();
 
-		for (Job job : getDashboard().getJobs()) {
-			// Find the latest successful coverage data
-			Run run = job.getLastSuccessfulBuild();
-			if(run == null) continue;
-			
-			CoberturaBuildAction rbb = run
-					.getAction(CoberturaBuildAction.class);
+        for (Job job : getDashboard().getJobs()) {
+            // Find the latest successful coverage data
+            Run run = job.getLastSuccessfulBuild();
+            if (run == null) {
+                continue;
+            }
 
-			if (rbb != null) {
-				allResults.add(run);
-			}
-		}
+            CoberturaBuildAction rbb = run
+                    .getAction(CoberturaBuildAction.class);
 
-		return allResults;
-	}
-	
-	public CoverageResult getCoverageResult(Run run){
-		CoberturaBuildAction rbb = run.getAction(CoberturaBuildAction.class);
-		return rbb.getResult();
-	}
-	
-	public HashMap<CoverageMetric, Ratio> getTotalCoverageRatio(){
-		HashMap<CoverageMetric, Ratio> totalRatioMap = new HashMap<CoverageMetric, Ratio>();
-		for (Job job : getDashboard().getJobs()) {
-			// Find the latest successful coverage data
-			Run run = job.getLastSuccessfulBuild();
-			if(run == null) continue;
-			
-			CoberturaBuildAction rbb = run
-					.getAction(CoberturaBuildAction.class);
+            if (rbb != null) {
+                allResults.add(run);
+            }
+        }
 
-			if( rbb == null ) continue;
-			
-			CoverageResult result = rbb.getResult();
-			Set<CoverageMetric> metrics = result.getMetrics();
-			
-			for (CoverageMetric metric: metrics) {
-				if(totalRatioMap.get(metric) == null){
-					totalRatioMap.put(metric, result.getCoverage(metric));
-				} else{
-					float currentNumerator = totalRatioMap.get(metric).numerator;
-					float CurrentDenominator = totalRatioMap.get(metric).denominator;
-					float sumNumerator = currentNumerator + result.getCoverage(metric).numerator;
-					float sumDenominator = CurrentDenominator + result.getCoverage(metric).denominator;
-					totalRatioMap.put(metric, Ratio.create(sumNumerator, sumDenominator));
-				}
-			}
-		}
-		return totalRatioMap;
-	}
+        return allResults;
+    }
 
-	public static class DescriptorImpl extends Descriptor<DashboardPortlet> {
+    public CoverageResult getCoverageResult(Run run) {
+        CoberturaBuildAction rbb = run.getAction(CoberturaBuildAction.class);
+        return rbb.getResult();
+    }
 
-		@Extension(optional = true)
-		public static DescriptorImpl newInstance() {
-			if (Hudson.getInstance().getPlugin("dashboard-view") != null) {
-				return new DescriptorImpl();
-			} else {
-				return null;
-			}
-		}
+    public HashMap<CoverageMetric, Ratio> getTotalCoverageRatio() {
+        HashMap<CoverageMetric, Ratio> totalRatioMap = new HashMap<CoverageMetric, Ratio>();
+        for (Job job : getDashboard().getJobs()) {
+            // Find the latest successful coverage data
+            Run run = job.getLastSuccessfulBuild();
+            if (run == null) {
+                continue;
+            }
 
-		@Override
-		public String getDisplayName() {
-			return "Code Coverages(Cobertura)";
-		}
-	}
+            CoberturaBuildAction rbb = run
+                    .getAction(CoberturaBuildAction.class);
+
+            if (rbb == null) {
+                continue;
+            }
+
+            CoverageResult result = rbb.getResult();
+            Set<CoverageMetric> metrics = result.getMetrics();
+
+            for (CoverageMetric metric : metrics) {
+                if (totalRatioMap.get(metric) == null) {
+                    totalRatioMap.put(metric, result.getCoverage(metric));
+                } else {
+                    float currentNumerator = totalRatioMap.get(metric).numerator;
+                    float CurrentDenominator = totalRatioMap.get(metric).denominator;
+                    float sumNumerator = currentNumerator + result.getCoverage(metric).numerator;
+                    float sumDenominator = CurrentDenominator + result.getCoverage(metric).denominator;
+                    totalRatioMap.put(metric, Ratio.create(sumNumerator, sumDenominator));
+                }
+            }
+        }
+        return totalRatioMap;
+    }
+
+    public static class DescriptorImpl extends Descriptor<DashboardPortlet> {
+
+        @Extension(optional = true)
+        public static DescriptorImpl newInstance() {
+            if (Hudson.getInstance().getPlugin("dashboard-view") != null) {
+                return new DescriptorImpl();
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Code Coverages(Cobertura)";
+        }
+    }
 }

@@ -41,17 +41,19 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @author Stephen Connolly
  * @since 22-Aug-2007 18:47:10
  */
-@ExportedBean(defaultVisibility=2)
+@ExportedBean(defaultVisibility = 2)
 public class CoverageResult implements Serializable, Chartable {
+
     /**
-	 * Generated
-	 */
-	private static final long serialVersionUID = -3524882671364156445L;
-	
-	/**
+     * Generated
+     */
+    private static final long serialVersionUID = -3524882671364156445L;
+
+    /**
      * The type of the programming element.
      */
     private final CoverageElement element;
+
     /**
      * Name of the programming element that this result object represent, such as package name, class name, method name, etc.
      */
@@ -59,15 +61,18 @@ public class CoverageResult implements Serializable, Chartable {
 
     // these two pointers form a tree structure where edges are names.
     private final CoverageResult parent;
+
     private final Map<String, CoverageResult> children = new TreeMap<String, CoverageResult>();
 
-    private final Map<CoverageMetric,Ratio> aggregateResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
-    private final Map<CoverageMetric,Ratio> localResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
+    private final Map<CoverageMetric, Ratio> aggregateResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
+
+    private final Map<CoverageMetric, Ratio> localResults = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
 
     /**
      * Line-by-line coverage information. Computed lazily, since it's memory intensive.
      */
     private final CoveragePaint paint;
+
     private String relativeSourcePath;
 
     public AbstractBuild<?, ?> owner = null;
@@ -164,7 +169,7 @@ public class CoverageResult implements Serializable, Chartable {
      * @return The file where the source file should be (if it exists)
      */
     private File getSourceFile() {
-        if(hasPermission()){
+        if (hasPermission()) {
             return new File(owner.getProject().getRootDir(), "cobertura/" + relativeSourcePath);
         }
         return null;
@@ -176,13 +181,13 @@ public class CoverageResult implements Serializable, Chartable {
      * @return Value for property 'sourceFileAvailable'.
      */
     public boolean isSourceFileAvailable() {
-        if(hasPermission()){
+        if (hasPermission()) {
             return owner == owner.getProject().getLastSuccessfulBuild() && getSourceFile().exists();
         }
         return false;
     }
 
-    public boolean  hasPermission(){
+    public boolean hasPermission() {
         return owner.hasPermission(Item.WORKSPACE);
     }
 
@@ -192,7 +197,7 @@ public class CoverageResult implements Serializable, Chartable {
      * @return Value for property 'sourceFileContent'.
      */
     public String getSourceFileContent() {
-        if(hasPermission()){
+        if (hasPermission()) {
             try {
                 return new TextFile(getSourceFile()).read();
             } catch (IOException e) {
@@ -274,7 +279,7 @@ public class CoverageResult implements Serializable, Chartable {
      *
      * @return Value for property 'results'.
      */
-     public Map<CoverageMetric, Ratio> getResults() {
+    public Map<CoverageMetric, Ratio> getResults() {
         return Collections.unmodifiableMap(aggregateResults);
     }
 
@@ -283,9 +288,9 @@ public class CoverageResult implements Serializable, Chartable {
      *
      * @return Value for property 'results'.
      */
-    @Exported(name="results")
+    @Exported(name = "results")
     public CoverageTree getResultsAPI() {
-    	return new CoverageTree(name, aggregateResults, children);
+        return new CoverageTree(name, aggregateResults, children);
     }
 
     public String urlTransform(String name) {
@@ -348,7 +353,7 @@ public class CoverageResult implements Serializable, Chartable {
      *
      * @return Value for property 'owner'.
      */
-    public AbstractBuild<?,?> getOwner() {
+    public AbstractBuild<?, ?> getOwner() {
         return owner;
     }
 
@@ -357,7 +362,7 @@ public class CoverageResult implements Serializable, Chartable {
      *
      * @param owner Value to set for property 'owner'.
      */
-    public void setOwner(AbstractBuild<?,?> owner) {
+    public void setOwner(AbstractBuild<?, ?> owner) {
         this.owner = owner;
         aggregateResults.clear();
         for (CoverageResult child : children.values()) {
@@ -388,7 +393,7 @@ public class CoverageResult implements Serializable, Chartable {
             if (owner == null) {
                 return null;
             }
-            Run<?,?> prevBuild = owner.getPreviousNotFailedBuild();
+            Run<?, ?> prevBuild = owner.getPreviousNotFailedBuild();
             if (prevBuild == null) {
                 return null;
             }
@@ -430,13 +435,13 @@ public class CoverageResult implements Serializable, Chartable {
             return;
         }
 
-        AbstractBuild<?,?> build = getOwner();
+        AbstractBuild<?, ?> build = getOwner();
         Calendar t = build.getTimestamp();
 
-        if (req.checkIfModified(t, rsp))
+        if (req.checkIfModified(t, rsp)) {
             return; // up to date
-
-        JFreeChart chart = new CoverageChart( this ).createChart();
+        }
+        JFreeChart chart = new CoverageChart(this).createChart();
         ChartUtil.generateGraph(req, rsp, chart, 500, 200);
     }
 
@@ -456,8 +461,8 @@ public class CoverageResult implements Serializable, Chartable {
         }
         return result;
     }
-    
-    public Api getApi(){
-    	return new Api(this);
+
+    public Api getApi() {
+        return new Api(this);
     }
 }

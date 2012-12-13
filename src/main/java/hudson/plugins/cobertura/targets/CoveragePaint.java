@@ -16,19 +16,20 @@ import java.util.Map;
  * @since 29-Aug-2007 17:44:29
  */
 public class CoveragePaint implements Serializable {
-	
-	/**
-	 * Generated
-	 */
-	private static final long serialVersionUID = -6265259191856193735L;
+
+    /**
+     * Generated
+     */
+    private static final long serialVersionUID = -6265259191856193735L;
 
     private static final CoveragePaintDetails[] EMPTY = new CoveragePaintDetails[0];
 
     private static class CoveragePaintDetails implements Serializable {
-		/**
-		 * Generated
-		 */
-		private static final long serialVersionUID = -9097537016381444671L;
+
+        /**
+         * Generated
+         */
+        private static final long serialVersionUID = -9097537016381444671L;
 
         /**
          * Fly-weight object pool of (n,0,0) instances, which are very common.
@@ -38,24 +39,26 @@ public class CoveragePaint implements Serializable {
         /**
          * Number of times this line is executed.
          */
-		final int hitCount;
+        final int hitCount;
 
         static CoveragePaintDetails create(int hitCount, int branchCount, int branchCoverage) {
-            if (branchCount==0 && branchCoverage==0) {
-                if (0<=hitCount && hitCount<CONSTANTS.length) {
+            if (branchCount == 0 && branchCoverage == 0) {
+                if (0 <= hitCount && hitCount < CONSTANTS.length) {
                     CoveragePaintDetails r = CONSTANTS[hitCount];
-                    if (r==null)    CONSTANTS[hitCount]=r=new CoveragePaintDetails(hitCount);
+                    if (r == null) {
+                        CONSTANTS[hitCount] = r = new CoveragePaintDetails(hitCount);
+                    }
                     return r;
                 }
                 return new CoveragePaintDetails(hitCount);
             } else {
-                return new BranchingCoveragePaintDetails(hitCount,branchCount,branchCoverage);
+                return new BranchingCoveragePaintDetails(hitCount, branchCount, branchCoverage);
             }
         }
 
-		private CoveragePaintDetails(int hitCount) {
-			this.hitCount = hitCount;
-		}
+        private CoveragePaintDetails(int hitCount) {
+            this.hitCount = hitCount;
+        }
 
         int branchCount() {
             return 0;
@@ -70,20 +73,21 @@ public class CoveragePaint implements Serializable {
          */
         CoveragePaintDetails add(CoveragePaintDetails that) {
             return CoveragePaintDetails.create(
-                    this.hitCount+that.hitCount,
+                    this.hitCount + that.hitCount,
                     // TODO find a better algorithm
-                    Math.max(this.branchCount(),that.branchCount()),
-                    Math.max(this.branchCoverage(),that.branchCoverage())
-            );
+                    Math.max(this.branchCount(), that.branchCount()),
+                    Math.max(this.branchCoverage(), that.branchCoverage()));
         }
-	}
+    }
 
     /**
      * {@link CoveragePaintDetails} that has non-zero branch coverage numbers.
      * This is relatively rare, so we use two classes to save 8 bytes of storing 0.
      */
     private static class BranchingCoveragePaintDetails extends CoveragePaintDetails {
+
         final int branchCount;
+
         final int branchCoverage;
 
         private BranchingCoveragePaintDetails(int hitCount, int branchCount, int branchCoverage) {
@@ -105,14 +109,13 @@ public class CoveragePaint implements Serializable {
         private static final long serialVersionUID = 1L;
     }
 
+    protected TIntObjectMap<CoveragePaintDetails> lines = new TIntObjectHashMap<CoveragePaintDetails>();
 
-    protected TIntObjectMap<CoveragePaintDetails> lines=new TIntObjectHashMap<CoveragePaintDetails>();
-	
-	public CoveragePaint(CoverageElement source) {
+    public CoveragePaint(CoverageElement source) {
 //		there were no getters against the source ...
 //      this.source = source;
     }
-    
+
     private void paint(int line, CoveragePaintDetails delta) {
         CoveragePaintDetails d = lines.get(line);
         if (d == null) {
@@ -127,15 +130,15 @@ public class CoveragePaint implements Serializable {
     }
 
     public void paint(int line, int hits, int branchCover, int branchCount) {
-        paint(line,CoveragePaintDetails.create(hits, branchCount, branchCover));
+        paint(line, CoveragePaintDetails.create(hits, branchCount, branchCover));
     }
 
     public void add(CoveragePaint child) {
         TIntObjectIterator<CoveragePaintDetails> it = child.lines.iterator();
         while (it.hasNext()) {
             it.advance();
-            paint(it.key(),it.value());
-    	}
+            paint(it.key(), it.value());
+        }
     }
 
     /**
@@ -145,10 +148,10 @@ public class CoveragePaint implements Serializable {
      */
     public Ratio getLineCoverage() {
         int covered = 0;
-        for (CoveragePaintDetails d: lines.values(EMPTY)) {
+        for (CoveragePaintDetails d : lines.values(EMPTY)) {
             if (d.hitCount > 0) {
                 covered++;
-            }        		
+            }
         }
         return Ratio.create(covered, lines.size());
     }
@@ -161,7 +164,7 @@ public class CoveragePaint implements Serializable {
     public Ratio getConditionalCoverage() {
         long maxTotal = 0;
         long total = 0;
-        for (CoveragePaintDetails d: lines.values(EMPTY)) {
+        for (CoveragePaintDetails d : lines.values(EMPTY)) {
             maxTotal += d.branchCount();
             total += d.branchCoverage();
         }
@@ -174,40 +177,40 @@ public class CoveragePaint implements Serializable {
      * @return Value for property 'results'.
      */
     public Map<CoverageMetric, Ratio> getResults() {
-        Map<CoverageMetric, Ratio> result = new EnumMap<CoverageMetric,Ratio>(CoverageMetric.class);
+        Map<CoverageMetric, Ratio> result = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
         result.put(CoverageMetric.LINE, getLineCoverage());
         result.put(CoverageMetric.CONDITIONAL, getConditionalCoverage());
         return result;
     }
 
     public boolean isPainted(int line) {
-    	return lines.get(line) != null;
+        return lines.get(line) != null;
     }
 
     public int getHits(int line) {
-		CoveragePaintDetails d=lines.get(line);
-		if (d==null){
-			return 0;
-		} else {
+        CoveragePaintDetails d = lines.get(line);
+        if (d == null) {
+            return 0;
+        } else {
             return d.hitCount;
-		}
+        }
     }
 
     public int getBranchTotal(int line) {
-		CoveragePaintDetails d=lines.get(line);
-		if (d==null){
-			return 0;
-		} else {
+        CoveragePaintDetails d = lines.get(line);
+        if (d == null) {
+            return 0;
+        } else {
             return d.branchCount();
-		}
+        }
     }
 
     public int getBranchCoverage(int line) {
-		CoveragePaintDetails d=lines.get(line);
-		if (d==null){
-			return 0;
-		} else {
+        CoveragePaintDetails d = lines.get(line);
+        if (d == null) {
+            return 0;
+        } else {
             return d.branchCoverage();
-		}
+        }
     }
 }

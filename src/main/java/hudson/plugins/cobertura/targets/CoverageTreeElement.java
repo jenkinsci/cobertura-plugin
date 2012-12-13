@@ -10,26 +10,27 @@ import hudson.plugins.cobertura.Ratio;
 @ExportedBean
 public class CoverageTreeElement implements Serializable {
 
-	/**
-	 * Generated
-	 */
-	private static final long serialVersionUID = 498666415572813346L;
-	
-	private Ratio ratio;
-	private CoverageMetric metric;
+    /**
+     * Generated
+     */
+    private static final long serialVersionUID = 498666415572813346L;
 
-	public CoverageTreeElement(CoverageMetric metric, Ratio ratio) {
-		this.metric=metric;
-		this.ratio=ratio;
-	}
+    private Ratio ratio;
 
-	@Exported
-	public String getName(){
-		return metric.getName();
-	}
+    private CoverageMetric metric;
 
-	@Exported
-	public float getRatio(){
-		return ratio.getPercentageFloat();
-	}
+    public CoverageTreeElement(CoverageMetric metric, Ratio ratio) {
+        this.metric = metric;
+        this.ratio = ratio;
+    }
+
+    @Exported
+    public String getName() {
+        return metric.getName();
+    }
+
+    @Exported
+    public float getRatio() {
+        return ratio.getPercentageFloat();
+    }
 }
