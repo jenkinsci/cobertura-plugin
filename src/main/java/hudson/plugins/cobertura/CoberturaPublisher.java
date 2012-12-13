@@ -16,21 +16,17 @@ import hudson.model.AbstractProject;
 import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.renderers.SourceEncoding;
 import hudson.plugins.cobertura.targets.CoverageMetric;
-import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageTarget;
+import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -39,18 +35,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import net.sf.json.JSONObject;
-
-import org.apache.commons.beanutils.ConvertUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
-
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.beanutils.ConvertUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Cobertura {@link Publisher}.
@@ -65,6 +60,7 @@ public class CoberturaPublisher extends Recorder {
     private final boolean failUnstable;
     private final boolean autoUpdateHealth;
     private final boolean autoUpdateStability;
+    private final boolean zoomCoverageChart;
     
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
@@ -77,13 +73,14 @@ public class CoberturaPublisher extends Recorder {
      * @stapler-constructor
      */
     @DataBoundConstructor 
-    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability, SourceEncoding sourceEncoding) {
+    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, SourceEncoding sourceEncoding) {
         this.coberturaReportFile = coberturaReportFile;
         this.onlyStable = onlyStable;
         this.failUnhealthy = failUnhealthy;
         this.failUnstable = failUnstable;
         this.autoUpdateHealth = autoUpdateHealth;
         this.autoUpdateStability = autoUpdateStability;
+        this.zoomCoverageChart = zoomCoverageChart;
 		this.sourceEncoding = sourceEncoding;
         this.healthyTarget = new CoverageTarget();
         this.unhealthyTarget = new CoverageTarget();
@@ -224,6 +221,10 @@ public class CoberturaPublisher extends Recorder {
      */
     public boolean getAutoUpdateStability() {
         return autoUpdateStability;
+    }
+
+    public boolean getZoomCoverageChart() {
+       return zoomCoverageChart;
     }
 
     /**

@@ -23,6 +23,10 @@
     <f:entry title="${%Stability auto update}"
              description="${%auto.stability.builds.description}" >
        <f:checkbox name="cobertura.autoUpdateStability" checked="${instance.autoUpdateStability}" />                                                                                        
+    </f:entry>
+    <f:entry title="${%Zoom coverage chart}"
+             description="${%zoom.coverage.chart.description}" >
+       <f:checkbox name="cobertura.zoomCoverageChart" checked="${instance.zoomCoverageChart}" />                                                                                        
     </f:entry>  
     <f:entry title="${%Source Encoding}"
              description="${%source.encoding.description}" field="sourceEncoding">
