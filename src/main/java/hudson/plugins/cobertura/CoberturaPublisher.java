@@ -55,25 +55,36 @@ import org.kohsuke.stapler.StaplerRequest;
 public class CoberturaPublisher extends Recorder {
 
     private final String coberturaReportFile;
+
     private final boolean onlyStable;
+
     private final boolean failUnhealthy;
+
     private final boolean failUnstable;
+
     private final boolean autoUpdateHealth;
+
     private final boolean autoUpdateStability;
+
     private final boolean zoomCoverageChart;
-    
+
     private CoverageTarget healthyTarget;
+
     private CoverageTarget unhealthyTarget;
+
     private CoverageTarget failingTarget;
+
     public static final CoberturaReportFilenameFilter COBERTURA_FILENAME_FILTER = new CoberturaReportFilenameFilter();
-	private final SourceEncoding sourceEncoding;
+
+    private final SourceEncoding sourceEncoding;
 
     /**
      * @param coberturaReportFile the report directory
      * @stapler-constructor
      */
-    @DataBoundConstructor 
-    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, SourceEncoding sourceEncoding) {
+    @DataBoundConstructor
+    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, 
+            boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, SourceEncoding sourceEncoding) {
         this.coberturaReportFile = coberturaReportFile;
         this.onlyStable = onlyStable;
         this.failUnhealthy = failUnhealthy;
@@ -81,7 +92,7 @@ public class CoberturaPublisher extends Recorder {
         this.autoUpdateHealth = autoUpdateHealth;
         this.autoUpdateStability = autoUpdateStability;
         this.zoomCoverageChart = zoomCoverageChart;
-		this.sourceEncoding = sourceEncoding;
+        this.sourceEncoding = sourceEncoding;
         this.healthyTarget = new CoverageTarget();
         this.unhealthyTarget = new CoverageTarget();
         this.failingTarget = new CoverageTarget();
@@ -101,10 +112,9 @@ public class CoberturaPublisher extends Recorder {
                 target = new CoberturaPublisherTarget();
                 target.setMetric(metric);
             }
-            checker = (float)healthyTarget.getTarget(metric)/100000f;
-            if(checker <= 0.001f)
-            {
-            	checker = (float)(Math.round(checker*100000f));
+            checker = (float) healthyTarget.getTarget(metric) / 100000f;
+            if (checker <= 0.001f) {
+                checker = (float) (Math.round(checker * 100000f));
             }
             target.setHealthy(checker);
             targets.put(metric, target);
@@ -115,10 +125,9 @@ public class CoberturaPublisher extends Recorder {
                 target = new CoberturaPublisherTarget();
                 target.setMetric(metric);
             }
-            checker = (float)unhealthyTarget.getTarget(metric)/100000f;
-            if(checker <= 0.001f)
-            {
-            	checker = (float)(Math.round(checker*100000f));
+            checker = (float) unhealthyTarget.getTarget(metric) / 100000f;
+            if (checker <= 0.001f) {
+                checker = (float) (Math.round(checker * 100000f));
             }
             target.setUnhealthy(checker);
             targets.put(metric, target);
@@ -129,10 +138,9 @@ public class CoberturaPublisher extends Recorder {
                 target = new CoberturaPublisherTarget();
                 target.setMetric(metric);
             }
-            checker = (float)failingTarget.getTarget(metric)/100000f;
-            if(checker <= 0.001f)
-            {
-            	checker = (float)(Math.round(checker*100000f));
+            checker = (float) failingTarget.getTarget(metric) / 100000f;
+            if (checker <= 0.001f) {
+                checker = (float) (Math.round(checker * 100000f));
             }
             target.setUnstable(checker);
             targets.put(metric, target);
@@ -153,19 +161,19 @@ public class CoberturaPublisher extends Recorder {
         float rounded;
         for (CoberturaPublisherTarget target : targets) {
             if (target.getHealthy() != null) {
-            	rounded = (Math.round((float)100f*target.getHealthy()));
-            	rounded = roundDecimalFloat(rounded);
-                healthyTarget.setTarget(target.getMetric(), (int)((float)100000f*rounded));
+                rounded = (Math.round((float) 100f * target.getHealthy()));
+                rounded = roundDecimalFloat(rounded);
+                healthyTarget.setTarget(target.getMetric(), (int) ((float) 100000f * rounded));
             }
             if (target.getUnhealthy() != null) {
-            	rounded = (Math.round((float)100f*target.getUnhealthy()));
-            	rounded = roundDecimalFloat(rounded);
-                unhealthyTarget.setTarget(target.getMetric(), (int)((float)100000f*rounded));
+                rounded = (Math.round((float) 100f * target.getUnhealthy()));
+                rounded = roundDecimalFloat(rounded);
+                unhealthyTarget.setTarget(target.getMetric(), (int) ((float) 100000f * rounded));
             }
             if (target.getUnstable() != null) {
-            	rounded = (Math.round((float)100f*target.getUnstable()));
-            	rounded = roundDecimalFloat(rounded);
-                failingTarget.setTarget(target.getMetric(), (int)((float)100000f*rounded));
+                rounded = (Math.round((float) 100f * target.getUnstable()));
+                rounded = roundDecimalFloat(rounded);
+                failingTarget.setTarget(target.getMetric(), (int) ((float) 100000f * rounded));
             }
         }
     }
@@ -186,7 +194,7 @@ public class CoberturaPublisher extends Recorder {
     public boolean getOnlyStable() {
         return onlyStable;
     }
-    
+
     /**
      * Getter for property 'failUnhealthy'.
      *
@@ -195,7 +203,7 @@ public class CoberturaPublisher extends Recorder {
     public boolean getFailUnhealthy() {
         return failUnhealthy;
     }
-    
+
     /**
      * Getter for property 'failUnstable'.
      *
@@ -204,7 +212,7 @@ public class CoberturaPublisher extends Recorder {
     public boolean getFailUnstable() {
         return failUnstable;
     }
-    
+
     /**
      * Getter for property 'autoUpdateHealth'.
      *
@@ -213,7 +221,7 @@ public class CoberturaPublisher extends Recorder {
     public boolean getAutoUpdateHealth() {
         return autoUpdateHealth;
     }
-    
+
     /**
      * Getter for property 'autoUpdateStability'.
      *
@@ -224,7 +232,7 @@ public class CoberturaPublisher extends Recorder {
     }
 
     public boolean getZoomCoverageChart() {
-       return zoomCoverageChart;
+        return zoomCoverageChart;
     }
 
     /**
@@ -293,40 +301,40 @@ public class CoberturaPublisher extends Recorder {
      * Gets the directory where the Cobertura Report is stored for the given project.
      */
     /*package*/
-    static File[] getCoberturaReports(AbstractBuild<?,?> build) {
+    static File[] getCoberturaReports(AbstractBuild<?, ?> build) {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
     }
-
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) 
+            throws InterruptedException, IOException {
         Result threshold = onlyStable ? Result.SUCCESS : Result.UNSTABLE;
-        if(build.getResult().isWorseThan(threshold)) {
+        if (build.getResult().isWorseThan(threshold)) {
             listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
             return true;
         }
         // Make sure Cobertura actually ran
-        if(build instanceof MavenBuild) {
-          MavenBuild mavenBuild = (MavenBuild)build;
-          if(didCoberturaRun(mavenBuild) == false) {
-            listener.getLogger().println("Skipping Cobertura coverage report as mojo did not run.");
-            return true;
-          }
-        } else if(build instanceof MavenModuleSetBuild) {
-          MavenModuleSetBuild moduleSetBuild = (MavenModuleSetBuild)build;
-          if(didCoberturaRun(moduleSetBuild.getModuleLastBuilds().values()) == false) {
-            listener.getLogger().println("Skipping Cobertura coverage report as mojo did not run.");
-            return true;
-          }
+        if (build instanceof MavenBuild) {
+            MavenBuild mavenBuild = (MavenBuild) build;
+            if (didCoberturaRun(mavenBuild) == false) {
+                listener.getLogger().println("Skipping Cobertura coverage report as mojo did not run.");
+                return true;
+            }
+        } else if (build instanceof MavenModuleSetBuild) {
+            MavenModuleSetBuild moduleSetBuild = (MavenModuleSetBuild) build;
+            if (didCoberturaRun(moduleSetBuild.getModuleLastBuilds().values()) == false) {
+                listener.getLogger().println("Skipping Cobertura coverage report as mojo did not run.");
+                return true;
+            }
         }
-        
+
         listener.getLogger().println("Publishing Cobertura coverage report...");
         final FilePath[] moduleRoots = build.getModuleRoots();
         final boolean multipleModuleRoots =
-            moduleRoots != null && moduleRoots.length > 1;
+                moduleRoots != null && moduleRoots.length > 1;
         final FilePath moduleRoot = multipleModuleRoots ? build.getWorkspace() : build.getModuleRoot();
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
@@ -337,8 +345,9 @@ public class CoberturaPublisher extends Recorder {
 
             // if the build has failed, then there's not
             // much point in reporting an error
-            if (build.getResult().isWorseOrEqualTo(Result.FAILURE) && reports.length == 0)
+            if (build.getResult().isWorseOrEqualTo(Result.FAILURE) && reports.length == 0) {
                 return true;
+            }
 
         } catch (IOException e) {
             Util.displayIOException(e, listener);
@@ -348,10 +357,10 @@ public class CoberturaPublisher extends Recorder {
 
         if (reports.length == 0) {
             String msg = "No coverage results were found using the pattern '"
-            + coberturaReportFile + "' relative to '"
-            + moduleRoot.getRemote() + "'."
-            + "  Did you enter a pattern relative to the correct directory?"
-            + "  Did you generate the XML report(s) for Cobertura?";
+                    + coberturaReportFile + "' relative to '"
+                    + moduleRoot.getRemote() + "'."
+                    + "  Did you enter a pattern relative to the correct directory?"
+                    + "  Did you generate the XML report(s) for Cobertura?";
             listener.getLogger().println(msg);
             build.setResult(Result.FAILURE);
             return true;
@@ -381,7 +390,7 @@ public class CoberturaPublisher extends Recorder {
             }
         }
         if (result != null) {
-        	listener.getLogger().println("Cobertura coverage report found.");
+            listener.getLogger().println("Cobertura coverage report found.");
             result.setOwner(build);
             final FilePath paintedSourcesPath = new FilePath(new File(build.getProject().getRootDir(), "cobertura"));
             paintedSourcesPath.mkdirs();
@@ -400,99 +409,82 @@ public class CoberturaPublisher extends Recorder {
                 float oldStabilityPercent;
                 float setStabilityPercent;
                 for (CoverageMetric metric : failingMetrics) {
-                	oldStabilityPercent = failingTarget.getObservedPercent(result, metric);
-                	setStabilityPercent = failingTarget.getSetPercent(result, metric);
-                	listener.getLogger().println("    " + metric.getName() + "'s stability is " + roundDecimalFloat(oldStabilityPercent*100f) + " and set mininum stability is " + roundDecimalFloat(setStabilityPercent*100f) + ".");
+                    oldStabilityPercent = failingTarget.getObservedPercent(result, metric);
+                    setStabilityPercent = failingTarget.getSetPercent(result, metric);
+                    listener.getLogger().println("    " + metric.getName() + "'s stability is " + roundDecimalFloat(oldStabilityPercent * 100f) + " and set mininum stability is " + roundDecimalFloat(setStabilityPercent * 100f) + ".");
                 }
-                if(!getFailUnstable())
-                {
-                	listener.getLogger().println("Setting Build to unstable.");
-                	build.setResult(Result.UNSTABLE);
-                }
-                else
-                {
-                	listener.getLogger().println("Failing build due to unstability.");
-                	build.setResult(Result.FAILURE);
+                if (!getFailUnstable()) {
+                    listener.getLogger().println("Setting Build to unstable.");
+                    build.setResult(Result.UNSTABLE);
+                } else {
+                    listener.getLogger().println("Failing build due to unstability.");
+                    build.setResult(Result.FAILURE);
                 }
             }
-            if(getFailUnhealthy())
-            {
-            	Set<CoverageMetric> unhealthyMetrics = unhealthyTarget.getFailingMetrics(result);
-            	if (!unhealthyMetrics.isEmpty()) {
-            		listener.getLogger().println("Unhealthy for the following metrics:");
-            		float oldHealthyPercent;
-            		float setHealthyPercent;
-            		for (CoverageMetric metric : unhealthyMetrics) {
-            			oldHealthyPercent = unhealthyTarget.getObservedPercent(result, metric);
-            			setHealthyPercent = unhealthyTarget.getSetPercent(result, metric);
-            			listener.getLogger().println("    " + metric.getName() + "'s health is " + roundDecimalFloat(oldHealthyPercent*100f) + " and set minimum health is " + roundDecimalFloat(setHealthyPercent*100f) + ".");
-            		}
-                	listener.getLogger().println("Failing build because it is unhealthy.");
-            		build.setResult(Result.FAILURE);
-            	}
+            if (getFailUnhealthy()) {
+                Set<CoverageMetric> unhealthyMetrics = unhealthyTarget.getFailingMetrics(result);
+                if (!unhealthyMetrics.isEmpty()) {
+                    listener.getLogger().println("Unhealthy for the following metrics:");
+                    float oldHealthyPercent;
+                    float setHealthyPercent;
+                    for (CoverageMetric metric : unhealthyMetrics) {
+                        oldHealthyPercent = unhealthyTarget.getObservedPercent(result, metric);
+                        setHealthyPercent = unhealthyTarget.getSetPercent(result, metric);
+                        listener.getLogger().println("    " + metric.getName() + "'s health is " + roundDecimalFloat(oldHealthyPercent * 100f) + " and set minimum health is " + roundDecimalFloat(setHealthyPercent * 100f) + ".");
+                    }
+                    listener.getLogger().println("Failing build because it is unhealthy.");
+                    build.setResult(Result.FAILURE);
+                }
             }
-            if(build.getResult() == Result.SUCCESS)
-            {	
-            	if(getAutoUpdateHealth())
-            	{
-            		setNewPercentages(result, true, listener);
-            	}
-            	
-            	if(getAutoUpdateStability())
-            	{
-            		setNewPercentages(result, false, listener);
-            	}
+            if (build.getResult() == Result.SUCCESS) {
+                if (getAutoUpdateHealth()) {
+                    setNewPercentages(result, true, listener);
+                }
+
+                if (getAutoUpdateStability()) {
+                    setNewPercentages(result, false, listener);
+                }
             }
         } else {
-            listener.getLogger().println("No coverage results were successfully parsed.  Did you generate " +
-                    "the XML report(s) for Cobertura?");
+            listener.getLogger().println("No coverage results were successfully parsed.  Did you generate "
+                    + "the XML report(s) for Cobertura?");
             build.setResult(Result.FAILURE);
         }
 
         return true;
     }
-    
-	/**
+
+    /**
      * Changes unhealthy or unstable percentage fields for ratcheting.
      */
-    private void setNewPercentages(CoverageResult result, boolean select, BuildListener listener)
-    {
-		Set<CoverageMetric> healthyMetrics = healthyTarget.getAllMetrics(result);
-		float newPercent;
-		float oldPercent;
-		if(!healthyMetrics.isEmpty())
-		{
-			for (CoverageMetric metric : healthyMetrics)
-			{    
-				newPercent = healthyTarget.getObservedPercent(result, metric);
-				newPercent = (float)(Math.round(newPercent*100f));
-				if(select)
-				{
-					oldPercent = unhealthyTarget.getSetPercent(result, metric);
-					oldPercent = (float)(Math.round(oldPercent*100f));
-				}
-				else
-				{
-					oldPercent = failingTarget.getSetPercent(result, metric);
-					oldPercent = (float)(Math.round(oldPercent*100f));
-				}
-				if(newPercent > oldPercent)
-				{
-					if(select)
-					{
-						unhealthyTarget.setTarget(metric, (int)(newPercent*1000f));
-    					listener.getLogger().println("    " + metric.getName() + "'s new health minimum is: " + roundDecimalFloat(newPercent));
-					}
-					else
-					{
-						failingTarget.setTarget(metric, (int)(newPercent*1000f));
-    					listener.getLogger().println("    " + metric.getName() + "'s new stability minimum is: " + roundDecimalFloat(newPercent));
-					}
-				}
-			}
-		}
+    private void setNewPercentages(CoverageResult result, boolean select, BuildListener listener) {
+        Set<CoverageMetric> healthyMetrics = healthyTarget.getAllMetrics(result);
+        float newPercent;
+        float oldPercent;
+        if (!healthyMetrics.isEmpty()) {
+            for (CoverageMetric metric : healthyMetrics) {
+                newPercent = healthyTarget.getObservedPercent(result, metric);
+                newPercent = (float) (Math.round(newPercent * 100f));
+                if (select) {
+                    oldPercent = unhealthyTarget.getSetPercent(result, metric);
+                    oldPercent = (float) (Math.round(oldPercent * 100f));
+                } else {
+                    oldPercent = failingTarget.getSetPercent(result, metric);
+                    oldPercent = (float) (Math.round(oldPercent * 100f));
+                }
+                if (newPercent > oldPercent) {
+                    if (select) {
+                        unhealthyTarget.setTarget(metric, (int) (newPercent * 1000f));
+                        listener.getLogger().println("    " + metric.getName() + "'s new health minimum is: " + roundDecimalFloat(newPercent));
+                    } else {
+                        failingTarget.setTarget(metric, (int) (newPercent * 1000f));
+                        listener.getLogger().println("    " + metric.getName() + "'s new stability minimum is: " + roundDecimalFloat(newPercent));
+                    }
+                }
+            }
+        }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -518,16 +510,17 @@ public class CoberturaPublisher extends Recorder {
     }
 
     public SourceEncoding getSourceEncoding() {
-		return sourceEncoding;
-	}
+        return sourceEncoding;
+    }
 
-	/**
+    /**
      * Descriptor should be singleton.
      */
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static class ParseReportCallable implements FilePath.FileCallable<FilePath[]> {
+
         private static final long serialVersionUID = 1L;
 
         private final String reportFilePath;
@@ -567,7 +560,6 @@ public class CoberturaPublisher extends Recorder {
         }
     }
 
-
     /**
      * Descriptor for {@link CoberturaPublisher}. Used as a singleton. The class is marked as public so that it can be
      * accessed from views.
@@ -577,14 +569,14 @@ public class CoberturaPublisher extends Recorder {
      * configuration screen.
      */
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+
         CoverageMetric[] metrics = {
-                CoverageMetric.PACKAGES,
-                CoverageMetric.FILES,
-                CoverageMetric.CLASSES,
-                CoverageMetric.METHOD,
-                CoverageMetric.LINE,
-                CoverageMetric.CONDITIONAL,
-        };
+            CoverageMetric.PACKAGES,
+            CoverageMetric.FILES,
+            CoverageMetric.CLASSES,
+            CoverageMetric.METHOD,
+            CoverageMetric.LINE,
+            CoverageMetric.CONDITIONAL,};
 
         /**
          * Constructs a new DescriptorImpl.
@@ -660,6 +652,7 @@ public class CoberturaPublisher extends Recorder {
     }
 
     private static class CoberturaReportFilenameFilter implements FilenameFilter {
+
         /**
          * {@inheritDoc}
          */
@@ -670,25 +663,27 @@ public class CoberturaPublisher extends Recorder {
     }
 
     private boolean didCoberturaRun(Iterable<MavenBuild> mavenBuilds) {
-      for(MavenBuild build: mavenBuilds) {
-        if(didCoberturaRun(build)) return true;
-      }
-      return false;
+        for (MavenBuild build : mavenBuilds) {
+            if (didCoberturaRun(build)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean didCoberturaRun(MavenBuild mavenBuild) {
-      for(ExecutedMojo mojo : mavenBuild.getExecutedMojos()) {
-	  if(mojo.groupId.equals("org.codehaus.mojo") &&
-	     ( mojo.artifactId.equals("cobertura-maven-plugin") || mojo.artifactId.equals("cobertura-it-maven-plugin"))) {
-          return true;
+        for (ExecutedMojo mojo : mavenBuild.getExecutedMojos()) {
+            if (mojo.groupId.equals("org.codehaus.mojo")
+                    && (mojo.artifactId.equals("cobertura-maven-plugin") || mojo.artifactId.equals("cobertura-it-maven-plugin"))) {
+                return true;
+            }
         }
-      }
-      return false;
+        return false;
     }
-    
+
     public float roundDecimalFloat(Float input) {
-    	float rounded = (float)Math.round(input);
-    	rounded = rounded/100f;
-    	return rounded;
+        float rounded = (float) Math.round(input);
+        rounded = rounded / 100f;
+        return rounded;
     }
 }
