@@ -8,6 +8,10 @@
              description="${%only.stable.builds.description}" >
        <f:checkbox name="cobertura.onlyStable" checked="${instance.onlyStable}" />                                                                                        
     </f:entry>   
+    <f:entry title="${%Fail builds if no reports}"
+             description="${%no.reorts.fail.builds.description}" >
+       <f:checkbox name="cobertura.failNoReports" checked="${instance.failNoReports}" default="true" />                                                                                        
+    </f:entry>   
     <f:entry title="${%Fail unhealthy builds}"
              description="${%unhealthy.fail.builds.description}" >
        <f:checkbox name="cobertura.failUnhealthy" checked="${instance.failUnhealthy}" />                                                                                        

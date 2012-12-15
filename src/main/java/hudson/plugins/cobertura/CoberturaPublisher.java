@@ -67,6 +67,8 @@ public class CoberturaPublisher extends Recorder {
     private final boolean autoUpdateStability;
 
     private final boolean zoomCoverageChart;
+    
+    private boolean failNoReports = true;
 
     private CoverageTarget healthyTarget;
 
@@ -84,7 +86,7 @@ public class CoberturaPublisher extends Recorder {
      */
     @DataBoundConstructor
     public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, 
-            boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, SourceEncoding sourceEncoding) {
+            boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports, SourceEncoding sourceEncoding) {
         this.coberturaReportFile = coberturaReportFile;
         this.onlyStable = onlyStable;
         this.failUnhealthy = failUnhealthy;
@@ -92,6 +94,7 @@ public class CoberturaPublisher extends Recorder {
         this.autoUpdateHealth = autoUpdateHealth;
         this.autoUpdateStability = autoUpdateStability;
         this.zoomCoverageChart = zoomCoverageChart;
+        this.failNoReports = failNoReports;
         this.sourceEncoding = sourceEncoding;
         this.healthyTarget = new CoverageTarget();
         this.unhealthyTarget = new CoverageTarget();
@@ -235,6 +238,10 @@ public class CoberturaPublisher extends Recorder {
         return zoomCoverageChart;
     }
 
+    public boolean isFailNoReports() {
+        return failNoReports;
+    }
+    
     /**
      * Getter for property 'healthyTarget'.
      *
@@ -316,22 +323,8 @@ public class CoberturaPublisher extends Recorder {
             listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
             return true;
         }
-        // Make sure Cobertura actually ran
-        if (build instanceof MavenBuild) {
-            MavenBuild mavenBuild = (MavenBuild) build;
-            if (didCoberturaRun(mavenBuild) == false) {
-                listener.getLogger().println("Skipping Cobertura coverage report as mojo did not run.");
-                return true;
-            }
-        } else if (build instanceof MavenModuleSetBuild) {
-            MavenModuleSetBuild moduleSetBuild = (MavenModuleSetBuild) build;
-            if (didCoberturaRun(moduleSetBuild.getModuleLastBuilds().values()) == false) {
-                listener.getLogger().println("Skipping Cobertura coverage report as mojo did not run.");
-                return true;
-            }
-        }
 
-        listener.getLogger().println("Publishing Cobertura coverage report...");
+        listener.getLogger().println("[Cobertura] Publishing Cobertura coverage report...");
         final FilePath[] moduleRoots = build.getModuleRoots();
         final boolean multipleModuleRoots =
                 moduleRoots != null && moduleRoots.length > 1;
@@ -356,13 +349,17 @@ public class CoberturaPublisher extends Recorder {
         }
 
         if (reports.length == 0) {
-            String msg = "No coverage results were found using the pattern '"
+            String msg = "[Cobertura] No coverage results were found using the pattern '"
                     + coberturaReportFile + "' relative to '"
                     + moduleRoot.getRemote() + "'."
                     + "  Did you enter a pattern relative to the correct directory?"
                     + "  Did you generate the XML report(s) for Cobertura?";
             listener.getLogger().println(msg);
-            build.setResult(Result.FAILURE);
+            if (failNoReports) {
+                build.setResult(Result.FAILURE);
+            } else {
+                listener.getLogger().println("[Cobertura] Skipped cobertura reports.");
+            }
             return true;
         }
 
@@ -660,25 +657,6 @@ public class CoberturaPublisher extends Recorder {
             // TODO take this out of an anonymous inner class, create a singleton and use a Regex to match the name
             return name.startsWith("coverage") && name.endsWith(".xml");
         }
-    }
-
-    private boolean didCoberturaRun(Iterable<MavenBuild> mavenBuilds) {
-        for (MavenBuild build : mavenBuilds) {
-            if (didCoberturaRun(build)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean didCoberturaRun(MavenBuild mavenBuild) {
-        for (ExecutedMojo mojo : mavenBuild.getExecutedMojos()) {
-            if (mojo.groupId.equals("org.codehaus.mojo")
-                    && (mojo.artifactId.equals("cobertura-maven-plugin") || mojo.artifactId.equals("cobertura-it-maven-plugin"))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public float roundDecimalFloat(Float input) {
