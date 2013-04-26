@@ -15,7 +15,7 @@ table.source td {
     border-width: 0px 0px 0px 0px;
     padding-left: 0.2em;
     padding-right: 0.2em;
-    font-family: courier, monospace;
+    font-family: monospace;
 }
 
 table.source .text {
