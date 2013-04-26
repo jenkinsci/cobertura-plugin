@@ -173,7 +173,12 @@ class CoberturaXmlHandler extends DefaultHandler {
         } else if ("class".equals(qName)) {
             assert rootCoverage.getElement() == CoverageElement.JAVA_PACKAGE;
             // cobertura combines file and class
-            final String filename = attributes.getValue("filename").replace('\\', '/');
+            String filename = attributes.getValue("filename").replace('\\', '/');
+            // filename should be a relative path.
+            // See https://issues.jenkins-ci.org/browse/JENKINS-16252
+            if (filename.startsWith("\\") || filename.startsWith("/")) {
+                filename = filename.substring(1);
+            }
             String relativeFilename = filename;
 
             final String packageName = rootCoverage.getName();
@@ -307,7 +312,7 @@ class CoberturaXmlHandler extends DefaultHandler {
         } else if ("source".equals(qName)) {
             if (inSources && inSource) {
                 sourcePaths.add(sourceDir.toString().trim());
-            }
+                }
             inSource = false;
         } else if ("coverage".equals(qName)) {
         } else if ("package".equals(qName)) {

@@ -10,6 +10,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import org.jvnet.hudson.test.Bug;
 import org.netbeans.insane.scanner.CountingVisitor;
 import org.netbeans.insane.scanner.ScannerUtils;
 
@@ -91,6 +94,26 @@ public class CoberturaCoverageParserTest extends TestCase {
         assertEquals(Ratio.create(4, 4), subResult.getCoverage(CoverageMetric.METHOD));
     }
 
+    @Bug(16252)
+    public void testParse_NotRelativeSourcePath() throws Exception {
+        Set<String> paths = new HashSet<String>();
+        CoverageResult result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage_16252.xml"), null, paths);
+        result.setOwner(null);
+        print(result, 0);
+        assertNotNull(result);
+        assertEquals(CoverageResult.class, result.getClass());
+        assertEquals(Messages.CoberturaCoverageParser_name(), result.getName());   
+        
+        assertEquals(4, result.getChildren().size());
+        CoverageResult subResult = result.getChild("Common");
+        assertEquals("Common", subResult.getName());
+
+        CoverageResult sub2Result = subResult.getChild("CommonLibrary/ProfilerTest.cpp");
+        assertNotNull(sub2Result);
+        assertEquals("CommonLibrary/ProfilerTest.cpp", sub2Result.getRelativeSourcePath());
+        
+    }  
+    
     public void testParseMultiPackage() throws Exception {
 //        ProjectCoverage result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage-two-packages.xml"));
 //        result = CoberturaCoverageParser.trimPaths(result, "C:\\local\\maven\\helpers\\hudson\\cobertura\\");
