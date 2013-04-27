@@ -530,7 +530,7 @@ public class CoberturaPublisher extends Recorder {
             FilePath[] r = new FilePath(f).list(reportFilePath);
 
             XMLInputFactory factory = XMLInputFactory.newInstance();
-            factory.setProperty("javax.xml.stream.supportDTD", "false");
+            factory.setProperty("javax.xml.stream.supportDTD", false);
 
             for (FilePath filePath : r) {
                 try {
