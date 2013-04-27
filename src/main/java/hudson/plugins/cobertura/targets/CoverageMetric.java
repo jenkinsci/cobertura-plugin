@@ -8,14 +8,9 @@ package hudson.plugins.cobertura.targets;
  * @since 10-Jul-2007 14:59:50
  */
 public enum CoverageMetric {
-    CLASSES(new HasName() {
+    PACKAGES(new HasName() {
       public String getName() {
-        return Messages.CoverageMetrics_Classes();
-      }
-    }), 
-    CONDITIONAL(new HasName() {
-      public String getName() {
-        return Messages.CoverageMetrics_Conditionals();
+        return Messages.CoverageMetrics_Packages();
       }
     }),
     FILES(new HasName() {
@@ -23,22 +18,27 @@ public enum CoverageMetric {
         return Messages.CoverageMetrics_Files();
       }
     }),
-    LINE(new HasName() {
+    CLASSES(new HasName() {
       public String getName() {
-        return Messages.CoverageMetrics_Lines();
+        return Messages.CoverageMetrics_Classes();
       }
-    }),
+    }), 
     METHOD(new HasName() {
       public String getName() {
         return Messages.CoverageMetrics_Methods();
       }
     }),
-    PACKAGES(new HasName() {
+    LINE(new HasName() {
       public String getName() {
-        return Messages.CoverageMetrics_Packages();
+        return Messages.CoverageMetrics_Lines();
+      }
+    }),
+    CONDITIONAL(new HasName() {
+      public String getName() {
+        return Messages.CoverageMetrics_Conditionals();
       }
     });
-
+    
     private final HasName hasName;
 
     private CoverageMetric(HasName hasName) {
