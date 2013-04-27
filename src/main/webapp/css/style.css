@@ -92,6 +92,7 @@ div.percentgraph div.na {
 div.percentgraph span.text {
     display: block;
     text-align: center;
+    position: absolute;
     width: 100px;
 }
 
@@ -111,7 +112,7 @@ table.percentgraph tr.percentgraph {
     padding: 0px;
 }
 
-table.percentgraph td {
+table.percentgraph td.percentgraph {
     border: 0px;
     margin: 0px;
     padding: 0px;
