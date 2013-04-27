@@ -32,6 +32,7 @@ import org.kohsuke.stapler.StaplerResponse;
  * @since 03-Jul-2007 08:43:08
  */
 public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy, Chartable {
+
     private final AbstractBuild<?, ?> owner;
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
@@ -44,10 +45,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      */
     private Map<CoverageMetric, Ratio> result;
     private HealthReport health = null;
-
     private transient WeakReference<CoverageResult> report;
     private boolean onlyStable;
-
 
     /**
      * {@inheritDoc}
@@ -68,10 +67,10 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
             }
         }
 
-        if(healthyTarget == null || unhealthyTarget == null){
+        if (healthyTarget == null || unhealthyTarget == null) {
             return null;
         }
-            
+
         if (result == null) {
             CoverageResult projectCoverage = getResult();
             result = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
@@ -136,14 +135,14 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         return getResult();  //To change body of implemented methods use File | Settings | File Templates.
     }
 
- 	 public AbstractBuild<?,?> getOwner() {
- 		  return owner;
- 	 }
- 	 
- 	 public Map<CoverageMetric, Ratio> getResults() {
-		  return result;
-	 }
-    
+    public AbstractBuild<?, ?> getOwner() {
+        return owner;
+    }
+
+    public Map<CoverageMetric, Ratio> getResults() {
+        return result;
+    }
+
     /**
      * Getter for property 'previousResult'.
      *
@@ -157,19 +156,21 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      * Gets the previous {@link CoberturaBuildAction} of the given build.
      */
     /*package*/
-    static CoberturaBuildAction getPreviousResult(AbstractBuild<?,?> start) {
+    static CoberturaBuildAction getPreviousResult(AbstractBuild<?, ?> start) {
         AbstractBuild<?, ?> b = start;
         while (true) {
             b = b.getPreviousNotFailedBuild();
-            if (b == null)
+            if (b == null) {
                 return null;
+            }
             assert b.getResult() != Result.FAILURE : "We asked for the previous not failed build";
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
-            if(r != null && r.includeOnlyStable() && b.getResult() != Result.SUCCESS){
+            if (r != null && r.includeOnlyStable() && b.getResult() != Result.SUCCESS) {
                 r = null;
             }
-            if (r != null)
+            if (r != null) {
                 return r;
+            }
         }
     }
 
@@ -190,20 +191,22 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         this.autoUpdateStability = autoUpdateStability;
         r.setOwner(owner);
         if (result == null) {
-            result = new EnumMap<CoverageMetric,Ratio>(CoverageMetric.class);
+            result = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
             result.putAll(r.getResults());
         }
         getBuildHealth(); // populate the health field so we don't have to parse everything all the time
     }
 
-
     /**
-     * Obtains the detailed {@link hudson.plugins.cobertura.targets.CoverageResult} instance.
+     * Obtains the detailed
+     * {@link hudson.plugins.cobertura.targets.CoverageResult} instance.
      */
     public synchronized CoverageResult getResult() {
         if (report != null) {
             CoverageResult r = report.get();
-            if (r != null) return r;
+            if (r != null) {
+                return r;
+            }
         }
 
         CoverageResult r = null;
@@ -222,7 +225,6 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
             return null;
         }
     }
-
     private static final Logger logger = Logger.getLogger(CoberturaBuildAction.class.getName());
 
     public static CoberturaBuildAction load(AbstractBuild<?, ?> build, CoverageResult result, CoverageTarget healthyTarget,
@@ -242,12 +244,10 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
 
         Calendar t = owner.getTimestamp();
 
-        if (req.checkIfModified(t, rsp))
+        if (req.checkIfModified(t, rsp)) {
             return; // up to date
-
-        JFreeChart chart = new CoverageChart( this ).createChart();
+        }
+        JFreeChart chart = new CoverageChart(this).createChart();
         ChartUtil.generateGraph(req, rsp, chart, 500, 200);
     }
-
-
 }
