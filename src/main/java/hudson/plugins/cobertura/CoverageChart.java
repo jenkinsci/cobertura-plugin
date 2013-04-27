@@ -104,7 +104,7 @@ public class CoverageChart
 		// NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
 		final LegendTitle legend = chart.getLegend();
-		legend.setPosition( RectangleEdge.RIGHT );
+		legend.setPosition( RectangleEdge.BOTTOM );
 
 		chart.setBackgroundPaint( Color.white );
 
