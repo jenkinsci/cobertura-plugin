@@ -68,6 +68,8 @@ public class CoberturaPublisher extends Recorder {
 
     private final boolean zoomCoverageChart;
     
+    private final int maxNumberOfBuilds;
+    
     private boolean failNoReports = true;
 
     private CoverageTarget healthyTarget;
@@ -86,7 +88,8 @@ public class CoberturaPublisher extends Recorder {
      */
     @DataBoundConstructor
     public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, 
-            boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports, SourceEncoding sourceEncoding) {
+            boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports, SourceEncoding sourceEncoding,
+            int maxNumberOfBuilds) {
         this.coberturaReportFile = coberturaReportFile;
         this.onlyStable = onlyStable;
         this.failUnhealthy = failUnhealthy;
@@ -96,6 +99,7 @@ public class CoberturaPublisher extends Recorder {
         this.zoomCoverageChart = zoomCoverageChart;
         this.failNoReports = failNoReports;
         this.sourceEncoding = sourceEncoding;
+        this.maxNumberOfBuilds = maxNumberOfBuilds;
         this.healthyTarget = new CoverageTarget();
         this.unhealthyTarget = new CoverageTarget();
         this.failingTarget = new CoverageTarget();
@@ -197,6 +201,10 @@ public class CoberturaPublisher extends Recorder {
     public boolean getOnlyStable() {
         return onlyStable;
     }
+    
+    public int getMaxNumberOfBuilds() {
+		return maxNumberOfBuilds;
+	}
 
     /**
      * Getter for property 'failUnhealthy'.

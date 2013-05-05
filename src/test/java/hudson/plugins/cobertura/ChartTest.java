@@ -19,7 +19,7 @@ public class ChartTest
 	@Test(expected = NullPointerException.class)
 	public void noGraph() throws IOException
 	{
-		new CoverageChart( null, true );
+		new CoverageChart( null, true, 0 );
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -27,7 +27,7 @@ public class ChartTest
 	{
 		ctl = EasyMock.createControl();
 		CoverageResult result = new CoverageResultBuilder( ctl ).data().create();
-		new CoverageChart( result, true );
+		new CoverageChart( result, true, 0 );
 	}
 
 	@SuppressWarnings("unchecked")
@@ -36,7 +36,7 @@ public class ChartTest
 	{
 		ctl = EasyMock.createControl();
 		CoverageResult result = new CoverageResultBuilder( ctl ).data().data().create();
-		CoverageChart chartData = new CoverageChart( result, true );
+		CoverageChart chartData = new CoverageChart( result, true, 0 );
 		Assert.assertEquals( 74, chartData.getLowerBound() );
 		Assert.assertEquals( 101, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2" ), chartData.getDataset().getColumnKeys() );
@@ -54,7 +54,7 @@ public class ChartTest
 				.result( 100, 100, 200, 300, 400, 500 )//
 				.result( 100, 200, 300, 400, 500, 600 )//
 				.create();
-		CoverageChart chartData = new CoverageChart( result, true );
+		CoverageChart chartData = new CoverageChart( result, true, 0 );
 		Assert.assertEquals( 9, chartData.getLowerBound() );
 		Assert.assertEquals( 61, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3" ), chartData.getDataset().getColumnKeys() );
@@ -72,7 +72,7 @@ public class ChartTest
 				.result( 0 )//
 				.result( 1000 )//
 				.result( 1000 ).create();
-		CoverageChart chartData = new CoverageChart( result, true );
+		CoverageChart chartData = new CoverageChart( result, true, 0 );
 		Assert.assertEquals( -1, chartData.getLowerBound() );
 		Assert.assertEquals( 101, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
@@ -90,7 +90,7 @@ public class ChartTest
 				.result( 115 )//
 				.result( 108 )//
 				.result( 111, 108, 107, 114, 113, 109 ).create();
-		CoverageChart chartData = new CoverageChart( result, true );
+		CoverageChart chartData = new CoverageChart( result, true, 0 );
 		Assert.assertEquals( 10, chartData.getLowerBound() );
 		Assert.assertEquals( 12, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
@@ -107,7 +107,7 @@ public class ChartTest
 				.result( 115 )//
 				.result( 108 )//
 				.result( 111, 108, 107, 114, 113, 109 ).create();
-		CoverageChart chartData = new CoverageChart( result, false );
+		CoverageChart chartData = new CoverageChart( result, false, 0 );
 		Assert.assertEquals( -1, chartData.getLowerBound() );
 		Assert.assertEquals( 101, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
