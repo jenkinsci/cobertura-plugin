@@ -32,6 +32,10 @@
              description="${%zoom.coverage.chart.description}" >
        <f:checkbox name="cobertura.zoomCoverageChart" checked="${instance.zoomCoverageChart}" />                                                                                        
     </f:entry>  
+    <f:entry title="${%Maximum number of builds}"
+             description="${%maxbuilds.coverage.chart.description}" >
+       <f:textbox name="cobertura.maxNumberOfBuilds" value="${instance.maxNumberOfBuilds}" />                                                                                        
+    </f:entry>  
     <f:entry title="${%Source Encoding}"
              description="${%source.encoding.description}" field="sourceEncoding">
        <f:enum>${it.encodingName}</f:enum>
