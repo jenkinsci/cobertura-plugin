@@ -35,12 +35,12 @@ THE SOFTWARE.
 		        <table class="pane sortable" id="warnings-table" style="margin-top: 0px;">
 		          <tr>
 		            <td width="40%" initialSortDir="down" class="pane-header" style="text-align: center;">${%Job}</td>
-		            <td width="10%" class="pane-header" style="text-align: center;">${%Classes}</td>
-		            <td width="10%" class="pane-header" style="text-align: center;">${%Conditionals}</td>
-		            <td width="10%" class="pane-header" style="text-align: center;">${%Files}</td>
-		            <td width="10%" class="pane-header" style="text-align: center;">${%Lines}</td>
-		            <td width="10%" class="pane-header" style="text-align: center;">${%Methods}</td>
 		            <td width="10%" class="pane-header" style="text-align: center;">${%Packages}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Files}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Classes}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Methods}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Lines}</td>
+		            <td width="10%" class="pane-header" style="text-align: center;">${%Conditionals}</td>
 		          </tr>
 		          <tbody>
 				      <j:forEach var="r" items="${coverageRuns}">
