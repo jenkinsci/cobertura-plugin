@@ -51,13 +51,8 @@ public class CoberturaCoverageParser {
             bufferedInputStream = new BufferedInputStream(fileInputStream);
             return parse(bufferedInputStream, cumulative, sourcePaths);
         } finally {
-            try {
-                if (bufferedInputStream != null)
-                    bufferedInputStream.close();
-                if (fileInputStream != null)
-                    fileInputStream.close();
-            } catch (IOException e) {
-            }
+            IOUtils.closeQuietly(bufferedInputStream);
+            IOUtils.closeQuietly(fileInputStream);
         }
     }
 
