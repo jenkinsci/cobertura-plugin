@@ -1,5 +1,7 @@
 package hudson.plugins.cobertura.renderers;
 
+import static hudson.plugins.cobertura.IOUtils.closeQuietly;
+
 import hudson.FilePath;
 import hudson.model.BuildListener;
 import hudson.plugins.cobertura.targets.CoveragePaint;
@@ -97,26 +99,12 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
             }
 
         } finally {
-            if (output != null) {
-                output.close();
-            }
-            if (bos != null) {
-                bos.close();
-            }
-            if (input != null) {
-                input.close();
-            }
-            if (is != null) {
-                is.close();
-            }
-
-
-            if (os != null) {
-                os.close();
-            }
-            if (reader != null) {
-                reader.close();
-            }
+            closeQuietly(output);
+            closeQuietly(bos);
+            closeQuietly(input);
+            closeQuietly(is);
+            closeQuietly(os);
+            closeQuietly(reader);
         }
     }
 
