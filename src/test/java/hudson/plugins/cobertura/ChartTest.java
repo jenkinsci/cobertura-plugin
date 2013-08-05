@@ -2,6 +2,7 @@ package hudson.plugins.cobertura;
 
 import hudson.plugins.cobertura.targets.CoverageResult;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +15,8 @@ import org.junit.Test;
 
 public class ChartTest
 {
+	public static final File TEMP_IMAGE_FOLDER = new File("temp");
+
 	private IMocksControl	ctl;
 
 	@Test(expected = NullPointerException.class)
@@ -40,7 +43,7 @@ public class ChartTest
 		Assert.assertEquals( 74, chartData.getLowerBound() );
 		Assert.assertEquals( 101, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2" ), chartData.getDataset().getColumnKeys() );
-		complete( chartData, "temp/chart_simple.png" );
+		complete( chartData, new File( TEMP_IMAGE_FOLDER, "chart_simple.png" ).getPath() );
 
 	}
 
@@ -58,7 +61,7 @@ public class ChartTest
 		Assert.assertEquals( 9, chartData.getLowerBound() );
 		Assert.assertEquals( 61, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3" ), chartData.getDataset().getColumnKeys() );
-		complete( chartData, "temp/chart_multiple.png" );
+		complete( chartData, new File( TEMP_IMAGE_FOLDER, "chart_multiple.png" ).getPath() );
 
 	}
 
@@ -76,7 +79,7 @@ public class ChartTest
 		Assert.assertEquals( -1, chartData.getLowerBound() );
 		Assert.assertEquals( 101, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
-		complete( chartData, "temp/chart_full_range.png" );
+		complete( chartData, new File( TEMP_IMAGE_FOLDER, "chart_full_range.png" ).getPath() );
 
 	}
 
@@ -94,7 +97,7 @@ public class ChartTest
 		Assert.assertEquals( 10, chartData.getLowerBound() );
 		Assert.assertEquals( 12, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
-		complete( chartData, "temp/chart_closeup.png" );
+		complete( chartData, new File( TEMP_IMAGE_FOLDER, "/chart_closeup.png" ).getPath() );
 	}
 
 	@SuppressWarnings("unchecked")
@@ -111,7 +114,7 @@ public class ChartTest
 		Assert.assertEquals( -1, chartData.getLowerBound() );
 		Assert.assertEquals( 101, chartData.getUpperBound() );
 		assertEquals( Arrays.asList( "#1", "#2", "#3", "#4" ), chartData.getDataset().getColumnKeys() );
-		complete( chartData, "temp/chart_nozoom.png" );
+		complete( chartData, new File( TEMP_IMAGE_FOLDER, "chart_nozoom.png" ).getPath() );
 	}
 	
 	protected void complete( CoverageChart chartData, String filename ) throws IOException
