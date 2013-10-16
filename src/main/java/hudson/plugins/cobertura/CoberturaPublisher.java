@@ -4,9 +4,6 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.maven.ExecutedMojo;
-import hudson.maven.MavenBuild;
-import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -542,9 +539,11 @@ public class CoberturaPublisher extends Recorder {
             factory.setProperty("javax.xml.stream.supportDTD", false);
 
             for (FilePath filePath : r) {
+                InputStream is = null;
+                XMLEventReader reader = null;
                 try {
-                    InputStream is = filePath.read();
-                    XMLEventReader reader = factory.createXMLEventReader(is);
+                    is = filePath.read();
+                    reader = factory.createXMLEventReader(is);
                     while (reader.hasNext()) {
                         XMLEvent event = reader.nextEvent();
                         if (event.isStartElement()) {
@@ -557,10 +556,20 @@ public class CoberturaPublisher extends Recorder {
                             }
                         }
                     }
-                    reader.close();
-                    IOUtils.closeQuietly(is);
                 } catch (XMLStreamException e) {
                     throw new IOException(filePath + " is not an XML file, please check your report pattern");
+                } finally {
+                    try {
+                        if (reader != null) {
+                            try {
+                                reader.close();
+                            } catch (XMLStreamException ex) {
+                                //
+                            }                            
+                        }
+                    } finally {
+                        IOUtils.closeQuietly(is);
+                    }
                 }
 
             }
