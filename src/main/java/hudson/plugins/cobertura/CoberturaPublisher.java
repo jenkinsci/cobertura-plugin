@@ -26,6 +26,7 @@ import hudson.tasks.Recorder;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -542,7 +543,8 @@ public class CoberturaPublisher extends Recorder {
 
             for (FilePath filePath : r) {
                 try {
-                    XMLEventReader reader = factory.createXMLEventReader(filePath.read());
+                    InputStream is = filePath.read();
+                    XMLEventReader reader = factory.createXMLEventReader(is);
                     while (reader.hasNext()) {
                         XMLEvent event = reader.nextEvent();
                         if (event.isStartElement()) {
@@ -556,6 +558,7 @@ public class CoberturaPublisher extends Recorder {
                         }
                     }
                     reader.close();
+                    IOUtils.closeQuietly(is);
                 } catch (XMLStreamException e) {
                     throw new IOException(filePath + " is not an XML file, please check your report pattern");
                 }
