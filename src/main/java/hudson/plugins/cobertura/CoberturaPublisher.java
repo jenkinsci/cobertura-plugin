@@ -388,6 +388,17 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
                 e.printStackTrace(listener.fatalError("Unable to copy coverage from " + reports[i] + " to " + buildTarget));
                 build.setResult(Result.FAILURE);
             }
+
+            FilePath rootBuildDir = new FilePath(build.getRootBuild().getRootDir());
+            final FilePath rootTargetPath = new FilePath(rootBuildDir, "coverage" + (i == 0 ? "" : i) + ".xml");
+            try {
+                listener.getLogger().println("[Cobertura] Copying Cobertura coverage report to " + rootTargetPath + " ...");
+                reports[i].copyTo(rootTargetPath);
+            } catch (IOException e) {
+                Util.displayIOException(e, listener);
+                e.printStackTrace(listener.fatalError("Unable to copy coverage from " + reports[i] + " to " + rootBuildDir));
+                build.setResult(Result.FAILURE);
+            }
         }
 
         listener.getLogger().println("Publishing Cobertura coverage results...");
