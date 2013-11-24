@@ -4,6 +4,9 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.matrix.MatrixAggregatable;
+import hudson.matrix.MatrixAggregator;
+import hudson.matrix.MatrixBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -50,7 +53,7 @@ import org.kohsuke.stapler.StaplerRequest;
  *
  * @author Stephen Connolly
  */
-public class CoberturaPublisher extends Recorder {
+public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
 
     private final String coberturaReportFile;
 
@@ -316,6 +319,13 @@ public class CoberturaPublisher extends Recorder {
     /*package*/
     static File[] getCoberturaReports(AbstractBuild<?, ?> build) {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
+    }
+
+    public MatrixAggregator createAggregator(
+            final MatrixBuild build,
+            final Launcher launcher,
+            final BuildListener listener) {
+        return new CoberturaMatrixAggregator(build, launcher, listener, this);
     }
 
     /**
