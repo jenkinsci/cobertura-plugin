@@ -4,6 +4,10 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.matrix.MatrixAggregatable;
+import hudson.matrix.MatrixAggregator;
+import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixRun;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -50,7 +54,7 @@ import org.kohsuke.stapler.StaplerRequest;
  *
  * @author Stephen Connolly
  */
-public class CoberturaPublisher extends Recorder {
+public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
 
     private final String coberturaReportFile;
 
@@ -316,6 +320,87 @@ public class CoberturaPublisher extends Recorder {
     /*package*/
     static File[] getCoberturaReports(AbstractBuild<?, ?> build) {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
+    }
+
+    public class CoberturaMatrixAggregator extends MatrixAggregator {
+
+        private CoverageResult result;
+
+        /**
+         * {@inheritDoc}
+         *
+         * @param build the MatrixBuild to aggregate coverage for.
+         * @param launcher the launcher.
+         * @param listener the listener.
+         */
+        public CoberturaMatrixAggregator(
+                MatrixBuild build,
+                Launcher launcher,
+                BuildListener listener) {
+            super(build, launcher, listener);
+        }
+
+        @Override
+        public boolean endRun(MatrixRun run) {
+            CoberturaBuildAction action = run.getAction(
+                CoberturaBuildAction.class);
+            CoverageResult matrix_run_result = action.getResult();
+
+            result = mergeCoverageResults(result, matrix_run_result);
+
+            listener.getLogger().println(
+                "CoberturaMatrixAggregator.endRun - run = " + run);
+
+            printCoverageData(result);
+
+            return true;
+        }
+
+        @Override
+        public boolean endBuild() {
+            listener.getLogger().println(
+                "CoberturaMatrixAggregator.endBuild - result = " + result);
+
+            printCoverageData(result);
+
+            this.build.addAction(
+                new CoberturaBuildAction(
+                    build,
+                    result,
+                    healthyTarget, unhealthyTarget,
+                    onlyStable, failUnhealthy, failUnstable,
+                    autoUpdateHealth, autoUpdateStability
+                )
+            );
+
+            return true;
+        }
+
+        CoverageResult mergeCoverageResults(
+                CoverageResult result1,
+                CoverageResult result2) {
+            // @todo: All this does is return result2
+            // It should merge the results
+            return result2;
+        }
+
+        private void printCoverageData(CoverageResult result) {
+            for (CoverageMetric metric : result.getMetrics()) {
+                Ratio ratio = result.getCoverage(metric);
+                listener.getLogger().println(
+                    "    result = " + result +
+                    "    metric = " + metric +
+                    "; ratio = " + ratio);
+            }
+        }
+
+    }
+
+    public MatrixAggregator createAggregator(
+            final MatrixBuild build,
+            final Launcher launcher,
+            final BuildListener listener) {
+        return new CoberturaMatrixAggregator(build, launcher, listener);
     }
 
     /**
