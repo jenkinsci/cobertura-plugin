@@ -342,16 +342,28 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
 
         @Override
         public boolean endRun(MatrixRun run) {
-            CoberturaBuildAction action = run.getAction(
-                CoberturaBuildAction.class);
-            CoverageResult matrix_run_result = action.getResult();
-
-            result = mergeCoverageResults(result, matrix_run_result);
-
             listener.getLogger().println(
                 "CoberturaMatrixAggregator.endRun - run = " + run);
 
-            printCoverageData(result);
+            CoberturaBuildAction action = run.getAction(
+                CoberturaBuildAction.class);
+
+            listener.getLogger().println(
+                "CoberturaMatrixAggregator.endRun - action = " + action);
+
+            if (action != null) {
+                CoverageResult matrix_run_result = action.getResult();
+
+                result = mergeCoverageResults(result, matrix_run_result);
+
+                listener.getLogger().println(
+                    "CoberturaMatrixAggregator.endRun - result = " + result);
+
+                printCoverageData(result);
+            } else {
+                listener.getLogger().println(
+                    "CoberturaMatrixAggregator.endRun - action is null");
+            }
 
             return true;
         }
@@ -363,7 +375,7 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
 
             printCoverageData(result);
 
-            this.build.addAction(
+            build.addAction(
                 new CoberturaBuildAction(
                     build,
                     result,
