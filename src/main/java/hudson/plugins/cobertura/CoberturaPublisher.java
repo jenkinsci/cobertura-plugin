@@ -352,9 +352,9 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
                 "CoberturaMatrixAggregator.endRun - action = " + action);
 
             if (action != null) {
-                CoverageResult matrix_run_result = action.getResult();
+                CoverageResult matrixRunResult = action.getResult();
 
-                result = mergeCoverageResults(result, matrix_run_result);
+                result = mergeCoverageResults(result, matrixRunResult);
 
                 listener.getLogger().println(
                     "CoberturaMatrixAggregator.endRun - result = " + result);
