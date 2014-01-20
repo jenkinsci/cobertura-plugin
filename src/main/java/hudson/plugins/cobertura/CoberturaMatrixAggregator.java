@@ -51,7 +51,7 @@ public class CoberturaMatrixAggregator extends MatrixAggregator {
         CoverageResult aggregateResult = mergeCoverageResults(this.results);
         if (aggregateResult != null) {
             this.build.addAction(
-                new CoberturaBuildAction(
+                CoberturaBuildAction.load(
                     this.build,
                     aggregateResult,
                     this.getHealthyTarget(), this.getUnhealthyTarget(),
