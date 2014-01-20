@@ -21,6 +21,7 @@ public class CoberturaMatrixAggregator extends MatrixAggregator {
      * @param build the MatrixBuild to aggregate coverage for.
      * @param launcher the launcher.
      * @param listener the listener.
+     * @param publisher the CoberturaPublisher
      */
     public CoberturaMatrixAggregator(
             MatrixBuild build,
