@@ -324,7 +324,7 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
 
     public class CoberturaMatrixAggregator extends MatrixAggregator {
 
-        private CoverageResult result;
+        private final ArrayList<CoverageResult> results;
 
         /**
          * {@inheritDoc}
@@ -338,6 +338,7 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
                 Launcher launcher,
                 BuildListener listener) {
             super(build, launcher, listener);
+            this.results = new ArrayList<CoverageResult>();
         }
 
         @Override
@@ -348,21 +349,17 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
             CoberturaBuildAction action = run.getAction(
                 CoberturaBuildAction.class);
 
-            listener.getLogger().println(
-                "CoberturaMatrixAggregator.endRun - action = " + action);
-
             if (action != null) {
-                CoverageResult matrixRunResult = action.getResult();
-
-                result = mergeCoverageResults(result, matrixRunResult);
+                CoverageResult result = action.getResult();
 
                 listener.getLogger().println(
                     "CoberturaMatrixAggregator.endRun - result = " + result);
 
-                printCoverageData(result);
-            } else {
-                listener.getLogger().println(
-                    "CoberturaMatrixAggregator.endRun - action is null");
+                if (result != null) {
+                    printCoverageData(result);
+                    this.results.add(result);
+                }
+
             }
 
             return true;
@@ -370,39 +367,46 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
 
         @Override
         public boolean endBuild() {
+            CoverageResult aggregateResult = mergeCoverageResults(this.results);
+
             listener.getLogger().println(
-                "CoberturaMatrixAggregator.endBuild - result = " + result);
+                "CoberturaMatrixAggregator.endBuild - aggregateResult = "
+                + aggregateResult);
 
-            printCoverageData(result);
-
-            build.addAction(
-                new CoberturaBuildAction(
-                    build,
-                    result,
-                    healthyTarget, unhealthyTarget,
-                    onlyStable, failUnhealthy, failUnstable,
-                    autoUpdateHealth, autoUpdateStability
-                )
-            );
+            if (aggregateResult != null) {
+                printCoverageData(aggregateResult);
+                build.addAction(
+                    new CoberturaBuildAction(
+                        build,
+                        aggregateResult,
+                        healthyTarget, unhealthyTarget,
+                        onlyStable, failUnhealthy, failUnstable,
+                        autoUpdateHealth, autoUpdateStability
+                    )
+                );
+            }
 
             return true;
         }
 
-        CoverageResult mergeCoverageResults(
-                CoverageResult result1,
-                CoverageResult result2) {
-            // @todo: All this does is return result2
+        private CoverageResult mergeCoverageResults(
+                List<CoverageResult> results) {
+            // @todo: All this does is return last result
             // It should merge the results
-            return result2;
+            if (results.size() > 0) {
+                return results.get(results.size() - 1);
+            } else {
+                return null;
+            }
         }
 
         private void printCoverageData(CoverageResult result) {
+            listener.getLogger().println("    result = " + result);
+
             for (CoverageMetric metric : result.getMetrics()) {
                 Ratio ratio = result.getCoverage(metric);
                 listener.getLogger().println(
-                    "    result = " + result +
-                    "    metric = " + metric +
-                    "; ratio = " + ratio);
+                    "        metric = " + metric + "; ratio = " + ratio);
             }
         }
 
