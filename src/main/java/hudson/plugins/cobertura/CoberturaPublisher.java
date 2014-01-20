@@ -343,20 +343,10 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
 
         @Override
         public boolean endRun(MatrixRun run) {
-            listener.getLogger().println(
-                "CoberturaMatrixAggregator.endRun - run = " + run);
-
-            CoberturaBuildAction action = run.getAction(
-                CoberturaBuildAction.class);
-
+            CoberturaBuildAction action = run.getAction(CoberturaBuildAction.class);
             if (action != null) {
                 CoverageResult result = action.getResult();
-
-                listener.getLogger().println(
-                    "CoberturaMatrixAggregator.endRun - result = " + result);
-
                 if (result != null) {
-                    printCoverageData(result);
                     this.results.add(result);
                 }
 
@@ -368,13 +358,7 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
         @Override
         public boolean endBuild() {
             CoverageResult aggregateResult = mergeCoverageResults(this.results);
-
-            listener.getLogger().println(
-                "CoberturaMatrixAggregator.endBuild - aggregateResult = "
-                + aggregateResult);
-
             if (aggregateResult != null) {
-                printCoverageData(aggregateResult);
                 build.addAction(
                     new CoberturaBuildAction(
                         build,
@@ -397,16 +381,6 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
                 return results.get(results.size() - 1);
             } else {
                 return null;
-            }
-        }
-
-        private void printCoverageData(CoverageResult result) {
-            listener.getLogger().println("    result = " + result);
-
-            for (CoverageMetric metric : result.getMetrics()) {
-                Ratio ratio = result.getCoverage(metric);
-                listener.getLogger().println(
-                    "        metric = " + metric + "; ratio = " + ratio);
             }
         }
 
