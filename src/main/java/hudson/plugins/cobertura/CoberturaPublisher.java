@@ -7,7 +7,6 @@ import hudson.Util;
 import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
 import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixRun;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -322,75 +321,11 @@ public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
     }
 
-    public class CoberturaMatrixAggregator extends MatrixAggregator {
-
-        private final ArrayList<CoverageResult> results;
-
-        /**
-         * {@inheritDoc}
-         *
-         * @param build the MatrixBuild to aggregate coverage for.
-         * @param launcher the launcher.
-         * @param listener the listener.
-         */
-        public CoberturaMatrixAggregator(
-                MatrixBuild build,
-                Launcher launcher,
-                BuildListener listener) {
-            super(build, launcher, listener);
-            this.results = new ArrayList<CoverageResult>();
-        }
-
-        @Override
-        public boolean endRun(MatrixRun run) {
-            CoberturaBuildAction action = run.getAction(CoberturaBuildAction.class);
-            if (action != null) {
-                CoverageResult result = action.getResult();
-                if (result != null) {
-                    this.results.add(result);
-                }
-
-            }
-
-            return true;
-        }
-
-        @Override
-        public boolean endBuild() {
-            CoverageResult aggregateResult = mergeCoverageResults(this.results);
-            if (aggregateResult != null) {
-                build.addAction(
-                    new CoberturaBuildAction(
-                        build,
-                        aggregateResult,
-                        healthyTarget, unhealthyTarget,
-                        onlyStable, failUnhealthy, failUnstable,
-                        autoUpdateHealth, autoUpdateStability
-                    )
-                );
-            }
-
-            return true;
-        }
-
-        private CoverageResult mergeCoverageResults(
-                List<CoverageResult> results) {
-            // @todo: All this does is return last result
-            // It should merge the results
-            if (results.size() > 0) {
-                return results.get(results.size() - 1);
-            } else {
-                return null;
-            }
-        }
-
-    }
-
     public MatrixAggregator createAggregator(
             final MatrixBuild build,
             final Launcher launcher,
             final BuildListener listener) {
-        return new CoberturaMatrixAggregator(build, launcher, listener);
+        return new CoberturaMatrixAggregator(build, launcher, listener, this);
     }
 
     /**
