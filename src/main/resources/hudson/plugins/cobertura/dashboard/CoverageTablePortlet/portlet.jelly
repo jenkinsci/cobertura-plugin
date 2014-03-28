@@ -45,7 +45,7 @@ THE SOFTWARE.
 		          <tbody>
 				      <j:forEach var="r" items="${coverageRuns}">
 				        <j:set var="result" value="${it.getCoverageResult(r)}"/>
-				        <j:set var="metrics" value="${result.metrics}"/>
+				        <j:set var="metrics" value="${result.metricsWithEmpty}"/>
 			            <tr style="border-top: 0px; border: 1px #bbb solid;">
 				  	        <td><t:buildLink jobName="${r.parent.name}" job="${r.parent}" number="${r.number}" href="${r.url}" /></td>
 				  	        <j:choose>
@@ -62,7 +62,7 @@ THE SOFTWARE.
 				      </j:forEach>
 				        <tr class="sortbottom">
 				         <j:set var="result" value="${it.getCoverageResult(coverageRuns[0])}"/>
-				         <j:set var="metrics" value="${result.metrics}"/>
+				         <j:set var="metrics" value="${result.metricsWithEmpty}"/>
 				         <td class="pane-header"><b>${%Total}:</b></td>
 				            <j:forEach var="metric" items="${metrics}">
 				        	    <td class="pane-header" style="text-align: right;"> ${it.getTotalCoverageRatio().get(metric).percentage}%</td>

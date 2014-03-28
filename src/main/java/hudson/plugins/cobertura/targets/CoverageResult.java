@@ -348,7 +348,7 @@ public class CoverageResult implements Serializable, Chartable {
     	return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
     }
 
-    public Set<CoverageMetric> getMetricsForChart() {
+    public Set<CoverageMetric> getMetricsWithEmpty() {
     	Map<CoverageMetric, Ratio> currMetricSet = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
     	currMetricSet.putAll(aggregateResults);
     	fixEmptyMetrics(findEmptyMetrics(currMetricSet), currMetricSet);
