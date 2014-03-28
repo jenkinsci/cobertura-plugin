@@ -15,11 +15,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -327,18 +329,52 @@ public class CoverageResult implements Serializable, Chartable {
     }
 
     public Ratio getCoverage(CoverageMetric metric) {
+//    	CoverageMetric myMetric = CoverageMetric.METHOD;
+//    	if (metric.getName().equals(myMetric.getName()))
+//    	{
+//    		aggregateResults.put(metric, Ratio.create(1, 1));
+//    	}
+//    	
+//    	fixEmptyMetric(metric);
         return aggregateResults.get(metric);
     }
-
+    
     /**
      * Getter for property 'metrics'.
      *
      * @return Value for property 'metrics'.
      */
     public Set<CoverageMetric> getMetrics() {
-        return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
+    	return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
     }
 
+    public Set<CoverageMetric> getMetricsForChart() {
+    	Map<CoverageMetric, Ratio> currMetricSet = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
+    	currMetricSet.putAll(aggregateResults);
+    	fixEmptyMetrics(findEmptyMetrics(currMetricSet), currMetricSet);
+    	return Collections.unmodifiableSet(EnumSet.copyOf(currMetricSet.keySet()));
+    }
+    
+    private List<CoverageMetric> findEmptyMetrics(Map<CoverageMetric, Ratio> currMetricSet){
+    	List<CoverageMetric> allMetrics = new LinkedList<CoverageMetric>(Arrays.asList(CoverageMetric.PACKAGES, CoverageMetric.FILES, CoverageMetric.CLASSES, CoverageMetric.METHOD, CoverageMetric.LINE, CoverageMetric.CONDITIONAL));
+    	List<CoverageMetric> missingMetrics = new LinkedList<CoverageMetric>();
+    	for (CoverageMetric currMetric : allMetrics)
+    	{
+    		if (!currMetricSet.containsKey(currMetric.getName()))
+    		{
+    			missingMetrics.add(currMetric);
+    		}
+    	}
+    	return missingMetrics;
+    }
+    
+    private void fixEmptyMetrics(List<CoverageMetric> missingMetrics, Map<CoverageMetric, Ratio> currMetricSet) {
+    	for (CoverageMetric missing : missingMetrics)
+    	{
+    		currMetricSet.put(missing, Ratio.create(0, 1));
+    	}
+    }
+    
     public void updateMetric(CoverageMetric metric, Ratio additionalResult) {
         if (localResults.containsKey(metric)) {
             Ratio existingResult = localResults.get(metric);
