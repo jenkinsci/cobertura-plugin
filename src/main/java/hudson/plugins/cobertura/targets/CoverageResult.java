@@ -329,14 +329,20 @@ public class CoverageResult implements Serializable, Chartable {
     }
 
     public Ratio getCoverage(CoverageMetric metric) {
-//    	CoverageMetric myMetric = CoverageMetric.METHOD;
-//    	if (metric.getName().equals(myMetric.getName()))
-//    	{
-//    		aggregateResults.put(metric, Ratio.create(1, 1));
-//    	}
-//    	
-//    	fixEmptyMetric(metric);
+    	
         return aggregateResults.get(metric);
+    }
+    
+    public Ratio getCoverageWithEmpty(CoverageMetric metric) {
+    	if (aggregateResults.containsKey(metric))
+    		return aggregateResults.get(metric);
+    	Map<CoverageMetric, Ratio> currMetricSet = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
+    	currMetricSet.putAll(aggregateResults);    	
+    	if (!currMetricSet.containsKey(metric))
+    	{
+    		return null;
+    	}
+        return currMetricSet.get(metric);
     }
     
     /**
@@ -371,7 +377,7 @@ public class CoverageResult implements Serializable, Chartable {
     private void fixEmptyMetrics(List<CoverageMetric> missingMetrics, Map<CoverageMetric, Ratio> currMetricSet) {
     	for (CoverageMetric missing : missingMetrics)
     	{
-    		currMetricSet.put(missing, Ratio.create(0, 1));
+    		currMetricSet.put(missing, Ratio.create(1, 1));
     	}
     }
     
