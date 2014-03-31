@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -77,6 +79,18 @@ public class CoverageResultTest extends TestCase {
         assertEquals(Ratio.create(27, 30), metrics.get(CoverageMetric.LINE));
         assertEquals(Ratio.create(9, 12), metrics.get(CoverageMetric.CONDITIONAL));
         ctl.verify();
+    }
+    
+    /**
+     * Test behavior of {@link CoverageResult#getMetricsWithEmpty()}.
+     */
+    public void testGetMetricsWithEmpty() throws Exception {
+    	ctl.replay();
+    	CoverageResult result = loadResults("coverage-no-data.xml");
+    	Set<CoverageMetric> metrics = result.getMetricsWithEmpty();
+    	List<CoverageMetric> allMetrics = new LinkedList<CoverageMetric>(Arrays.asList(CoverageMetric.PACKAGES, CoverageMetric.FILES, CoverageMetric.CLASSES, CoverageMetric.METHOD, CoverageMetric.LINE, CoverageMetric.CONDITIONAL));
+    	assertEquals(metrics.size(), allMetrics.size());
+    	ctl.verify();
     }
     
     /**
