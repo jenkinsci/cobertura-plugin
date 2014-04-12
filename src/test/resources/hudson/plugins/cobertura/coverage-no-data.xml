@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-03.dtd"-->
+
+<coverage line-rate="0.0" branch-rate="0.0" version="1.9" timestamp="1187353747005">
+	<sources>
+		<source>C:/local/mvn-coverage-example/src/main/java</source>
+	</sources>
+	<packages/>
+	<classes/>
+	<methods/>
+	<lines/>
+</coverage>
