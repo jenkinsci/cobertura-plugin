@@ -1,0 +1,103 @@
+package hudson.plugins.cobertura;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+
+import hudson.Extension;
+import hudson.model.Job;
+import hudson.plugins.cobertura.targets.CoverageMetric;
+import hudson.views.ListViewColumn;
+import hudson.views.ListViewColumnDescriptor;
+
+/**
+ * A column that shows the line coverage of a job.
+ *
+ * @author Ullrich Hafner
+ */
+public class CoverageColumn extends ListViewColumn {
+    /**
+     * Creates a new instance of {@link CoverageColumn}.
+     */
+    @DataBoundConstructor
+    public CoverageColumn() { // NOPMD: data binding
+        super();
+    }
+
+    @Override
+    public String getColumnCaption() {
+        return Messages.CoverageColumn_columnHeader();
+    }
+
+    /**
+     * Returns the URL of the referenced project action for the selected job.
+     *
+     * @param project
+     *            the selected project
+     * @return the URL of the project action
+     */
+    public String getUrl(final Job<?, ?> project) {
+        CoberturaBuildAction action = getAction(project);
+
+        if (action == null) {
+            return null;
+        }
+        else {
+            return project.getUrl() + action.getUrlName();
+        }
+    }
+
+    private CoberturaBuildAction getAction(final Job<?, ?> project) {
+        CoberturaProjectAction action = project.getAction(CoberturaProjectAction.class);
+
+        if (action != null) {
+            return action.getLastResult();
+        }
+        return null;
+    }
+
+    /**
+     * Returns whether a link can be shown that shows the results of the referenced project action for the selected job.
+     *
+     * @param project
+     *            the selected project
+     * @return the URL of the project action
+     */
+    public boolean hasUrl(final Job<?, ?> project) {
+        return getAction(project) != null;
+    }
+
+    /**
+     * Returns the coverage of the selected job.
+     *
+     * @param project
+     *            the selected project
+     * @return line and branch coverage
+     */
+    public String getCoverage(final Job<?, ?> project) {
+        CoberturaProjectAction action = project.getAction(CoberturaProjectAction.class);
+
+        if (action != null) {
+            CoberturaBuildAction lastResult = action.getLastResult();
+            if (lastResult != null) {
+                int percentage = lastResult.getResult().getCoverage(CoverageMetric.LINE).getPercentage();
+                return String.valueOf(percentage + "%");
+            }
+        }
+        return Messages.CoverageColumn_empty();
+    }
+
+    /**
+     * Descriptor for the column.
+     */
+    @Extension
+    public static class ColumnDescriptor extends ListViewColumnDescriptor {
+        @Override
+        public boolean shownByDefault() {
+            return false;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return Messages.CoverageColumn_columnName();
+        }
+    }
+}
