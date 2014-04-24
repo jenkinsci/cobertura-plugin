@@ -14,12 +14,20 @@ import hudson.views.ListViewColumnDescriptor;
  * @author Ullrich Hafner
  */
 public class CoverageColumn extends ListViewColumn {
+    private final String type;
+
     /**
      * Creates a new instance of {@link CoverageColumn}.
      */
     @DataBoundConstructor
-    public CoverageColumn() { // NOPMD: data binding
+    public CoverageColumn(final String type) {
         super();
+
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
     }
 
     @Override
@@ -78,8 +86,17 @@ public class CoverageColumn extends ListViewColumn {
         if (action != null) {
             CoberturaBuildAction lastResult = action.getLastResult();
             if (lastResult != null) {
-                int percentage = lastResult.getResult().getCoverage(CoverageMetric.LINE).getPercentage();
-                return String.valueOf(percentage + "%");
+                int line = lastResult.getResult().getCoverage(CoverageMetric.LINE).getPercentage();
+                int branch = lastResult.getResult().getCoverage(CoverageMetric.CONDITIONAL).getPercentage();
+                if ("both".equals(type)) {
+                    return Messages.CoverageColumn_both(line, branch);
+                }
+                else if ("branch".equals(type)) {
+                    return Messages.CoverageColumn_branch(branch);
+                }
+                else {
+                    return Messages.CoverageColumn_line(line);
+                }
             }
         }
         return Messages.CoverageColumn_empty();
