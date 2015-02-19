@@ -4,6 +4,7 @@ import hudson.model.AbstractBuild;
 import hudson.model.Api;
 import hudson.model.Item;
 import hudson.model.Run;
+import hudson.plugins.cobertura.BuildUtils;
 import hudson.plugins.cobertura.Chartable;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.CoverageChart;
@@ -435,13 +436,13 @@ public class CoverageResult implements Serializable, Chartable {
             if (owner == null) {
                 return null;
             }
-            Run<?, ?> prevBuild = owner.getPreviousNotFailedBuild();
+            AbstractBuild<?, ?> prevBuild = BuildUtils.getPreviousNotFailedCompletedBuild(owner);
             if (prevBuild == null) {
                 return null;
             }
             CoberturaBuildAction action = null;
             while ((prevBuild != null) && (null == (action = prevBuild.getAction(CoberturaBuildAction.class)))) {
-                prevBuild = prevBuild.getPreviousNotFailedBuild();
+                prevBuild = BuildUtils.getPreviousNotFailedCompletedBuild(prevBuild);
             }
             if (action == null) {
                 return null;
