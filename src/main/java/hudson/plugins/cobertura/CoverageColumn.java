@@ -49,7 +49,7 @@ public class CoverageColumn extends ListViewColumn {
             return null;
         }
         else {
-            return action.getUrlName();
+            return project.getUrl() + action.getUrlName();
         }
     }
 

@@ -5,7 +5,7 @@
       ${it.getCoverage(job)}
     </j:if>
     <j:if test="${it.hasUrl(job)}">
-      <a href="${jobBaseUrl}${job.shortUrl}${it.getUrl(job)}">${it.getCoverage(job)}</a>
+      <a href="${rootURL}/${it.getUrl(job)}">${it.getCoverage(job)}</a>
     </j:if>
   </td>
 </j:jelly>
