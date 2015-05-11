@@ -397,6 +397,17 @@ public class CoberturaPublisher extends Recorder {
             result.setOwner(build);
             final FilePath paintedSourcesPath = new FilePath(new File(build.getProject().getRootDir(), "cobertura"));
             paintedSourcesPath.mkdirs();
+
+            if (sourcePaths.contains(".")) {
+                sourcePaths.remove(".");
+                for (FilePath f : reports) {
+                    FilePath p = f.getParent();
+                    if (p != null && p.isDirectory()) {
+                        sourcePaths.add(p.getRemote());
+                    }
+                }
+            }
+
             SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths,
                     result.getPaintedSources(), listener, getSourceEncoding());
 
