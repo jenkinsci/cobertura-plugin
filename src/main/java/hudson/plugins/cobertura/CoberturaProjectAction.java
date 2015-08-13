@@ -14,22 +14,28 @@ import java.io.IOException;
 public class CoberturaProjectAction extends Actionable implements ProminentProjectAction {
 
     private final AbstractProject<?, ?> project;
-    private boolean onlyStable;
+    private boolean processUnstable;
+    private boolean processFailed;
 
-    public CoberturaProjectAction(AbstractProject<?, ?> project, boolean onlyStable) {
+    @Deprecated
+    private transient Boolean onlyStable;
+
+    public CoberturaProjectAction(AbstractProject<?, ?> project, boolean unstable, boolean failed) {
         this.project = project;
-        this.onlyStable = onlyStable;
+        this.processUnstable = unstable;
+        this.processFailed = failed;
     }
 
     public CoberturaProjectAction(AbstractProject<?, ?> project) {
         this.project = project;
-        
+
         CoberturaPublisher cp = (CoberturaPublisher) project.getPublishersList().get(CoberturaPublisher.DESCRIPTOR);
         if (cp != null) {
-            onlyStable = cp.getOnlyStable();
+            processUnstable = cp.getProcessUnstable();
+            processFailed = cp.getProcessFailed();
         }
     }
-    
+
     public AbstractProject<?, ?> getProject() {
         return project;
     }
@@ -62,7 +68,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      */
     public CoberturaBuildAction getLastResult() {
         for (AbstractBuild<?, ?> b = getLastBuildToBeConsidered(); b != null; b = b.getPreviousNotFailedBuild()) {
-            if (b.getResult() == Result.FAILURE || (b.getResult() != Result.SUCCESS && onlyStable))
+            if (ignoreBuild(b))
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
             if (r != null)
@@ -70,9 +76,12 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         }
         return null;
     }
-    private AbstractBuild<?, ?> getLastBuildToBeConsidered(){
-        return onlyStable ? project.getLastStableBuild() : project.getLastSuccessfulBuild();
+
+    private AbstractBuild<?, ?> getLastBuildToBeConsidered() {
+        return !processFailed && !processUnstable ? project.getLastStableBuild()
+                : processUnstable ? project.getLastSuccessfulBuild() : project.getLastCompletedBuild();
     }
+
      /**
      * Getter for property 'lastResult'.
      *
@@ -80,7 +89,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      */
     public Integer getLastResultBuild() {
         for (AbstractBuild<?, ?> b = getLastBuildToBeConsidered(); b != null; b = b.getPreviousNotFailedBuild()) {
-            if (b.getResult() == Result.FAILURE || (b.getResult() != Result.SUCCESS && onlyStable))
+            if (ignoreBuild(b))
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
             if (r != null)
@@ -108,5 +117,17 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      */
     public String getSearchUrl() {
         return getUrlName();
+    }
+
+    private boolean ignoreBuild(AbstractBuild<?, ?> b) {
+        return (b.getResult() == Result.FAILURE && !processFailed) || (b.getResult() != Result.SUCCESS && !processUnstable);
+    }
+
+    protected Object readResolve() {
+        if (onlyStable != null) {
+            processUnstable = !onlyStable;
+            processFailed = false;
+        }
+        return this;
     }
 }
