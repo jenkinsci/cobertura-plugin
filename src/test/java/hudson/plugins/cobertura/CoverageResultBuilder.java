@@ -50,7 +50,7 @@ public class CoverageResultBuilder
 		{
 			build = ctl.createMock( FreeStyleBuild.class );
 			build.number = c;
-			CoberturaBuildAction action = new CoberturaBuildAction( build, result, new CoverageTarget(), new CoverageTarget(), true, false, false, false, false )
+			CoberturaBuildAction action = new CoberturaBuildAction( build, result, new CoverageTarget(), new CoverageTarget(), false, false, false, false, false, false )
 			{
 				@Override
 				public HealthReport getBuildHealth()

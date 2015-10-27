@@ -42,6 +42,7 @@ import javax.xml.stream.events.XMLEvent;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.ConvertUtils;
+import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -54,7 +55,11 @@ public class CoberturaPublisher extends Recorder {
 
     private final String coberturaReportFile;
 
-    private final boolean onlyStable;
+    private final boolean processUnstable;
+
+    private final boolean processFailed;
+
+    private final boolean keepSources;
 
     private final boolean failUnhealthy;
 
@@ -65,9 +70,9 @@ public class CoberturaPublisher extends Recorder {
     private final boolean autoUpdateStability;
 
     private final boolean zoomCoverageChart;
-    
+
     private final int maxNumberOfBuilds;
-    
+
     private boolean failNoReports = true;
 
     private CoverageTarget healthyTarget;
@@ -80,16 +85,22 @@ public class CoberturaPublisher extends Recorder {
 
     private final SourceEncoding sourceEncoding;
 
+    @Deprecated
+    private transient Boolean onlyStable;
+
     /**
      * @param coberturaReportFile the report directory
      * @stapler-constructor
      */
     @DataBoundConstructor
-    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, 
-            boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports, SourceEncoding sourceEncoding,
-            int maxNumberOfBuilds) {
+    public CoberturaPublisher(String coberturaReportFile, boolean processUnstable, boolean processFailed,
+            boolean keepSources, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth,
+            boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports,
+            SourceEncoding sourceEncoding, int maxNumberOfBuilds) {
         this.coberturaReportFile = coberturaReportFile;
-        this.onlyStable = onlyStable;
+        this.processUnstable = processUnstable;
+        this.processFailed = processFailed;
+        this.keepSources = keepSources;
         this.failUnhealthy = failUnhealthy;
         this.failUnstable = failUnstable;
         this.autoUpdateHealth = autoUpdateHealth;
@@ -193,16 +204,35 @@ public class CoberturaPublisher extends Recorder {
     }
 
     /**
-     * Which type of build should be considered.
-     * @return the onlyStable
+     * Should process unstable builds
+     *
+     * @return the processUnstable
      */
-    public boolean getOnlyStable() {
-        return onlyStable;
+    public boolean getProcessUnstable() {
+        return processUnstable;
     }
-    
+
+    /**
+     * Should process failed builds
+     *
+     * @return the processFailed
+     */
+    public boolean getProcessFailed() {
+        return processFailed;
+    }
+
+    /**
+     * Keep sources for every build or only the latest
+     *
+     * @return the keepSources
+     */
+    public boolean getKeepSources() {
+        return keepSources;
+    }
+
     public int getMaxNumberOfBuilds() {
-		return maxNumberOfBuilds;
-	}
+        return maxNumberOfBuilds;
+    }
 
     /**
      * Getter for property 'failUnhealthy'.
@@ -306,14 +336,6 @@ public class CoberturaPublisher extends Recorder {
      * Gets the directory where the Cobertura Report is stored for the given project.
      */
     /*package*/
-    static File getCoberturaReportDir(AbstractItem project) {
-        return new File(project.getRootDir(), "cobertura");
-    }
-
-    /**
-     * Gets the directory where the Cobertura Report is stored for the given project.
-     */
-    /*package*/
     static File[] getCoberturaReports(AbstractBuild<?, ?> build) {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
     }
@@ -324,7 +346,13 @@ public class CoberturaPublisher extends Recorder {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) 
             throws InterruptedException, IOException {
-        Result threshold = onlyStable ? Result.SUCCESS : Result.UNSTABLE;
+        Result threshold = Result.SUCCESS;
+        if (processUnstable) {
+            threshold = Result.UNSTABLE;
+        }
+        if (processFailed) {
+            threshold = Result.FAILURE;
+        }
         if (build.getResult().isWorseThan(threshold)) {
             listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
             return true;
@@ -395,7 +423,8 @@ public class CoberturaPublisher extends Recorder {
         if (result != null) {
             listener.getLogger().println("Cobertura coverage report found.");
             result.setOwner(build);
-            final FilePath paintedSourcesPath = new FilePath(new File(build.getProject().getRootDir(), "cobertura"));
+            final File storedSourcesPath = keepSources ? build.getRootDir() : build.getProject().getRootDir();
+            final FilePath paintedSourcesPath = new FilePath(new File(storedSourcesPath, "cobertura"));
             paintedSourcesPath.mkdirs();
 
             if (sourcePaths.contains(".")) {
@@ -413,8 +442,9 @@ public class CoberturaPublisher extends Recorder {
 
             moduleRoot.act(painter);
 
-            final CoberturaBuildAction action = CoberturaBuildAction.load(build, result, healthyTarget,
-                    unhealthyTarget, getOnlyStable(), getFailUnhealthy(), getFailUnstable(), getAutoUpdateHealth(), getAutoUpdateStability());
+            final CoberturaBuildAction action = CoberturaBuildAction.load(build, result, healthyTarget, unhealthyTarget,
+                    getProcessUnstable(), getProcessFailed(), getFailUnhealthy(), getFailUnstable(),
+                    getAutoUpdateHealth(), getAutoUpdateStability());
 
             build.getActions().add(action);
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
@@ -504,7 +534,7 @@ public class CoberturaPublisher extends Recorder {
      */
     @Override
     public Action getProjectAction(AbstractProject<?, ?> project) {
-        return new CoberturaProjectAction(project, getOnlyStable());
+        return new CoberturaProjectAction(project, getProcessUnstable(), getProcessFailed());
     }
 
     /**
@@ -585,6 +615,10 @@ public class CoberturaPublisher extends Recorder {
 
             }
             return r;
+        }
+
+        @Override
+        public void checkRoles(RoleChecker checker) throws SecurityException {
         }
     }
 

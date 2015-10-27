@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura;
 
+import hudson.model.Run;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.util.ChartUtil;
 import hudson.util.ColorPalette;
@@ -51,7 +52,7 @@ public class CoverageChart
 		int n = 0;
 		for( Chartable a = chartable; a != null; a = a.getPreviousResult())
 		{
-			ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel( a.getOwner() );
+			ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel((Run<?,?>) a.getOwner() );
 			for( Map.Entry<CoverageMetric, Ratio> value: a.getResults().entrySet() )
 			{
 				dsb.add( value.getValue().getPercentageFloat(), value.getKey().getName(), label );

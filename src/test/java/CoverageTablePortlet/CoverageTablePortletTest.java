@@ -51,7 +51,7 @@ public class CoverageTablePortletTest {
         FreeStyleBuild build = p.scheduleBuild2(0).get();
         // fake cobertura run
         build.getActions().add(CoberturaBuildAction.load(
-                build, new CoverageResult(null, null, "cresult"), null, null, false, false, false, false, false
+                build, new CoverageResult(null, null, "cresult"), null, null, false, false, false, false, false, false
         ));
 
         Dashboard view = new Dashboard("view");

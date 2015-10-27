@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jenkinsci.remoting.RoleChecker;
+
 /**
  * TODO javadoc.
  * 
@@ -130,7 +132,7 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
             while (!source.exists() && possiblePath.hasNext()) {
                 source = new File(possiblePath.next(), entry.getKey());
             }
-            if (source.isFile()) {
+            if (source.exists() && !source.isDirectory() && source.canRead()) {
                 try {
                     paintSourceCode(source, entry.getValue(), destination.child(entry.getKey()));
                 } catch (IOException e) {
@@ -152,5 +154,9 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
             return SourceEncoding.UTF_8;
         }
         return sourceEncoding;
+    }
+
+    @Override
+    public void checkRoles(RoleChecker checker) throws SecurityException {
     }
 }

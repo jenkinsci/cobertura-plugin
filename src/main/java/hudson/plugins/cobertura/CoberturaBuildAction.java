@@ -46,8 +46,11 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     private Map<CoverageMetric, Ratio> result;
     private HealthReport health = null;
     private transient WeakReference<CoverageResult> report;
-    private boolean onlyStable;
+    private boolean processUnstable;
+    private boolean processFailed;
 
+    @Deprecated
+    private transient Boolean onlyStable;
     /**
      * {@inheritDoc}
      */
@@ -159,13 +162,15 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     static CoberturaBuildAction getPreviousResult(AbstractBuild<?, ?> start) {
         AbstractBuild<?, ?> b = start;
         while (true) {
-            b = b.getPreviousNotFailedBuild();
+            b = b.getPreviousCompletedBuild();
             if (b == null) {
                 return null;
             }
-            assert b.getResult() != Result.FAILURE : "We asked for the previous not failed build";
+            Result res = b.getResult();
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
-            if (r != null && r.includeOnlyStable() && b.getResult() != Result.SUCCESS) {
+            if (r != null && (!r.processUnstable && !r.processFailed && res != Result.SUCCESS ||
+                r.processUnstable && res != Result.SUCCESS && res != Result.UNSTABLE ||
+                r.processFailed && (res == Result.NOT_BUILT || res == Result.ABORTED))) {
                 r = null;
             }
             if (r != null) {
@@ -174,17 +179,15 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         }
     }
 
-    private boolean includeOnlyStable() {
-        return onlyStable;
-    }
-
     CoberturaBuildAction(AbstractBuild<?, ?> owner, CoverageResult r, CoverageTarget healthyTarget,
-            CoverageTarget unhealthyTarget, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability) {
+            CoverageTarget unhealthyTarget, boolean processUnstable, boolean processFailed, boolean failUnhealthy,
+            boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability) {
         this.owner = owner;
         this.report = new WeakReference<CoverageResult>(r);
         this.healthyTarget = healthyTarget;
         this.unhealthyTarget = unhealthyTarget;
-        this.onlyStable = onlyStable;
+        this.processUnstable = processUnstable;
+        this.processFailed = processFailed;
         this.failUnhealthy = failUnhealthy;
         this.failUnstable = failUnstable;
         this.autoUpdateHealth = autoUpdateHealth;
@@ -227,9 +230,12 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     }
     private static final Logger logger = Logger.getLogger(CoberturaBuildAction.class.getName());
 
-    public static CoberturaBuildAction load(AbstractBuild<?, ?> build, CoverageResult result, CoverageTarget healthyTarget,
-            CoverageTarget unhealthyTarget, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability) {
-        return new CoberturaBuildAction(build, result, healthyTarget, unhealthyTarget, onlyStable, failUnhealthy, failUnstable, autoUpdateHealth, autoUpdateStability);
+    public static CoberturaBuildAction load(AbstractBuild<?, ?> build, CoverageResult result,
+            CoverageTarget healthyTarget, CoverageTarget unhealthyTarget, boolean processUnstable,
+            boolean processFailed, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth,
+            boolean autoUpdateStability) {
+        return new CoberturaBuildAction(build, result, healthyTarget, unhealthyTarget, processUnstable, processFailed,
+                failUnhealthy, failUnstable, autoUpdateHealth, autoUpdateStability);
     }
 
     /**
@@ -250,4 +256,13 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         JFreeChart chart = new CoverageChart(this).createChart();
         ChartUtil.generateGraph(req, rsp, chart, 500, 200);
     }
+
+    protected Object readResolve() {
+        if (onlyStable != null) {
+            processUnstable = !onlyStable;
+            processFailed = false;
+        }
+        return this;
+    }
 }
+
