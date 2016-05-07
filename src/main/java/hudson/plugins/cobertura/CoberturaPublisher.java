@@ -511,7 +511,7 @@ public class CoberturaPublisher extends Recorder {
      * {@inheritDoc}
      */
     public BuildStepMonitor getRequiredMonitorService() {
-        return BuildStepMonitor.BUILD;
+        return BuildStepMonitor.NONE;
     }
 
     /**

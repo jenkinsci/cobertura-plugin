@@ -159,7 +159,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     static CoberturaBuildAction getPreviousResult(AbstractBuild<?, ?> start) {
         AbstractBuild<?, ?> b = start;
         while (true) {
-            b = b.getPreviousNotFailedBuild();
+            b = BuildUtils.getPreviousNotFailedCompletedBuild(b);
             if (b == null) {
                 return null;
             }

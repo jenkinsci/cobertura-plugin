@@ -63,6 +63,7 @@ public class CoverageResultBuilder
 			EasyMock.expect( build.getAction( CoberturaBuildAction.class ) ).andReturn( action ).anyTimes();
 			EasyMock.expect( build.getDisplayName() ).andReturn( "#" + String.valueOf( c ) ).anyTimes();
 			EasyMock.expect( build.getPreviousNotFailedBuild() ).andReturn( prevBuild ).anyTimes();
+			EasyMock.expect( build.isBuilding() ).andReturn( false ).anyTimes();
 
 			result.setOwner( build );
 
