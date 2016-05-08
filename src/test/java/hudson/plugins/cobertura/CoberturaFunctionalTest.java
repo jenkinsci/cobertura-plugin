@@ -38,9 +38,6 @@ import java.io.IOException;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author ogondza.
- */
 public class CoberturaFunctionalTest {
 
     public @Rule JenkinsRule j = new JenkinsRule();
@@ -63,7 +60,6 @@ public class CoberturaFunctionalTest {
 
         p.scheduleBuild2(0).get();
 
-        j.interactiveBreak();
         assertTrue(p.getBuildByNumber(1).getLog(), p.getBuildByNumber(1).isBuilding());
         assertFalse(p.getBuildByNumber(2).getLog(), p.getBuildByNumber(2).isBuilding());
     }
@@ -85,4 +81,4 @@ public class CoberturaFunctionalTest {
             return true;
         }
     }
-}1
+}
