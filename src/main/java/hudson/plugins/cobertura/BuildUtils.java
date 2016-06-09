@@ -1,9 +1,9 @@
 package hudson.plugins.cobertura;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 
 public class BuildUtils {
-	public static AbstractBuild<?, ?> getPreviousNotFailedCompletedBuild(AbstractBuild<?, ?> b) {
+	public static Run<?, ?> getPreviousNotFailedCompletedBuild(Run<?, ?> b) {
 		while (true) {
 			b = b.getPreviousNotFailedBuild();
 			if (b == null) {

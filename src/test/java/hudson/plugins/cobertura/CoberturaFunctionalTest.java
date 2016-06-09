@@ -23,10 +23,11 @@
  */
 package hudson.plugins.cobertura;
 
+import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
 import hudson.model.FreeStyleProject;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.cobertura.renderers.SourceEncoding;
 import hudson.util.OneShotEvent;
 import org.junit.Rule;
@@ -75,10 +76,10 @@ public class CoberturaFunctionalTest {
         }
 
         @Override
-        public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+        public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
             firstRunning.signal();
             firstBlocked.block();
-            return true;
+            return;
         }
     }
 }

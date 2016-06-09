@@ -3,9 +3,10 @@ package hudson.plugins.cobertura.renderers;
 import static hudson.plugins.cobertura.IOUtils.closeQuietly;
 
 import hudson.FilePath;
-import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 import hudson.plugins.cobertura.targets.CoveragePaint;
 import hudson.remoting.VirtualChannel;
+import jenkins.SlaveToMasterFileCallable;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,7 +28,7 @@ import java.util.Set;
  * @author Stephen Connolly
  * @since 31-Aug-2007 16:52:25
  */
-public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serializable {
+public class SourceCodePainter extends SlaveToMasterFileCallable<Boolean> implements Serializable {
 
     private final Set<String> sourcePaths;
 
@@ -35,11 +36,11 @@ public class SourceCodePainter implements FilePath.FileCallable<Boolean>, Serial
 
     private final FilePath destination;
 
-    private final BuildListener listener;
+    private final TaskListener listener;
 
     private final SourceEncoding sourceEncoding;
 
-    public SourceCodePainter(FilePath destination, Set<String> sourcePaths, Map<String, CoveragePaint> paint, BuildListener listener,
+    public SourceCodePainter(FilePath destination, Set<String> sourcePaths, Map<String, CoveragePaint> paint, TaskListener listener,
             SourceEncoding sourceEncoding) {
         this.destination = destination;
         this.sourcePaths = sourcePaths;

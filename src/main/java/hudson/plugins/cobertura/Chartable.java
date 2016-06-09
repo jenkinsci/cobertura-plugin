@@ -1,6 +1,6 @@
 package hudson.plugins.cobertura;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 
 import java.util.Map;
@@ -12,6 +12,6 @@ public interface Chartable
 
 	Map<CoverageMetric, Ratio> getResults();
 
-	AbstractBuild< ? , ? > getOwner();
+	Run<?, ?> getOwner();
 
 }

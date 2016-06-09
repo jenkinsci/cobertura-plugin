@@ -1,6 +1,10 @@
 package hudson.plugins.cobertura;
 
-import hudson.model.*;
+import hudson.model.Actionable;
+import hudson.model.Job;
+import hudson.model.ProminentProjectAction;
+import hudson.model.Result;
+import hudson.model.Run;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -13,25 +17,16 @@ import java.io.IOException;
  */
 public class CoberturaProjectAction extends Actionable implements ProminentProjectAction {
 
-    private final AbstractProject<?, ?> project;
+    private final Run<?, ?> run;
     private boolean onlyStable;
 
-    public CoberturaProjectAction(AbstractProject<?, ?> project, boolean onlyStable) {
-        this.project = project;
+    public CoberturaProjectAction(Run<?, ?> run, boolean onlyStable) {
+        this.run = run;
         this.onlyStable = onlyStable;
     }
 
-    public CoberturaProjectAction(AbstractProject<?, ?> project) {
-        this.project = project;
-        
-        CoberturaPublisher cp = (CoberturaPublisher) project.getPublishersList().get(CoberturaPublisher.DESCRIPTOR);
-        if (cp != null) {
-            onlyStable = cp.getOnlyStable();
-        }
-    }
-    
-    public AbstractProject<?, ?> getProject() {
-        return project;
+    public CoberturaProjectAction(Run<?, ?> run) {
+        this(run, false);
     }
 
     /**
@@ -61,7 +56,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      * @return Value for property 'lastResult'.
      */
     public CoberturaBuildAction getLastResult() {
-        for (AbstractBuild<?, ?> b = getLastBuildToBeConsidered(); b != null; b = BuildUtils.getPreviousNotFailedCompletedBuild(b)) {
+        for (Run<?, ?> b = getLastBuildToBeConsidered(); b != null; b = BuildUtils.getPreviousNotFailedCompletedBuild(b)) {
             if (b.getResult() == Result.FAILURE || (b.getResult() != Result.SUCCESS && onlyStable))
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);
@@ -70,8 +65,8 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
         }
         return null;
     }
-    private AbstractBuild<?, ?> getLastBuildToBeConsidered(){
-        return onlyStable ? project.getLastStableBuild() : project.getLastSuccessfulBuild();
+    private Run<?, ?> getLastBuildToBeConsidered(){
+        return onlyStable ? run.getParent().getLastStableBuild() : run.getParent().getLastSuccessfulBuild();
     }
      /**
      * Getter for property 'lastResult'.
@@ -79,7 +74,7 @@ public class CoberturaProjectAction extends Actionable implements ProminentProje
      * @return Value for property 'lastResult'.
      */
     public Integer getLastResultBuild() {
-        for (AbstractBuild<?, ?> b = getLastBuildToBeConsidered(); b != null; b = BuildUtils.getPreviousNotFailedCompletedBuild(b)) {
+        for (Run<?, ?> b = getLastBuildToBeConsidered(); b != null; b = BuildUtils.getPreviousNotFailedCompletedBuild(b)) {
             if (b.getResult() == Result.FAILURE || (b.getResult() != Result.SUCCESS && onlyStable))
                 continue;
             CoberturaBuildAction r = b.getAction(CoberturaBuildAction.class);

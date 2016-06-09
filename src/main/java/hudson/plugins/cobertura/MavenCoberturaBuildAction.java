@@ -22,8 +22,8 @@ public class MavenCoberturaBuildAction extends CoberturaBuildAction implements A
     @SuppressWarnings("unused")
     private static final Logger LOGGER = Logger.getLogger(MavenCoberturaBuildAction.class.getName());
 
-    MavenCoberturaBuildAction(MavenBuild build, CoverageResult r, CoverageTarget healthyTarget, CoverageTarget unhealthyTarget, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability) {
-        super(build, r, healthyTarget, unhealthyTarget, onlyStable, failUnhealthy, failUnstable, autoUpdateHealth, autoUpdateStability);
+    MavenCoberturaBuildAction(CoverageResult r, CoverageTarget healthyTarget, CoverageTarget unhealthyTarget, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, int maxNumberOfBuilds) {
+        super(r, healthyTarget, unhealthyTarget, onlyStable, failUnhealthy, failUnstable, autoUpdateHealth, autoUpdateStability, zoomCoverageChart, maxNumberOfBuilds);
     }
 
     public MavenAggregatedReport createAggregatedAction(MavenModuleSetBuild build, Map<MavenModule, List<MavenBuild>> moduleBuilds) {

@@ -78,33 +78,32 @@ public class CoverageChart
 	protected static boolean isZoomCoverageChart( Chartable chartable )
 	{
 		if( chartable == null ) return false;
-		CoberturaPublisher cp = (CoberturaPublisher) chartable.getOwner().getProject().getPublishersList().get( CoberturaPublisher.DESCRIPTOR );
+		CoberturaBuildAction action = chartable.getOwner().getAction(CoberturaBuildAction.class);
 		boolean zoomCoverageChart = false;
-		if( cp != null )
+		if( action != null )
 		{
-			zoomCoverageChart = cp.getZoomCoverageChart();
+			return action.getZoomCoverageChart();
 		}
 		else
 		{
 			Log.warn( "Couldn't find CoberturaPublisher to decide if the graph should be zoomed" );
+			return false;
 		}
-		return zoomCoverageChart;
 	}
 
 	protected static int getMaximumBuilds( Chartable chartable )
 	{
 		if( chartable == null ) return 0;
-		CoberturaPublisher cp = (CoberturaPublisher) chartable.getOwner().getProject().getPublishersList().get( CoberturaPublisher.DESCRIPTOR );
-		int maximumBuilds = 0;
-		if( cp != null )
+		CoberturaBuildAction action = chartable.getOwner().getAction(CoberturaBuildAction.class);
+		if( action != null )
 		{
-			maximumBuilds = cp.getMaxNumberOfBuilds();
+			return action.getMaxNumberOfBuilds();
 		}
 		else
 		{
 			Log.warn( "Couldn't find CoberturaPublisher to decide the maximum number of builds to be graphed" );
+			return 0;
 		}
-		return maximumBuilds;
 	}
 
 	public JFreeChart createChart()
