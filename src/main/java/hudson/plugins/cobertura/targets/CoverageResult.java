@@ -352,7 +352,12 @@ public class CoverageResult implements Serializable, Chartable {
      * @return Value for property 'metrics'.
      */
     public Set<CoverageMetric> getMetrics() {
-    	return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
+    	if (aggregateResults.keySet().size() != 0) {
+    		return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
+    	}
+    	else {
+    		return Collections.unmodifiableSet(new TreeSet<CoverageMetric>());
+    	}
     }
 
     public Set<CoverageMetric> getMetricsWithEmpty() {
