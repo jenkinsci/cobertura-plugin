@@ -282,7 +282,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 					result.setOwner(build);
 
 					CoberturaBuildAction o = CoberturaBuildAction.load(result, null, null, false, false, false, false, false, false, 0);
-					build.getActions().add(o);
+					build.addAction(o);
 				} else {
 					return false;
 				}

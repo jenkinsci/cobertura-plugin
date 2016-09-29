@@ -67,9 +67,9 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     private final boolean autoUpdateStability;
 
     private final boolean zoomCoverageChart;
-    
+
     private final int maxNumberOfBuilds;
-    
+
     private boolean failNoReports = true;
 
     private CoverageTarget healthyTarget;
@@ -201,7 +201,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     public boolean getOnlyStable() {
         return onlyStable;
     }
-    
+
     public int getMaxNumberOfBuilds() {
 		return maxNumberOfBuilds;
 	}
@@ -249,7 +249,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     public boolean isFailNoReports() {
         return failNoReports;
     }
-    
+
     /**
      * Getter for property 'healthyTarget'.
      *
@@ -309,7 +309,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      */
     /*package*/
     static File[] getCoberturaReports(Run<?, ?> build) {
-        return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
+        File rootDir = build.getRootDir();
+        return rootDir.listFiles(COBERTURA_FILENAME_FILTER);
     }
 
     /**
@@ -319,6 +320,10 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, final TaskListener listener)
             throws InterruptedException, IOException {
         Result threshold = onlyStable ? Result.SUCCESS : Result.UNSTABLE;
+        if (build.getResult() == null) {
+            listener.getLogger().println("Build had no result; build result must be set before running Cobertura publisher.");
+            return;
+        }
         if (build.getResult().isWorseThan(threshold)) {
             listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
             return;
@@ -407,7 +412,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                     unhealthyTarget, getOnlyStable(), getFailUnhealthy(), getFailUnstable(), getAutoUpdateHealth(), getAutoUpdateStability(),
                     getZoomCoverageChart(), getMaxNumberOfBuilds());
 
-            build.getActions().add(action);
+            build.addAction(action);
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
             if (!failingMetrics.isEmpty()) {
                 listener.getLogger().println("Code coverage enforcement failed for the following metrics:");
@@ -557,7 +562,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                                 reader.close();
                             } catch (XMLStreamException ex) {
                                 //
-                            }                            
+                            }
                         }
                     } finally {
                         IOUtils.closeQuietly(is);
