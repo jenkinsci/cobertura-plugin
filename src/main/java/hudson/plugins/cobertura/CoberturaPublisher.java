@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura;
 
+import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -20,7 +21,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import jenkins.SlaveToMasterFileCallable;
+import jenkins.MasterToSlaveFileCallable;
 import jenkins.tasks.SimpleBuildStep;
 
 import java.io.File;
@@ -45,6 +46,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -54,55 +56,36 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
 
-    private final String coberturaReportFile;
+    private String coberturaReportFile;
 
-    private final boolean onlyStable;
+    private boolean onlyStable;
 
-    private final boolean failUnhealthy;
+    private boolean failUnhealthy;
 
-    private final boolean failUnstable;
+    private boolean failUnstable;
 
-    private final boolean autoUpdateHealth;
+    private boolean autoUpdateHealth;
 
-    private final boolean autoUpdateStability;
+    private boolean autoUpdateStability;
 
-    private final boolean zoomCoverageChart;
+    private boolean zoomCoverageChart;
 
-    private final int maxNumberOfBuilds;
+    private int maxNumberOfBuilds = 0;
 
     private boolean failNoReports = true;
 
-    private CoverageTarget healthyTarget;
+    private CoverageTarget healthyTarget = new CoverageTarget();
 
-    private CoverageTarget unhealthyTarget;
+    private CoverageTarget unhealthyTarget = new CoverageTarget();
 
-    private CoverageTarget failingTarget;
+    private CoverageTarget failingTarget = new CoverageTarget();
 
     public static final CoberturaReportFilenameFilter COBERTURA_FILENAME_FILTER = new CoberturaReportFilenameFilter();
 
-    private final SourceEncoding sourceEncoding;
+    private SourceEncoding sourceEncoding = SourceEncoding.UTF_8;
 
-    /**
-     * @param coberturaReportFile the report directory
-     * @stapler-constructor
-     */
     @DataBoundConstructor
-    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable,
-            boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports, SourceEncoding sourceEncoding,
-            int maxNumberOfBuilds) {
-        this.coberturaReportFile = coberturaReportFile;
-        this.onlyStable = onlyStable;
-        this.failUnhealthy = failUnhealthy;
-        this.failUnstable = failUnstable;
-        this.autoUpdateHealth = autoUpdateHealth;
-        this.autoUpdateStability = autoUpdateStability;
-        this.zoomCoverageChart = zoomCoverageChart;
-        this.failNoReports = failNoReports;
-        this.sourceEncoding = sourceEncoding;
-        this.maxNumberOfBuilds = maxNumberOfBuilds;
-        this.healthyTarget = new CoverageTarget();
-        this.unhealthyTarget = new CoverageTarget();
-        this.failingTarget = new CoverageTarget();
+    public CoberturaPublisher() {
     }
 
     /**
@@ -186,12 +169,26 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     }
 
     /**
+     * @param coberturaReportFile the report directory
+     */
+    @DataBoundSetter
+    public void setCoberturaReportFile(String coberturaReportFile) {
+
+        this.coberturaReportFile = coberturaReportFile;
+    }
+
+    /**
      * Getter for property 'coberturaReportFile'.
      *
      * @return Value for property 'coberturaReportFile'.
      */
     public String getCoberturaReportFile() {
         return coberturaReportFile;
+    }
+
+    @DataBoundSetter
+    public void setOnlyStable(boolean onlyStable) {
+        this.onlyStable = onlyStable;
     }
 
     /**
@@ -202,9 +199,19 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         return onlyStable;
     }
 
+    @DataBoundSetter
+    public void setMaxNumberOfBuilds(int maxNumberOfBuilds) {
+        this.maxNumberOfBuilds = maxNumberOfBuilds;
+    }
+
     public int getMaxNumberOfBuilds() {
 		return maxNumberOfBuilds;
 	}
+
+    @DataBoundSetter
+    public void setFailUnhealthy(boolean failUnhealthy) {
+        this.failUnhealthy = failUnhealthy;
+    }
 
     /**
      * Getter for property 'failUnhealthy'.
@@ -213,6 +220,12 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      */
     public boolean getFailUnhealthy() {
         return failUnhealthy;
+    }
+
+
+    @DataBoundSetter
+    public void setFailUnstable(boolean failUnstable) {
+        this.failUnstable = failUnstable;
     }
 
     /**
@@ -224,6 +237,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         return failUnstable;
     }
 
+    @DataBoundSetter
+    public void setAutoUpdateHealth(boolean autoUpdateHealth) {
+        this.autoUpdateHealth = autoUpdateHealth;
+    }
+
     /**
      * Getter for property 'autoUpdateHealth'.
      *
@@ -231,6 +249,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      */
     public boolean getAutoUpdateHealth() {
         return autoUpdateHealth;
+    }
+
+    @DataBoundSetter
+    public void setAutoUpdateStability(boolean autoUpdateStability) {
+        this.autoUpdateStability = autoUpdateStability;
     }
 
     /**
@@ -242,8 +265,18 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         return autoUpdateStability;
     }
 
+    @DataBoundSetter
+    public void setZoomCoverageChart(boolean zoomCoverageChart) {
+        this.zoomCoverageChart = zoomCoverageChart;
+    }
+
     public boolean getZoomCoverageChart() {
         return zoomCoverageChart;
+    }
+
+    @DataBoundSetter
+    public void setFailNoReports(boolean failNoReports) {
+        this.failNoReports = failNoReports;
     }
 
     public boolean isFailNoReports() {
@@ -320,11 +353,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, final TaskListener listener)
             throws InterruptedException, IOException {
         Result threshold = onlyStable ? Result.SUCCESS : Result.UNSTABLE;
-        if (build.getResult() == null) {
-            listener.getLogger().println("Build had no result; build result must be set before running Cobertura publisher.");
-            return;
-        }
-        if (build.getResult().isWorseThan(threshold)) {
+        if (build.getResult() != null && build.getResult().isWorseThan(threshold)) {
             listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
             return;
         }
@@ -339,14 +368,14 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
 
             // if the build has failed, then there's not
             // much point in reporting an error
-            if (build.getResult().isWorseOrEqualTo(Result.FAILURE) && reports.length == 0) {
+            if (build.getResult() != null && build.getResult().isWorseOrEqualTo(Result.FAILURE) && reports.length == 0) {
                 return;
             }
 
         } catch (IOException e) {
             Util.displayIOException(e, listener);
             e.printStackTrace(listener.fatalError("Unable to find coverage results"));
-            build.setResult(Result.FAILURE);
+            throw new AbortException("Unable to find coverage results");
         }
 
         if (reports.length == 0) {
@@ -357,7 +386,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                     + "  Did you generate the XML report(s) for Cobertura?";
             listener.getLogger().println(msg);
             if (failNoReports) {
-                build.setResult(Result.FAILURE);
+                throw new AbortException(msg);
             } else {
                 listener.getLogger().println("[Cobertura] Skipped cobertura reports.");
             }
@@ -370,8 +399,9 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                 reports[i].copyTo(targetPath);
             } catch (IOException e) {
                 Util.displayIOException(e, listener);
-                e.printStackTrace(listener.fatalError("Unable to copy coverage from " + reports[i] + " to " + buildTarget));
-                build.setResult(Result.FAILURE);
+                String msg = "Unable to copy coverage from " + reports[i] + " to " + buildTarget;
+                e.printStackTrace(listener.fatalError(msg));
+                throw new AbortException(msg);
             }
         }
 
@@ -384,13 +414,13 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             } catch (IOException e) {
                 Util.displayIOException(e, listener);
                 e.printStackTrace(listener.fatalError("Unable to parse " + coberturaXmlReport));
-                build.setResult(Result.FAILURE);
+                throw new AbortException("Unable to parse " + coberturaXmlReport);
             }
         }
         if (result != null) {
             listener.getLogger().println("Cobertura coverage report found.");
             result.setOwner(build);
-            final FilePath paintedSourcesPath = new FilePath(new File(build.getRootDir(), "cobertura"));
+            final FilePath paintedSourcesPath = new FilePath(new File(build.getParent().getRootDir(), "cobertura"));
             paintedSourcesPath.mkdirs();
 
             if (sourcePaths.contains(".")) {
@@ -427,8 +457,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                     listener.getLogger().println("Setting Build to unstable.");
                     build.setResult(Result.UNSTABLE);
                 } else {
-                    listener.getLogger().println("Failing build due to unstability.");
-                    build.setResult(Result.FAILURE);
+                    throw new AbortException("Failing build due to unstability.");
                 }
             }
             if (getFailUnhealthy()) {
@@ -442,11 +471,10 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                         setHealthyPercent = unhealthyTarget.getSetPercent(result, metric);
                         listener.getLogger().println("    " + metric.getName() + "'s health is " + roundDecimalFloat(oldHealthyPercent * 100f) + " and set minimum health is " + roundDecimalFloat(setHealthyPercent * 100f) + ".");
                     }
-                    listener.getLogger().println("Failing build because it is unhealthy.");
-                    build.setResult(Result.FAILURE);
+                    throw new AbortException("Failing build because it is unhealthy.");
                 }
             }
-            if (build.getResult() == Result.SUCCESS) {
+            if (build.getResult() == null || build.getResult() == Result.SUCCESS) {
                 if (getAutoUpdateHealth()) {
                     setNewPercentages(result, true, listener);
                 }
@@ -456,9 +484,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                 }
             }
         } else {
-            listener.getLogger().println("No coverage results were successfully parsed.  Did you generate "
+            throw new AbortException("No coverage results were successfully parsed.  Did you generate "
                     + "the XML report(s) for Cobertura?");
-            build.setResult(Result.FAILURE);
         }
     }
 
@@ -509,6 +536,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         return DESCRIPTOR;
     }
 
+    @DataBoundSetter
+    public void setSourceEncoding(SourceEncoding sourceEncoding) {
+        this.sourceEncoding = sourceEncoding;
+    }
+
     public SourceEncoding getSourceEncoding() {
         return sourceEncoding;
     }
@@ -519,7 +551,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-    public static class ParseReportCallable extends SlaveToMasterFileCallable<FilePath[]> {
+    public static class ParseReportCallable extends MasterToSlaveFileCallable<FilePath[]> {
 
         private static final long serialVersionUID = 1L;
 

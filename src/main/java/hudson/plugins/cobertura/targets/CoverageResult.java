@@ -35,7 +35,7 @@ import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
 /**
- * Coverage result for a specific programming element. 
+ * Coverage result for a specific programming element.
  *
  * <p>
  * Instances of {@link CoverageResult} form a tree structure to progressively represent smaller elements.
@@ -77,7 +77,7 @@ public class CoverageResult implements Serializable, Chartable {
 
     private String relativeSourcePath;
 
-    public Run<?, ?> owner = null;
+    public transient Run<?, ?> owner = null;
 
     public CoverageResult(CoverageElement elementType, CoverageResult parent, String name) {
         this.element = elementType;

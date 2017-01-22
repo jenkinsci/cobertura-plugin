@@ -6,7 +6,7 @@ import hudson.FilePath;
 import hudson.model.TaskListener;
 import hudson.plugins.cobertura.targets.CoveragePaint;
 import hudson.remoting.VirtualChannel;
-import jenkins.SlaveToMasterFileCallable;
+import jenkins.MasterToSlaveFileCallable;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,11 +24,11 @@ import java.util.Set;
 
 /**
  * TODO javadoc.
- * 
+ *
  * @author Stephen Connolly
  * @since 31-Aug-2007 16:52:25
  */
-public class SourceCodePainter extends SlaveToMasterFileCallable<Boolean> implements Serializable {
+public class SourceCodePainter extends MasterToSlaveFileCallable<Boolean> implements Serializable {
 
     private final Set<String> sourcePaths;
 
