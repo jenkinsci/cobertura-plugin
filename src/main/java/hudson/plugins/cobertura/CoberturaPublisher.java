@@ -83,8 +83,18 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     private final SourceEncoding sourceEncoding;
 
     /**
+     * CoberturaPublisher constructor
+     * 
      * @param coberturaReportFile the report directory
-     * @stapler-constructor
+     * @param onlyStable true to consider only stable builds
+     * @param failUnhealthy true to fail unhealthy builds
+     * @param failUnstable true to fail unstable builds
+     * @param autoUpdateHealth true to auto-update health
+     * @param autoUpdateStability true to auto-update stability
+     * @param zoomCoverageChart true to zoom coverage chart
+     * @param failNoReports true to fail if no reports
+     * @param sourceEncoding source encoding
+     * @param maxNumberOfBuilds max number of builds
      */
     @DataBoundConstructor
     public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable,
@@ -574,8 +584,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     /**
      * Descriptor for {@link CoberturaPublisher}. Used as a singleton. The class is marked as public so that it can be
      * accessed from views.
-     * <p/>
-     * <p/>
+     * 
      * See <tt>views/hudson/plugins/cobertura/CoberturaPublisher/*.jelly</tt> for the actual HTML fragment for the
      * configuration screen.
      */

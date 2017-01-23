@@ -208,6 +208,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     /**
      * Obtains the detailed
      * {@link hudson.plugins.cobertura.targets.CoverageResult} instance.
+     * 
+     * @return the {@link hudson.plugins.cobertura.targets.CoverageResult} instance.
      */
     public synchronized CoverageResult getResult() {
         if (report != null) {
@@ -244,6 +246,10 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
 
     /**
      * Generates the graph that shows the coverage trend up to this report.
+     * 
+     * @param req the request
+     * @param rsp the response
+     * @throws IOException forwarded from StaplerResponse.sendRedirect2
      */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (ChartUtil.awtProblemCause != null) {

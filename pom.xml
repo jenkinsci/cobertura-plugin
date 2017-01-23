@@ -14,7 +14,7 @@
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Cobertura+Plugin</url>
 
   <properties>
-    <jenkins.version>1.625.3</jenkins.version>
+    <jenkins.version>2.13</jenkins.version>
     <jenkins-test-harness.version>2.13</jenkins-test-harness.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <workflow-jenkins-plugin.version>1.11</workflow-jenkins-plugin.version>

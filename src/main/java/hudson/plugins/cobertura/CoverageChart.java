@@ -31,7 +31,9 @@ public class CoverageChart
 	private int					upperBound;
 
 	/**
-	 * @pre chartable!=null && chartable.getPreviousResult()!=null
+	 * Constructor
+	 * 
+	 * @param chartable Chartable object to chart
 	 */
 	public CoverageChart( Chartable chartable )
 	{
@@ -39,7 +41,11 @@ public class CoverageChart
 	}
 
 	/**
-	 * @pre chartable!=null && chartable.getPreviousResult()!=null
+	 * Constructor
+	 * 
+	 * @param chartable Chartable object to chart
+	 * @param zoomCoverageChart true to zoom coverage chart
+	 * @param maximumBuilds maximum builds to include
 	 */
 	protected CoverageChart( Chartable chartable, boolean zoomCoverageChart, int maximumBuilds )
 	{
