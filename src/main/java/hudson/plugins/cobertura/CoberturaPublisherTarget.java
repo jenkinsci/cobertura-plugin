@@ -27,9 +27,9 @@ public final class CoberturaPublisherTarget {
      * Constructor
      * 
      * @param metric Coverage metric
-     * @param healthy Healthy amount
-     * @param unhealthy Unhealthy amount
-     * @param unstable Unstable amount
+     * @param healthy Healthy target
+     * @param unhealthy Unhealthy target
+     * @param unstable Unstable target
      */
     public CoberturaPublisherTarget(CoverageMetric metric, Float healthy, Float unhealthy, Float unstable) {
         this.metric = metric;

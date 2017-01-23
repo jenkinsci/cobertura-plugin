@@ -363,7 +363,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
 
-        FilePath[] reports = new FilePath[0];
+        FilePath[] reports = null;
         try {
             reports = workspace.act(new ParseReportCallable(coberturaReportFile));
 

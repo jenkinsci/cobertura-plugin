@@ -63,6 +63,10 @@ public enum CoverageAggregationMode {
     /**
      * Combinator function. Note that this function is defined to be left-associative and f(x,y) isn't necessarily
      * the same as f(y,x)
+     * 
+     * @param a the first ratio
+     * @param b the second ratio
+     * @return Combined ratio
      */
     public abstract Ratio aggregate(Ratio a, Ratio b);
 }

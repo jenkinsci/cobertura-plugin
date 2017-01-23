@@ -463,6 +463,10 @@ public class CoverageResult implements Serializable, Chartable {
 
     /**
      * Generates the graph that shows the coverage trend up to this report.
+     * 
+     * @param req the stapler request
+     * @param rsp the stapler response
+     * @throws IOException from StaplerResponse.sendRedirect2
      */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (ChartUtil.awtProblemCause != null) {
