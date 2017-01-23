@@ -77,7 +77,7 @@ public class CoverageResult implements Serializable, Chartable {
 
     private String relativeSourcePath;
 
-    public Run<?, ?> owner = null;
+    public transient Run<?, ?> owner = null;
 
     public CoverageResult(CoverageElement elementType, CoverageResult parent, String name) {
         this.element = elementType;
@@ -366,7 +366,7 @@ public class CoverageResult implements Serializable, Chartable {
     	List<CoverageMetric> missingMetrics = new LinkedList<CoverageMetric>();
     	for (CoverageMetric currMetric : allMetrics)
     	{
-    		if (!currMetricSet.containsKey(currMetric.getName()))
+    		if (!currMetricSet.containsKey(currMetric))
     		{
     			missingMetrics.add(currMetric);
     		}

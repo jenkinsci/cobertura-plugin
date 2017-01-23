@@ -135,7 +135,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         return owner;
     }
 
-    private void setOwner(Run<?, ?> owner) {
+    private synchronized void setOwner(Run<?, ?> owner) {
         this.owner = owner;
         if (report != null) {
             CoverageResult r = report.get();

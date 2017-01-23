@@ -106,17 +106,19 @@ public class MavenCoberturaPublisher extends MavenReporter {
 		File outputDir;
 		try {
 			outputDir = mojo.getConfigurationValue("outputDirectory", File.class);
-			if (!outputDir.exists()) {
+			if (outputDir == null || !outputDir.exists()) {
 				// cobertura-maven-plugin will not generate a report for
 				// non-java projects
 				return true;
 			}
 
 			String[] formats = mojo.getConfigurationValue("formats", String[].class);
-			for (String o : formats) {
-				if ("xml".equalsIgnoreCase(o.trim())) {
-					haveXMLReport = true;
-					break;
+			if (formats != null) {
+				for (String o : formats) {
+					if ("xml".equalsIgnoreCase(o.trim())) {
+						haveXMLReport = true;
+						break;
+					}
 				}
 			}
 			if (!haveXMLReport) {

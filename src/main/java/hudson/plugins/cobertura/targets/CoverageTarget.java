@@ -112,7 +112,7 @@ public class CoverageTarget implements Serializable {
             Ratio observed = results.get(target.getKey());
             if (observed != null) {
                 j = CoverageTarget.calcRangeScore(target.getValue() / 100000, min.targets.get(target.getKey()), observed.getPercentage());
-                result.put(target.getKey(), Integer.valueOf(j));
+                result.put(target.getKey(), j);
             }
         }
         return result;
