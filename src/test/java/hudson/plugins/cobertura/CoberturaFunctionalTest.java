@@ -57,7 +57,8 @@ public class CoberturaFunctionalTest {
 
         firstRunning.block();
         p.getPublishersList().clear();
-        p.getPublishersList().add(new CoberturaPublisher("", true, true, true, true, true, true, true, SourceEncoding.UTF_8, 42));
+        CoberturaPublisher publisher = new CoberturaPublisher();
+        p.getPublishersList().add(publisher);
 
         p.scheduleBuild2(0).get();
 
@@ -70,7 +71,7 @@ public class CoberturaFunctionalTest {
         private final OneShotEvent firstBlocked;
 
         public BlockingCoberturaPublisher(OneShotEvent firstRunning, OneShotEvent blockFirst) {
-            super("", true, true, true, true, true, true, true, SourceEncoding.UTF_8, 42);
+            super();
             this.firstRunning = firstRunning;
             this.firstBlocked = blockFirst;
         }

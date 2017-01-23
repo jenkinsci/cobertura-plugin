@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class CoberturaProjectAction extends Actionable implements ProminentProjectAction {
 
-    private final Run<?, ?> run;
+    private transient Run<?, ?> run;
     private boolean onlyStable;
 
     public CoberturaProjectAction(Run<?, ?> run, boolean onlyStable) {

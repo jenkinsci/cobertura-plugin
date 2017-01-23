@@ -35,7 +35,7 @@ import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
 /**
- * Coverage result for a specific programming element. 
+ * Coverage result for a specific programming element.
  *
  * <p>
  * Instances of {@link CoverageResult} form a tree structure to progressively represent smaller elements.

@@ -1,6 +1,7 @@
 package hudson.plugins.cobertura;
 
 import hudson.model.Action;
+import hudson.model.AbstractBuild;
 import hudson.model.HealthReport;
 import hudson.model.HealthReportingAction;
 import hudson.model.Result;
@@ -38,7 +39,7 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy, Chartable, SimpleBuildStep.LastBuildAction, RunAction2 {
 
-    private Run<?, ?> owner;
+    private transient Run<?, ?> owner;
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
     private boolean failUnhealthy;
@@ -62,6 +63,18 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     public HealthReport getBuildHealth() {
         if (health != null) {
             return health;
+        }
+        if (owner instanceof AbstractBuild) {
+            //try to get targets from root project (for maven modules targets are null)
+            DescribableList rootpublishers = ((AbstractBuild)owner).getProject().getRootProject().getPublishersList();
+
+            if (rootpublishers != null) {
+                CoberturaPublisher publisher = (CoberturaPublisher) rootpublishers.get(CoberturaPublisher.class);
+                if (publisher != null) {
+                    healthyTarget = publisher.getHealthyTarget();
+                    unhealthyTarget = publisher.getUnhealthyTarget();
+                }
+            }
         }
         if (healthyTarget == null || unhealthyTarget == null) {
             return null;
