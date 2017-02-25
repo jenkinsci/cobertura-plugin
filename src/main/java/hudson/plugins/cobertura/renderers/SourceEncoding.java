@@ -182,6 +182,6 @@ public enum SourceEncoding {
                 return encoding;
             }
         }
-        return SourceEncoding.ASCII;
+        return SourceEncoding.UTF_8;
     }
 }
