@@ -106,13 +106,12 @@ public class CoverageTarget implements Serializable {
     }
 
     public Map<CoverageMetric, Integer> getRangeScores(CoverageTarget min, Map<CoverageMetric, Ratio> results) {
-        Integer j;
         Map<CoverageMetric, Integer> result = new EnumMap<CoverageMetric, Integer>(CoverageMetric.class);
         for (Map.Entry<CoverageMetric, Integer> target : this.targets.entrySet()) {
             Ratio observed = results.get(target.getKey());
             if (observed != null) {
-                j = CoverageTarget.calcRangeScore(target.getValue() / 100000, min.targets.get(target.getKey()), observed.getPercentage());
-                result.put(target.getKey(), j);
+                int j = CoverageTarget.calcRangeScore(target.getValue() / 100000, min.targets.get(target.getKey()), observed.getPercentage());
+                result.put(target.getKey(), Integer.valueOf(j));
             }
         }
         return result;

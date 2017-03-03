@@ -694,9 +694,10 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
          */
         @Override
         public CoberturaPublisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-        	if (req == null) {
-        		return null;
-        	}
+            // Null check because findbugs insists, despite the API guaranteeing this is never null.
+            if (req == null) {
+                throw new FormException("req cannot be null", "");
+            }
             CoberturaPublisher instance = req.bindJSON(CoberturaPublisher.class, formData);
             ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
             List<CoberturaPublisherTarget> targets = req
