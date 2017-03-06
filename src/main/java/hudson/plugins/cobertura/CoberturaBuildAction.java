@@ -9,8 +9,8 @@ import hudson.model.Run;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageTarget;
 import hudson.plugins.cobertura.targets.CoverageResult;
-import hudson.util.ChartUtil;
 import hudson.util.DescribableList;
+import hudson.util.Graph;
 import jenkins.model.RunAction2;
 import jenkins.tasks.SimpleBuildStep;
 
@@ -265,19 +265,12 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      * @throws IOException forwarded from StaplerResponse.sendRedirect2
      */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        if (ChartUtil.awtProblemCause != null) {
-            // not available. send out error message
-            rsp.sendRedirect2(req.getContextPath() + "/images/headless.png");
-            return;
-        }
-
-        Calendar t = owner.getTimestamp();
-
-        if (req.checkIfModified(t, rsp)) {
-            return; // up to date
-        }
-        JFreeChart chart = new CoverageChart(this).createChart();
-        ChartUtil.generateGraph(req, rsp, chart, 500, 200);
+        new Graph(owner.getTimestamp(), 500, 200) {
+            @Override
+            protected JFreeChart createGraph() {
+                return new CoverageChart(CoberturaBuildAction.this).createChart();
+            }
+        }.doPng(req, rsp);
     }
 
     public boolean getZoomCoverageChart() {

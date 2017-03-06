@@ -8,7 +8,7 @@ import hudson.plugins.cobertura.Chartable;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.CoverageChart;
 import hudson.plugins.cobertura.Ratio;
-import hudson.util.ChartUtil;
+import hudson.util.Graph;
 import hudson.util.TextFile;
 
 import java.io.File;
@@ -469,20 +469,12 @@ public class CoverageResult implements Serializable, Chartable {
      * @throws IOException from StaplerResponse.sendRedirect2
      */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        if (ChartUtil.awtProblemCause != null) {
-            // not available. send out error message
-            rsp.sendRedirect2(req.getContextPath() + "/images/headless.png");
-            return;
-        }
-
-        Run<?, ?> build = getOwner();
-        Calendar t = build.getTimestamp();
-
-        if (req.checkIfModified(t, rsp)) {
-            return; // up to date
-        }
-        JFreeChart chart = new CoverageChart(this).createChart();
-        ChartUtil.generateGraph(req, rsp, chart, 500, 200);
+        new Graph(owner.getTimestamp(), 500, 200) {
+            @Override
+            protected JFreeChart createGraph() {
+                return new CoverageChart(CoverageResult.this).createChart();
+            }
+        }.doPng(req, rsp);
     }
 
     /**
