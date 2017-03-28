@@ -83,9 +83,28 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     public static final CoberturaReportFilenameFilter COBERTURA_FILENAME_FILTER = new CoberturaReportFilenameFilter();
 
     private SourceEncoding sourceEncoding = SourceEncoding.UTF_8;
+    
+    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, 
+             boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports, SourceEncoding sourceEncoding,
+             int maxNumberOfBuilds) {
+         this.coberturaReportFile = coberturaReportFile;
+         this.onlyStable = onlyStable;
+         this.failUnhealthy = failUnhealthy;
+         this.failUnstable = failUnstable;
+         this.autoUpdateHealth = autoUpdateHealth;
+         this.autoUpdateStability = autoUpdateStability;
+         this.zoomCoverageChart = zoomCoverageChart;
+         this.failNoReports = failNoReports;
+         this.sourceEncoding = sourceEncoding;
+         this.maxNumberOfBuilds = maxNumberOfBuilds;
+         this.healthyTarget = new CoverageTarget();
+         this.unhealthyTarget = new CoverageTarget();
+         this.failingTarget = new CoverageTarget();
+    }
 
     @DataBoundConstructor
     public CoberturaPublisher() {
+        this("", true, true, true, true, true, true, true, SourceEncoding.UTF_8, 42);
     }
 
     /**
@@ -366,13 +385,6 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         FilePath[] reports = null;
         try {
             reports = workspace.act(new ParseReportCallable(coberturaReportFile));
-
-            // if the build has failed, then there's not
-            // much point in reporting an error
-            if (buildResult != null && buildResult.isWorseOrEqualTo(Result.FAILURE) && reports.length == 0) {
-                return;
-            }
-
         } catch (IOException e) {
             Util.displayIOException(e, listener);
             e.printStackTrace(listener.fatalError("Unable to find coverage results"));
