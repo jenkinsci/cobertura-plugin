@@ -84,6 +84,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
 
     private SourceEncoding sourceEncoding = SourceEncoding.UTF_8;
     
+    @Deprecated
     public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, 
              boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports, SourceEncoding sourceEncoding,
              int maxNumberOfBuilds) {
