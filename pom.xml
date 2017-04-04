@@ -26,19 +26,14 @@
 
   <developers>
     <developer>
-      <id>stephenconnolly</id>
-      <name>Stephen Connolly</name>
-      <email>stephenconnolly@dev.java.net</email>
+      <id>schristou</id>
+      <name>Steven Christou</name>
+      <email>schristou88@gmail.com</email>
     </developer>
     <developer>
-      <id>manuel_carrasco</id>
-      <name>Manuel Carrasco Monino</name>
-      <email>manolo@apache</email>
-    </developer>
-    <developer>
-      <id>ssogabe</id>
-      <name>Seiji Sogabe</name>
-      <email>s.sogabe@gmail.com</email>
+      <id>mbarrien</id>
+      <name>Michael Barrientos</name>
+      <email>mbarrien@gmail.com</email>
     </developer>
   </developers>
 
