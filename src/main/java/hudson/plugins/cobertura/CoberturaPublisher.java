@@ -306,14 +306,6 @@ public class CoberturaPublisher extends Recorder {
      * Gets the directory where the Cobertura Report is stored for the given project.
      */
     /*package*/
-    static File getCoberturaReportDir(AbstractItem project) {
-        return new File(project.getRootDir(), "cobertura");
-    }
-
-    /**
-     * Gets the directory where the Cobertura Report is stored for the given project.
-     */
-    /*package*/
     static File[] getCoberturaReports(AbstractBuild<?, ?> build) {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
     }
