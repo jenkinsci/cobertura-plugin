@@ -51,6 +51,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Stephen Connolly
  */
 public class CoberturaPublisher extends Recorder {
+    private static final String DEFAULT_COBERTURA_REPORT_FILE = "**/target/site/cobertura/coverage.xml";
 
     private final String coberturaReportFile;
 
@@ -330,9 +331,19 @@ public class CoberturaPublisher extends Recorder {
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
 
+        // JENKINS-6684 Cobertura plugin should autoconfigure for Maven projects
+        String reportFile;
+        if (coberturaReportFile == null || "".equals(coberturaReportFile)) {
+            listener.getLogger().println("No file name pattern specified for Cobertura xml report files. Using default value '" + DEFAULT_COBERTURA_REPORT_FILE + "'.");
+            reportFile = DEFAULT_COBERTURA_REPORT_FILE;
+        }
+        else {
+            reportFile = coberturaReportFile;
+        }
+
         FilePath[] reports = new FilePath[0];
         try {
-            reports = moduleRoot.act(new ParseReportCallable(coberturaReportFile));
+            reports = moduleRoot.act(new ParseReportCallable(reportFile));
 
             // if the build has failed, then there's not
             // much point in reporting an error
@@ -348,7 +359,7 @@ public class CoberturaPublisher extends Recorder {
 
         if (reports.length == 0) {
             String msg = "[Cobertura] No coverage results were found using the pattern '"
-                    + coberturaReportFile + "' relative to '"
+                    + reportFile + "' relative to '"
                     + moduleRoot.getRemote() + "'."
                     + "  Did you enter a pattern relative to the correct directory?"
                     + "  Did you generate the XML report(s) for Cobertura?";
