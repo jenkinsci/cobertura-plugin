@@ -195,8 +195,8 @@ class CoberturaXmlHandler extends DefaultHandler {
         } else if ("line".equals(qName)) {
             String hitsString = attributes.getValue("hits");
             String lineNumber = attributes.getValue("number");
-            int denominator = 0;
-            int numerator = 0;
+            double denominator = 0;
+            double numerator = 0;
             if (Boolean.parseBoolean(attributes.getValue("branch"))) {
                 final String conditionCoverage = attributes.getValue("condition-coverage");
                 if (conditionCoverage != null) {
@@ -212,9 +212,9 @@ class CoberturaXmlHandler extends DefaultHandler {
                         final String numeratorStr = matcher.group(2);
                         final String denominatorStr = matcher.group(3);
                         try {
-                            numerator = Integer.parseInt(numeratorStr);
-                            denominator = Integer.parseInt(denominatorStr);
-                            rootCoverage.updateMetric(CoverageMetric.CONDITIONAL, Ratio.create(numerator, denominator));
+                            numerator = Double.parseDouble(numeratorStr);
+                            denominator = Double.parseDouble(denominatorStr);
+                            rootCoverage.updateMetric(CoverageMetric.CONDITIONAL, Ratio.create((int)numerator, (int)denominator));
                         } catch (NumberFormatException e) {
                             // ignore
                         }
@@ -222,12 +222,12 @@ class CoberturaXmlHandler extends DefaultHandler {
                 }
             }
             try {
-                int hits = Integer.parseInt(hitsString);
-                int number = Integer.parseInt(lineNumber);
+                double hits = Integer.parseInt(hitsString);
+                double number = Integer.parseInt(lineNumber);
                 if (denominator == 0) {
-                    rootCoverage.paint(number, hits);
+                    rootCoverage.paint((int)number, (int)hits);
                 } else {
-                    rootCoverage.paint(number, hits, numerator, denominator);
+                    rootCoverage.paint((int)number, (int)hits, (int)numerator, (int)denominator);
                 }
                 rootCoverage.updateMetric(CoverageMetric.LINE, Ratio.create((hits == 0) ? 0 : 1, 1));
             } catch (NumberFormatException e) {
