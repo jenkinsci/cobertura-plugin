@@ -4,6 +4,9 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.matrix.MatrixAggregatable;
+import hudson.matrix.MatrixAggregator;
+import hudson.matrix.MatrixBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -50,7 +53,7 @@ import org.kohsuke.stapler.StaplerRequest;
  *
  * @author Stephen Connolly
  */
-public class CoberturaPublisher extends Recorder {
+public class CoberturaPublisher extends Recorder implements MatrixAggregatable {
 
     private final String coberturaReportFile;
 
@@ -310,6 +313,13 @@ public class CoberturaPublisher extends Recorder {
         return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
     }
 
+    public MatrixAggregator createAggregator(
+            final MatrixBuild build,
+            final Launcher launcher,
+            final BuildListener listener) {
+        return new CoberturaMatrixAggregator(build, launcher, listener, this);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -368,6 +378,17 @@ public class CoberturaPublisher extends Recorder {
             } catch (IOException e) {
                 Util.displayIOException(e, listener);
                 e.printStackTrace(listener.fatalError("Unable to copy coverage from " + reports[i] + " to " + buildTarget));
+                build.setResult(Result.FAILURE);
+            }
+
+            FilePath rootBuildDir = new FilePath(build.getRootBuild().getRootDir());
+            final FilePath rootTargetPath = new FilePath(rootBuildDir, "coverage" + (i == 0 ? "" : i) + ".xml");
+            try {
+                listener.getLogger().println("[Cobertura] Copying Cobertura coverage report to " + rootTargetPath + " ...");
+                reports[i].copyTo(rootTargetPath);
+            } catch (IOException e) {
+                Util.displayIOException(e, listener);
+                e.printStackTrace(listener.fatalError("Unable to copy coverage from " + reports[i] + " to " + rootBuildDir));
                 build.setResult(Result.FAILURE);
             }
         }
