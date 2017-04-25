@@ -351,14 +351,16 @@ public class CoverageResult implements Serializable, Chartable {
      * @return Value for property 'metrics'.
      */
     public Set<CoverageMetric> getMetrics() {
-        return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
+        return Collections.unmodifiableSet(
+            aggregateResults.isEmpty() ? EnumSet.noneOf(CoverageMetric.class) : EnumSet.copyOf(aggregateResults.keySet()));
     }
 
     public Set<CoverageMetric> getMetricsWithEmpty() {
         Map<CoverageMetric, Ratio> currMetricSet = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
         currMetricSet.putAll(aggregateResults);
         fixEmptyMetrics(findEmptyMetrics(currMetricSet), currMetricSet);
-        return Collections.unmodifiableSet(EnumSet.copyOf(currMetricSet.keySet()));
+        return Collections.unmodifiableSet(
+            currMetricSet.isEmpty() ? EnumSet.noneOf(CoverageMetric.class) : EnumSet.copyOf(currMetricSet.keySet()));
     }
 
     private List<CoverageMetric> findEmptyMetrics(Map<CoverageMetric, Ratio> currMetricSet){
