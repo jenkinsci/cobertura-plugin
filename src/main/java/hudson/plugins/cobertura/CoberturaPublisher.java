@@ -385,6 +385,13 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         FilePath[] reports = null;
         try {
             reports = workspace.act(new ParseReportCallable(coberturaReportFile));
+
+            // if the build has failed, then there's not
+            // much point in reporting an error
+            if (buildResult != null && buildResult.isWorseOrEqualTo(Result.FAILURE) && reports.length == 0) {
+                return;
+            }
+
         } catch (IOException e) {
             Util.displayIOException(e, listener);
             e.printStackTrace(listener.fatalError("Unable to find coverage results"));
