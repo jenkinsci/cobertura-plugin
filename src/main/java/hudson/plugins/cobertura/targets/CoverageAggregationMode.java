@@ -23,7 +23,7 @@ public enum CoverageAggregationMode {
      * Adds up numerator and denominator separately.
      *
      * Say if you want to count the ratio of male among the population in a state from
-     * a series of those ratios per county, this is how you add them up. 
+     * a series of those ratios per county, this is how you add them up.
      */
     SUM(Ratio.create(0,0)) {
         public Ratio aggregate(Ratio a, Ratio b) {
@@ -63,7 +63,7 @@ public enum CoverageAggregationMode {
     /**
      * Combinator function. Note that this function is defined to be left-associative and f(x,y) isn't necessarily
      * the same as f(y,x)
-     * 
+     *
      * @param a the first ratio
      * @param b the second ratio
      * @return Combined ratio

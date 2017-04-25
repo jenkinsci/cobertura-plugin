@@ -32,7 +32,7 @@ public class CoverageChart
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param chartable Chartable object to chart
 	 */
 	public CoverageChart( Chartable chartable )
@@ -42,7 +42,7 @@ public class CoverageChart
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param chartable Chartable object to chart
 	 * @param zoomCoverageChart true to zoom coverage chart
 	 * @param maximumBuilds maximum builds to include

@@ -13,7 +13,7 @@ import org.kohsuke.stapler.export.ExportedBean;
 public class CoverageTree implements Serializable {
 
     /**
-     * Generated 
+     * Generated
      */
     private static final long serialVersionUID = 5112467356061418891L;
 

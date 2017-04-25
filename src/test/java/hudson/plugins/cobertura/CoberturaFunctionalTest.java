@@ -50,7 +50,7 @@ public class CoberturaFunctionalTest {
 
         final OneShotEvent firstRunning = new OneShotEvent();
         final OneShotEvent firstBlocked = new OneShotEvent();
-        
+
         p.getPublishersList().add(new BlockingCoberturaPublisher(firstRunning, firstBlocked));
 
         p.scheduleBuild2(0).getStartCondition().get();

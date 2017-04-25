@@ -102,8 +102,8 @@ public class CoberturaCoverageParserTest extends TestCase {
         print(result, 0);
         assertNotNull(result);
         assertEquals(CoverageResult.class, result.getClass());
-        assertEquals(Messages.CoberturaCoverageParser_name(), result.getName());   
-        
+        assertEquals(Messages.CoberturaCoverageParser_name(), result.getName());
+
         assertEquals(4, result.getChildren().size());
         CoverageResult subResult = result.getChild("Common");
         assertEquals("Common", subResult.getName());
@@ -111,9 +111,9 @@ public class CoberturaCoverageParserTest extends TestCase {
         CoverageResult sub2Result = subResult.getChild("CommonLibrary/ProfilerTest.cpp");
         assertNotNull(sub2Result);
         assertEquals("CommonLibrary/ProfilerTest.cpp", sub2Result.getRelativeSourcePath());
-        
-    }  
-    
+
+    }
+
     public void testParseMultiPackage() throws Exception {
 //        ProjectCoverage result = CoberturaCoverageParser.parse(getClass().getResourceAsStream("coverage-two-packages.xml"));
 //        result = CoberturaCoverageParser.trimPaths(result, "C:\\local\\maven\\helpers\\hudson\\cobertura\\");
@@ -124,11 +124,11 @@ public class CoberturaCoverageParserTest extends TestCase {
 //        assertEquals(2, result.getPackageCoverages().size());
 ////        assertEquals(14, result.findClassCoverage("hudson.plugins.cobertura.results.AbstractCloverMetrics").getCoveredmethods());
     }
-    
+
     /**
      * Tests the memory usage of
      * {@link CoberturaCoverageParser#parse(InputStream, CoverageResult, Set)}.
-     * 
+     *
      * @since 28-Apr-2009
      */
     public void testParseMemoryUsage() throws Exception {
@@ -136,7 +136,7 @@ public class CoberturaCoverageParserTest extends TestCase {
         files.put("coverage.xml", 16152);
         files.put("coverage-with-data.xml", 16232);
         files.put("coverage-with-lots-of-data.xml", 298960);
-        
+
         for (Map.Entry<String,Integer> e : files.entrySet()) {
             final String fileName = e.getKey();
             InputStream in = getClass().getResourceAsStream(fileName);
@@ -145,18 +145,18 @@ public class CoberturaCoverageParserTest extends TestCase {
             assertMaxMemoryUsage(fileName + " results", result, e.getValue());
         }
     }
-    
+
     /**
      * Tests the memory usage of a specified object.
      * The memory usage is then compared with the specified
      * maximum desired memory usage.  If the average memory usage is greater
      * than the specified number, it will be reported as a failed assertion.
-     * 
+     *
      * @param description a plain-text description, to be used
      *          in diagnostic messages
      * @param o the object to measure
      * @param maxMemoryUsage the maximum desired memory usage for the Callable,
-     *          in bytes 
+     *          in bytes
      */
     private static void assertMaxMemoryUsage(String description, Object o, int maxMemoryUsage) throws Exception {
         CountingVisitor v = new CountingVisitor();

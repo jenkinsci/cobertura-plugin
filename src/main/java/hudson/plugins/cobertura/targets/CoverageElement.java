@@ -5,35 +5,35 @@ package hudson.plugins.cobertura.targets;
  *
  * @author Stephen Connolly
  * @author manolo
- * 
+ *
  * @since 22-Aug-2007 18:36:01
  */
 public enum CoverageElement {
-  
+
     PROJECT(new HasName() {
-      public String getName() {
-        return Messages.CoverageElement_Project();
-      }
+        public String getName() {
+            return Messages.CoverageElement_Project();
+        }
     }),
     JAVA_PACKAGE(new HasName() {
-      public String getName() {
-        return Messages.CoverageElement_Package();
-      }
+        public String getName() {
+            return Messages.CoverageElement_Package();
+        }
     }, PROJECT),
     JAVA_FILE(new HasName() {
-      public String getName() {
-        return Messages.CoverageElement_File();
-      }
+        public String getName() {
+            return Messages.CoverageElement_File();
+        }
     }, JAVA_PACKAGE),
     JAVA_CLASS(new HasName() {
-      public String getName() {
-        return Messages.CoverageElement_Class();
-      }
+        public String getName() {
+            return Messages.CoverageElement_Class();
+        }
     }, JAVA_FILE),
     JAVA_METHOD(new HasName() {
-      public String getName() {
-        return Messages.CoverageElement_Method();
-      }
+        public String getName() {
+            return Messages.CoverageElement_Method();
+        }
     }, JAVA_CLASS);
 
     private final CoverageElement parent;
@@ -60,7 +60,7 @@ public enum CoverageElement {
 
     /**
      * Return displayName of this coverage element.
-     * 
+     *
      * Note: This getter has to be evaluated each time in a non static
      * way because the user could change its language
      *

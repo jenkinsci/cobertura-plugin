@@ -329,58 +329,58 @@ public class CoverageResult implements Serializable, Chartable {
     }
 
     public Ratio getCoverage(CoverageMetric metric) {
-    	
+
         return aggregateResults.get(metric);
     }
-    
+
     public Ratio getCoverageWithEmpty(CoverageMetric metric) {
-    	if (aggregateResults.containsKey(metric))
-    		return aggregateResults.get(metric);
-    	Map<CoverageMetric, Ratio> currMetricSet = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
-    	currMetricSet.putAll(aggregateResults);    	
-    	if (!currMetricSet.containsKey(metric))
-    	{
-    		return null;
-    	}
+        if (aggregateResults.containsKey(metric))
+            return aggregateResults.get(metric);
+        Map<CoverageMetric, Ratio> currMetricSet = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
+        currMetricSet.putAll(aggregateResults);
+        if (!currMetricSet.containsKey(metric))
+        {
+            return null;
+        }
         return currMetricSet.get(metric);
     }
-    
+
     /**
      * Getter for property 'metrics'.
      *
      * @return Value for property 'metrics'.
      */
     public Set<CoverageMetric> getMetrics() {
-    	return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
+        return Collections.unmodifiableSet(EnumSet.copyOf(aggregateResults.keySet()));
     }
 
     public Set<CoverageMetric> getMetricsWithEmpty() {
-    	Map<CoverageMetric, Ratio> currMetricSet = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
-    	currMetricSet.putAll(aggregateResults);
-    	fixEmptyMetrics(findEmptyMetrics(currMetricSet), currMetricSet);
-    	return Collections.unmodifiableSet(EnumSet.copyOf(currMetricSet.keySet()));
+        Map<CoverageMetric, Ratio> currMetricSet = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
+        currMetricSet.putAll(aggregateResults);
+        fixEmptyMetrics(findEmptyMetrics(currMetricSet), currMetricSet);
+        return Collections.unmodifiableSet(EnumSet.copyOf(currMetricSet.keySet()));
     }
-    
+
     private List<CoverageMetric> findEmptyMetrics(Map<CoverageMetric, Ratio> currMetricSet){
-    	List<CoverageMetric> allMetrics = new LinkedList<CoverageMetric>(Arrays.asList(CoverageMetric.PACKAGES, CoverageMetric.FILES, CoverageMetric.CLASSES, CoverageMetric.METHOD, CoverageMetric.LINE, CoverageMetric.CONDITIONAL));
-    	List<CoverageMetric> missingMetrics = new LinkedList<CoverageMetric>();
-    	for (CoverageMetric currMetric : allMetrics)
-    	{
-    		if (!currMetricSet.containsKey(currMetric))
-    		{
-    			missingMetrics.add(currMetric);
-    		}
-    	}
-    	return missingMetrics;
+        List<CoverageMetric> allMetrics = new LinkedList<CoverageMetric>(Arrays.asList(CoverageMetric.PACKAGES, CoverageMetric.FILES, CoverageMetric.CLASSES, CoverageMetric.METHOD, CoverageMetric.LINE, CoverageMetric.CONDITIONAL));
+        List<CoverageMetric> missingMetrics = new LinkedList<CoverageMetric>();
+        for (CoverageMetric currMetric : allMetrics)
+        {
+            if (!currMetricSet.containsKey(currMetric))
+            {
+                missingMetrics.add(currMetric);
+            }
+        }
+        return missingMetrics;
     }
-    
+
     private void fixEmptyMetrics(List<CoverageMetric> missingMetrics, Map<CoverageMetric, Ratio> currMetricSet) {
-    	for (CoverageMetric missing : missingMetrics)
-    	{
-    		currMetricSet.put(missing, Ratio.create(1, 1));
-    	}
+        for (CoverageMetric missing : missingMetrics)
+        {
+            currMetricSet.put(missing, Ratio.create(1, 1));
+        }
     }
-    
+
     public void updateMetric(CoverageMetric metric, Ratio additionalResult) {
         if (localResults.containsKey(metric)) {
             Ratio existingResult = localResults.get(metric);
@@ -463,7 +463,7 @@ public class CoverageResult implements Serializable, Chartable {
 
     /**
      * Generates the graph that shows the coverage trend up to this report.
-     * 
+     *
      * @param req the stapler request
      * @param rsp the stapler response
      * @throws IOException from StaplerResponse.sendRedirect2

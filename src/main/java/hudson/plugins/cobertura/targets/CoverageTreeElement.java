@@ -33,12 +33,12 @@ public class CoverageTreeElement implements Serializable {
     public float getRatio() {
         return ratio.getPercentageFloat();
     }
-    
+
     @Exported
     public float getNumerator() {
         return ratio.numerator;
     }
-    
+
     @Exported
     public float getDenominator() {
         return ratio.denominator;

@@ -221,7 +221,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     /**
      * Obtains the detailed
      * {@link hudson.plugins.cobertura.targets.CoverageResult} instance.
-     * 
+     *
      * @return the {@link hudson.plugins.cobertura.targets.CoverageResult} instance.
      */
     public synchronized CoverageResult getResult() {
@@ -259,7 +259,7 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
 
     /**
      * Generates the graph that shows the coverage trend up to this report.
-     * 
+     *
      * @param req the request
      * @param rsp the response
      * @throws IOException forwarded from StaplerResponse.sendRedirect2

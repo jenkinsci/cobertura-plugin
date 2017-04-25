@@ -168,7 +168,7 @@ public enum SourceEncoding {
     }
 
     /**
-     * Get real encoding name 
+     * Get real encoding name
      * @return encoding name
      */
     public String getEncodingName() {

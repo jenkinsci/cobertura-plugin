@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link CoverageResult}.
- * 
+ *
  * @author davidmc24
  * @since 28-Apr-2009
  */
@@ -37,10 +37,10 @@ public class CoverageResultTest extends TestCase {
         ctl = EasyMock.createControl();
         build = ctl.createMock("build", Run.class);
     }
-    
+
     /**
      * Parses a coverage XML file into a CoverageResult object.
-     * 
+     *
      * @param fileName the name of the resource to parse
      * @return a CoverageResult object
      */
@@ -61,7 +61,7 @@ public class CoverageResultTest extends TestCase {
         assertSame(build, result.getOwner());
         ctl.verify();
     }
-    
+
     /**
      * Tests the behavior of {@link CoverageResult#getResults()}.
      */
@@ -80,19 +80,19 @@ public class CoverageResultTest extends TestCase {
         assertEquals(Ratio.create(9, 12), metrics.get(CoverageMetric.CONDITIONAL));
         ctl.verify();
     }
-    
+
     /**
      * Test behavior of {@link CoverageResult#getMetricsWithEmpty()}.
      */
     public void testGetMetricsWithEmpty() throws Exception {
-    	ctl.replay();
-    	CoverageResult result = loadResults("coverage-no-data.xml");
-    	Set<CoverageMetric> metrics = result.getMetricsWithEmpty();
-    	List<CoverageMetric> allMetrics = new LinkedList<CoverageMetric>(Arrays.asList(CoverageMetric.PACKAGES, CoverageMetric.FILES, CoverageMetric.CLASSES, CoverageMetric.METHOD, CoverageMetric.LINE, CoverageMetric.CONDITIONAL));
-    	assertEquals(metrics.size(), allMetrics.size());
-    	ctl.verify();
+        ctl.replay();
+        CoverageResult result = loadResults("coverage-no-data.xml");
+        Set<CoverageMetric> metrics = result.getMetricsWithEmpty();
+        List<CoverageMetric> allMetrics = new LinkedList<CoverageMetric>(Arrays.asList(CoverageMetric.PACKAGES, CoverageMetric.FILES, CoverageMetric.CLASSES, CoverageMetric.METHOD, CoverageMetric.LINE, CoverageMetric.CONDITIONAL));
+        assertEquals(metrics.size(), allMetrics.size());
+        ctl.verify();
     }
-    
+
     /**
      * Tests the behavior of {@link CoverageResult#getParent()}.
      */
@@ -120,7 +120,7 @@ public class CoverageResultTest extends TestCase {
         assertSame(expectedParent, result.getParent());
         ctl.verify();
     }
-    
+
     /**
      * Tests the behavior of {@link CoverageResult#getParents()}.
      */
@@ -149,7 +149,7 @@ public class CoverageResultTest extends TestCase {
         assertEquals(expectedParents, result.getParents());
         ctl.verify();
     }
-    
+
     /**
      * Tests the behavior of {@link CoverageResult#getChildElements()}.
      */
@@ -173,7 +173,7 @@ public class CoverageResultTest extends TestCase {
         assertEquals(Collections.emptySet(), result.getChildElements());
         ctl.verify();
     }
-    
+
     /**
      * Tests the behavior of {@link CoverageResult#getChildren()}.
      */
@@ -197,7 +197,7 @@ public class CoverageResultTest extends TestCase {
         assertEquals(Collections.emptySet(), result.getChildren());
         ctl.verify();
     }
-    
+
     /**
      * Tests the behavior of {@link CoverageResult#getChildren(CoverageElement)}.
      */

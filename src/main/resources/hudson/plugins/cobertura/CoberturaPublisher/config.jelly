@@ -8,40 +8,40 @@
     <f:advanced>
         <f:entry title="${%Consider only stable builds}"
              description="${%only.stable.builds.description}" >
-            <f:checkbox name="cobertura.onlyStable" checked="${instance.onlyStable}" />                                                                                        
-        </f:entry>   
+            <f:checkbox name="cobertura.onlyStable" checked="${instance.onlyStable}" />
+        </f:entry>
         <f:entry title="${%Fail builds if no reports}"
              description="${%no.reorts.fail.builds.description}" >
-            <f:checkbox name="cobertura.failNoReports" checked="${instance.failNoReports}" default="true" />                                                                                        
-        </f:entry>   
+            <f:checkbox name="cobertura.failNoReports" checked="${instance.failNoReports}" default="true" />
+        </f:entry>
         <f:entry title="${%Fail unhealthy builds}"
              description="${%unhealthy.fail.builds.description}" >
-            <f:checkbox name="cobertura.failUnhealthy" checked="${instance.failUnhealthy}" />                                                                                        
-        </f:entry>  
+            <f:checkbox name="cobertura.failUnhealthy" checked="${instance.failUnhealthy}" />
+        </f:entry>
         <f:entry title="${%Fail unstable builds}"
              description="${%unstable.fail.builds.description}" >
-            <f:checkbox name="cobertura.failUnstable" checked="${instance.failUnstable}" />                                                                                        
-        </f:entry>  
+            <f:checkbox name="cobertura.failUnstable" checked="${instance.failUnstable}" />
+        </f:entry>
         <f:entry title="${%Health auto update}"
              description="${%auto.health.builds.description}" >
-            <f:checkbox name="cobertura.autoUpdateHealth" checked="${instance.autoUpdateHealth}" />                                                                                        
-        </f:entry>  
+            <f:checkbox name="cobertura.autoUpdateHealth" checked="${instance.autoUpdateHealth}" />
+        </f:entry>
         <f:entry title="${%Stability auto update}"
              description="${%auto.stability.builds.description}" >
-            <f:checkbox name="cobertura.autoUpdateStability" checked="${instance.autoUpdateStability}" />                                                                                        
+            <f:checkbox name="cobertura.autoUpdateStability" checked="${instance.autoUpdateStability}" />
         </f:entry>
         <f:entry title="${%Zoom coverage chart}"
              description="${%zoom.coverage.chart.description}" >
-            <f:checkbox name="cobertura.zoomCoverageChart" checked="${instance.zoomCoverageChart}" />                                                                                        
-        </f:entry>  
+            <f:checkbox name="cobertura.zoomCoverageChart" checked="${instance.zoomCoverageChart}" />
+        </f:entry>
         <f:entry title="${%Maximum number of builds}"
              description="${%maxbuilds.coverage.chart.description}" >
-            <f:textbox name="cobertura.maxNumberOfBuilds" value="${instance.maxNumberOfBuilds}" />                                                                                        
-        </f:entry>  
+            <f:textbox name="cobertura.maxNumberOfBuilds" value="${instance.maxNumberOfBuilds}" />
+        </f:entry>
         <f:entry title="${%Source Encoding}"
              description="${%source.encoding.description}" field="sourceEncoding">
             <f:enum>${it.encodingName}</f:enum>
-        </f:entry>      
+        </f:entry>
 
         <f:entry title="${%Coverage Metric Targets}"
              description="${%metric.targets.description(rootURL)}">

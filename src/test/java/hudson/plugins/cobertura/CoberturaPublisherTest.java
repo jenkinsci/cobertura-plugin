@@ -13,7 +13,7 @@ public class CoberturaPublisherTest {
 		assertTrue(testObjectTrue.getOnlyStable());
 		assertTrue(!testObjectFalse.getOnlyStable());
 	}
-	
+
 	@Test
 	public void testGetFailUnhealthy() {
 		CoberturaPublisher testObjectTrue = new CoberturaPublisher(null, false, true, false, false, false, false, false, null, 0);

@@ -83,9 +83,9 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     public static final CoberturaReportFilenameFilter COBERTURA_FILENAME_FILTER = new CoberturaReportFilenameFilter();
 
     private SourceEncoding sourceEncoding = SourceEncoding.UTF_8;
-    
+
     @Deprecated
-    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, 
+    public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable,
              boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, boolean failNoReports, SourceEncoding sourceEncoding,
              int maxNumberOfBuilds) {
          this.coberturaReportFile = coberturaReportFile;
@@ -629,7 +629,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     /**
      * Descriptor for {@link CoberturaPublisher}. Used as a singleton. The class is marked as public so that it can be
      * accessed from views.
-     * 
+     *
      * See <tt>views/hudson/plugins/cobertura/CoberturaPublisher/*.jelly</tt> for the actual HTML fragment for the
      * configuration screen.
      */

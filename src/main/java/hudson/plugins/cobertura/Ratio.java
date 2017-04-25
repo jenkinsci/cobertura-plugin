@@ -35,7 +35,7 @@ final public class Ratio implements Serializable {
 
     /**
      * Gets the percentage in integer.
-     * 
+     *
      * @return percentage
      */
     public int getPercentage() {
@@ -46,18 +46,18 @@ final public class Ratio implements Serializable {
      * Gets the percentage in float.
      * For exceptional cases of 0/0, return 100% as it corresponds to expected ammout.
      * For error cases of x/0, return 0% as x is unexpected ammout.
-     * 
+     *
      * @return percentage
      */
     public float getPercentageFloat() {
         return denominator == 0 ? (numerator == 0 ? 100.0f : 0.0f) : (100 * numerator / denominator);
     }
-    
+
     static NumberFormat dataFormat = new DecimalFormat("000.00");
 
     /**
      * Gets the percentage as a formatted string used for sorting the html table
-     * 
+     *
      * @return percentage
      */
     public String getPercentageString() {
@@ -100,10 +100,10 @@ final public class Ratio implements Serializable {
      * Creates a new instance of {@link Ratio}.
      */
     /**
-     * 
+     *
      * @param x numerator
      * @param y denominator
-     * 
+     *
      * @return the ratio
      */
     public static Ratio create(float x, float y) {
