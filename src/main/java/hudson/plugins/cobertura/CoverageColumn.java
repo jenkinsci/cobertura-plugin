@@ -18,6 +18,8 @@ public class CoverageColumn extends ListViewColumn {
 
     /**
      * Creates a new instance of {@link CoverageColumn}.
+     * 
+     * @param type the column type
      */
     @DataBoundConstructor
     public CoverageColumn(final String type) {

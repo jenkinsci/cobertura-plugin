@@ -1,19 +1,25 @@
 package hudson.plugins.cobertura;
 
+import hudson.model.Action;
+import hudson.model.AbstractBuild;
 import hudson.model.HealthReport;
 import hudson.model.HealthReportingAction;
 import hudson.model.Result;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageTarget;
 import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.util.ChartUtil;
 import hudson.util.DescribableList;
+import jenkins.model.RunAction2;
+import jenkins.tasks.SimpleBuildStep;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -31,15 +37,17 @@ import org.kohsuke.stapler.StaplerResponse;
  * @author connollys
  * @since 03-Jul-2007 08:43:08
  */
-public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy, Chartable {
+public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy, Chartable, SimpleBuildStep.LastBuildAction, RunAction2 {
 
-    private final AbstractBuild<?, ?> owner;
+    private transient Run<?, ?> owner;
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
     private boolean failUnhealthy;
     private boolean failUnstable;
     private boolean autoUpdateHealth;
     private boolean autoUpdateStability;
+    private boolean zoomCoverageChart;
+    private int maxNumberOfBuilds;
     /**
      * Overall coverage result.
      */
@@ -56,17 +64,18 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         if (health != null) {
             return health;
         }
-        //try to get targets from root project (for maven modules targets are null)
-        DescribableList rootpublishers = owner.getProject().getRootProject().getPublishersList();
+        if (owner instanceof AbstractBuild) {
+            //try to get targets from root project (for maven modules targets are null)
+            DescribableList rootpublishers = ((AbstractBuild)owner).getProject().getRootProject().getPublishersList();
 
-        if (rootpublishers != null) {
-            CoberturaPublisher publisher = (CoberturaPublisher) rootpublishers.get(CoberturaPublisher.class);
-            if (publisher != null) {
-                healthyTarget = publisher.getHealthyTarget();
-                unhealthyTarget = publisher.getUnhealthyTarget();
+            if (rootpublishers != null) {
+                CoberturaPublisher publisher = (CoberturaPublisher) rootpublishers.get(CoberturaPublisher.class);
+                if (publisher != null) {
+                    healthyTarget = publisher.getHealthyTarget();
+                    unhealthyTarget = publisher.getUnhealthyTarget();
+                }
             }
         }
-
         if (healthyTarget == null || unhealthyTarget == null) {
             return null;
         }
@@ -135,8 +144,18 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         return getResult();  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public AbstractBuild<?, ?> getOwner() {
+    public Run<?, ?> getOwner() {
         return owner;
+    }
+
+    private synchronized void setOwner(Run<?, ?> owner) {
+        this.owner = owner;
+        if (report != null) {
+            CoverageResult r = report.get();
+            if (r != null) {
+                r.setOwner(owner);
+            }
+        }
     }
 
     public Map<CoverageMetric, Ratio> getResults() {
@@ -156,8 +175,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
      * Gets the previous {@link CoberturaBuildAction} of the given build.
      */
     /*package*/
-    static CoberturaBuildAction getPreviousResult(AbstractBuild<?, ?> start) {
-        AbstractBuild<?, ?> b = start;
+    static CoberturaBuildAction getPreviousResult(Run<?, ?> start) {
+        Run<?, ?> b = start;
         while (true) {
             b = BuildUtils.getPreviousNotFailedCompletedBuild(b);
             if (b == null) {
@@ -178,9 +197,10 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         return onlyStable;
     }
 
-    CoberturaBuildAction(AbstractBuild<?, ?> owner, CoverageResult r, CoverageTarget healthyTarget,
-            CoverageTarget unhealthyTarget, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability) {
-        this.owner = owner;
+    CoberturaBuildAction(CoverageResult r, CoverageTarget healthyTarget,
+            CoverageTarget unhealthyTarget, boolean onlyStable, boolean failUnhealthy,
+            boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability,
+            boolean zoomCoverageChart, int maxNumberOfBuilds) {
         this.report = new WeakReference<CoverageResult>(r);
         this.healthyTarget = healthyTarget;
         this.unhealthyTarget = unhealthyTarget;
@@ -189,7 +209,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         this.failUnstable = failUnstable;
         this.autoUpdateHealth = autoUpdateHealth;
         this.autoUpdateStability = autoUpdateStability;
-        r.setOwner(owner);
+        this.zoomCoverageChart = zoomCoverageChart;
+        this.maxNumberOfBuilds = maxNumberOfBuilds;
         if (result == null) {
             result = new EnumMap<CoverageMetric, Ratio>(CoverageMetric.class);
             result.putAll(r.getResults());
@@ -200,6 +221,8 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     /**
      * Obtains the detailed
      * {@link hudson.plugins.cobertura.targets.CoverageResult} instance.
+     * 
+     * @return the {@link hudson.plugins.cobertura.targets.CoverageResult} instance.
      */
     public synchronized CoverageResult getResult() {
         if (report != null) {
@@ -227,13 +250,19 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     }
     private static final Logger logger = Logger.getLogger(CoberturaBuildAction.class.getName());
 
-    public static CoberturaBuildAction load(AbstractBuild<?, ?> build, CoverageResult result, CoverageTarget healthyTarget,
-            CoverageTarget unhealthyTarget, boolean onlyStable, boolean failUnhealthy, boolean failUnstable, boolean autoUpdateHealth, boolean autoUpdateStability) {
-        return new CoberturaBuildAction(build, result, healthyTarget, unhealthyTarget, onlyStable, failUnhealthy, failUnstable, autoUpdateHealth, autoUpdateStability);
+    public static CoberturaBuildAction load(CoverageResult result, CoverageTarget healthyTarget,
+            CoverageTarget unhealthyTarget, boolean onlyStable, boolean failUnhealthy, boolean failUnstable,
+            boolean autoUpdateHealth, boolean autoUpdateStability, boolean zoomCoverageChart, int maxNumberOfBuilds) {
+        return new CoberturaBuildAction(result, healthyTarget, unhealthyTarget, onlyStable,
+            failUnhealthy, failUnstable, autoUpdateHealth, autoUpdateStability, zoomCoverageChart, maxNumberOfBuilds);
     }
 
     /**
      * Generates the graph that shows the coverage trend up to this report.
+     * 
+     * @param req the request
+     * @param rsp the response
+     * @throws IOException forwarded from StaplerResponse.sendRedirect2
      */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (ChartUtil.awtProblemCause != null) {
@@ -249,5 +278,28 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
         }
         JFreeChart chart = new CoverageChart(this).createChart();
         ChartUtil.generateGraph(req, rsp, chart, 500, 200);
+    }
+
+    public boolean getZoomCoverageChart() {
+        return zoomCoverageChart;
+    }
+
+    public int getMaxNumberOfBuilds() {
+        return maxNumberOfBuilds;
+    }
+
+    @Override
+    public Collection<? extends Action> getProjectActions() {
+        return Collections.singleton(new CoberturaProjectAction(owner, onlyStable));
+    }
+
+    @Override
+    public void onAttached(Run<?, ?> r) {
+        setOwner(r);
+    }
+
+    @Override
+    public void onLoad(Run<?,?> r) {
+        setOwner(r);
     }
 }

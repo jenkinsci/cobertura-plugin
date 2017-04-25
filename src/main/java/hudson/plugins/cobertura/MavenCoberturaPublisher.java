@@ -106,17 +106,19 @@ public class MavenCoberturaPublisher extends MavenReporter {
 		File outputDir;
 		try {
 			outputDir = mojo.getConfigurationValue("outputDirectory", File.class);
-			if (!outputDir.exists()) {
+			if (outputDir == null || !outputDir.exists()) {
 				// cobertura-maven-plugin will not generate a report for
 				// non-java projects
 				return true;
 			}
 
 			String[] formats = mojo.getConfigurationValue("formats", String[].class);
-			for (String o : formats) {
-				if ("xml".equalsIgnoreCase(o.trim())) {
-					haveXMLReport = true;
-					break;
+			if (formats != null) {
+				for (String o : formats) {
+					if ("xml".equalsIgnoreCase(o.trim())) {
+						haveXMLReport = true;
+						break;
+					}
 				}
 			}
 			if (!haveXMLReport) {
@@ -221,7 +223,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
 	 */
 	@Override
 	public Collection<? extends Action> getProjectActions(MavenModule project) {
-		return Collections.singleton(new CoberturaProjectAction(project));
+		return Collections.singleton(new CoberturaProjectAction(project.getLastBuild()));
 	}
 
 	/**
@@ -281,8 +283,8 @@ public class MavenCoberturaPublisher extends MavenReporter {
 					CoverageResult result = CoberturaCoverageParser.parse(cvgxml, null, new HashSet<String>());
 					result.setOwner(build);
 
-					CoberturaBuildAction o = CoberturaBuildAction.load(build, result, null, null, false, false, false, false, false);
-					build.getActions().add(o);
+					CoberturaBuildAction o = CoberturaBuildAction.load(result, null, null, false, false, false, false, false, false, 0);
+					build.addAction(o);
 				} else {
 					return false;
 				}

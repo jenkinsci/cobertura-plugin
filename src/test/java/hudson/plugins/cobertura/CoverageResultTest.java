@@ -12,7 +12,7 @@ import java.util.Set;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.cobertura.targets.CoverageElement;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 public class CoverageResultTest extends TestCase {
     private static final String FILE_COVERAGE_DATA = "coverage-with-data.xml";
     private IMocksControl ctl;
-    private AbstractBuild<?, ?> build;
+    private Run<?, ?> build;
 
     /**
      * Set up the mock objects used by the tests.
@@ -35,7 +35,7 @@ public class CoverageResultTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         ctl = EasyMock.createControl();
-        build = ctl.createMock("build", AbstractBuild.class);
+        build = ctl.createMock("build", Run.class);
     }
     
     /**
@@ -51,7 +51,7 @@ public class CoverageResultTest extends TestCase {
     }
 
     /**
-     * Tests the behavior of {@link CoverageResult#setOwner(AbstractBuild)}.
+     * Tests the behavior of {@link CoverageResult#setOwner(Run)}.
      */
     public void testSetOwner() throws Exception {
         ctl.replay();

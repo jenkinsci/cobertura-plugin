@@ -1,6 +1,5 @@
 package hudson.plugins.cobertura.targets;
 
-import hudson.model.AbstractBuild;
 import hudson.model.Api;
 import hudson.model.Item;
 import hudson.model.Run;
@@ -36,7 +35,7 @@ import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
 /**
- * Coverage result for a specific programming element. 
+ * Coverage result for a specific programming element.
  *
  * <p>
  * Instances of {@link CoverageResult} form a tree structure to progressively represent smaller elements.
@@ -78,7 +77,7 @@ public class CoverageResult implements Serializable, Chartable {
 
     private String relativeSourcePath;
 
-    public AbstractBuild<?, ?> owner = null;
+    public transient Run<?, ?> owner = null;
 
     public CoverageResult(CoverageElement elementType, CoverageResult parent, String name) {
         this.element = elementType;
@@ -173,7 +172,7 @@ public class CoverageResult implements Serializable, Chartable {
      */
     private File getSourceFile() {
         if (hasPermission()) {
-            return new File(owner.getProject().getRootDir(), "cobertura/" + relativeSourcePath);
+            return new File(owner.getParent().getRootDir(), "cobertura/" + relativeSourcePath);
         }
         return null;
     }
@@ -185,7 +184,7 @@ public class CoverageResult implements Serializable, Chartable {
      */
     public boolean isSourceFileAvailable() {
         if (hasPermission()) {
-            return owner == owner.getProject().getLastSuccessfulBuild() && getSourceFile().exists();
+            return owner == owner.getParent().getLastSuccessfulBuild() && getSourceFile().exists();
         }
         return false;
     }
@@ -367,7 +366,7 @@ public class CoverageResult implements Serializable, Chartable {
     	List<CoverageMetric> missingMetrics = new LinkedList<CoverageMetric>();
     	for (CoverageMetric currMetric : allMetrics)
     	{
-    		if (!currMetricSet.containsKey(currMetric.getName()))
+    		if (!currMetricSet.containsKey(currMetric))
     		{
     			missingMetrics.add(currMetric);
     		}
@@ -396,7 +395,7 @@ public class CoverageResult implements Serializable, Chartable {
      *
      * @return Value for property 'owner'.
      */
-    public AbstractBuild<?, ?> getOwner() {
+    public Run<?, ?> getOwner() {
         return owner;
     }
 
@@ -405,7 +404,7 @@ public class CoverageResult implements Serializable, Chartable {
      *
      * @param owner Value to set for property 'owner'.
      */
-    public void setOwner(AbstractBuild<?, ?> owner) {
+    public void setOwner(Run<?, ?> owner) {
         this.owner = owner;
         aggregateResults.clear();
         for (CoverageResult child : children.values()) {
@@ -436,18 +435,12 @@ public class CoverageResult implements Serializable, Chartable {
             if (owner == null) {
                 return null;
             }
-            AbstractBuild<?, ?> prevBuild = BuildUtils.getPreviousNotFailedCompletedBuild(owner);
-            if (prevBuild == null) {
-                return null;
-            }
+            Run<?, ?> prevBuild = BuildUtils.getPreviousNotFailedCompletedBuild(owner);
             CoberturaBuildAction action = null;
             while ((prevBuild != null) && (null == (action = prevBuild.getAction(CoberturaBuildAction.class)))) {
                 prevBuild = BuildUtils.getPreviousNotFailedCompletedBuild(prevBuild);
             }
-            if (action == null) {
-                return null;
-            }
-            return action.getResult();
+            return action == null ? null : action.getResult();
         } else {
             CoverageResult prevParent = parent.getPreviousResult();
             return prevParent == null ? null : prevParent.getChild(name);
@@ -470,6 +463,10 @@ public class CoverageResult implements Serializable, Chartable {
 
     /**
      * Generates the graph that shows the coverage trend up to this report.
+     * 
+     * @param req the stapler request
+     * @param rsp the stapler response
+     * @throws IOException from StaplerResponse.sendRedirect2
      */
     public void doGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (ChartUtil.awtProblemCause != null) {
@@ -478,7 +475,7 @@ public class CoverageResult implements Serializable, Chartable {
             return;
         }
 
-        AbstractBuild<?, ?> build = getOwner();
+        Run<?, ?> build = getOwner();
         Calendar t = build.getTimestamp();
 
         if (req.checkIfModified(t, rsp)) {
