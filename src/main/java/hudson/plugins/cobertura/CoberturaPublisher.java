@@ -385,6 +385,13 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         FilePath[] reports = null;
         try {
             reports = workspace.act(new ParseReportCallable(coberturaReportFile));
+
+            // if the build has failed, then there's not
+            // much point in reporting an error
+            if (buildResult != null && buildResult.isWorseOrEqualTo(Result.FAILURE) && reports.length == 0) {
+                return;
+            }
+
         } catch (IOException e) {
             Util.displayIOException(e, listener);
             e.printStackTrace(listener.fatalError("Unable to find coverage results"));
@@ -694,9 +701,10 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
          */
         @Override
         public CoberturaPublisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-        	if (req == null) {
-        		return null;
-        	}
+            // Null check because findbugs insists, despite the API guaranteeing this is never null.
+            if (req == null) {
+                throw new FormException("req cannot be null", "");
+            }
             CoberturaPublisher instance = req.bindJSON(CoberturaPublisher.class, formData);
             ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
             List<CoberturaPublisherTarget> targets = req
