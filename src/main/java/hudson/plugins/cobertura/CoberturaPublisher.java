@@ -362,8 +362,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      */
     /*package*/
     static File[] getCoberturaReports(Run<?, ?> build) {
-        File rootDir = build.getRootDir();
-        return rootDir.listFiles(COBERTURA_FILENAME_FILTER);
+        return build.getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
     }
 
     /**
