@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.IOException;
+import java.lang.Float;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -73,6 +74,18 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     private int maxNumberOfBuilds = 0;
 
     private boolean failNoReports = true;
+
+    private String lineCoverageTargets = null;
+
+    private String packageCoverageTargets = null;
+
+    private String fileCoverageTargets = null;
+
+    private String classCoverageTargets = null;
+
+    private String methodCoverageTargets = null;
+
+    private String conditionalCoverageTargets = null;
 
     private CoverageTarget healthyTarget = new CoverageTarget();
 
@@ -304,6 +317,120 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     }
 
     /**
+     * Setter for property 'lineCoverageTargets'.
+     *
+     * @param targets Value to set for property 'lineCoverageTargets'.
+     */
+    @DataBoundSetter
+    public void setLineCoverageTargets(String targets) throws AbortException {
+      lineCoverageTargets = targets;
+    }
+
+    /**
+     * Getter for property 'lineCoverageTargets'.
+     *
+     * @return Value for property 'lineCoverageTargets'.
+     */
+    public String getLineCoverageTargets() {
+      return lineCoverageTargets;
+    }
+
+    /**
+     * Setter for property 'packageCoverageTargets'.
+     *
+     * @param targets Value to set for property 'packageCoverageTargets'.
+     */
+    @DataBoundSetter
+    public void setPackageCoverageTargets(String targets) {
+      packageCoverageTargets = targets;
+    }
+
+    /**
+     * Getter for property 'packageCoverageTargets'.
+     *
+     * @return Value for property 'packageCoverageTargets'.
+     */
+    public String getPackageCoverageTargets() {
+      return packageCoverageTargets;
+    }
+
+    /**
+     * Setter for property 'fileCoverageTargets'.
+     *
+     * @param targets Value to set for property 'fileCoverageTargets'.
+     */
+    @DataBoundSetter
+    public void setFileCoverageTargets(String targets) {
+      fileCoverageTargets = targets;
+    }
+
+    /**
+     * Getter for property 'fileCoverageTargets'.
+     *
+     * @return Value for property 'fileCoverageTargets'.
+     */
+    public String getFileCoverageTargets() {
+      return fileCoverageTargets;
+    }
+
+    /**
+     * Setter for property 'classCoverageTargets'.
+     *
+     * @param targets Value to set for property 'classCoverageTargets'.
+     */
+    @DataBoundSetter
+    public void setClassCoverageTargets(String targets) {
+      classCoverageTargets = targets;
+    }
+
+    /**
+     * Getter for property 'classCoverageTargets'.
+     *
+     * @return Value for property 'classCoverageTargets'.
+     */
+    public String getClassCoverageTargets() {
+      return classCoverageTargets;
+    }
+
+    /**
+     * Setter for property 'methodCoverageTargets'.
+     *
+     * @param targets Value to set for property 'methodCoverageTargets'.
+     */
+    @DataBoundSetter
+    public void setMethodCoverageTargets(String targets) {
+      methodCoverageTargets = targets;
+    }
+
+    /**
+     * Getter for property 'methodCoverageTargets'.
+     *
+     * @return Value for property 'methodCoverageTargets'.
+     */
+    public String getMethodCoverageTargets() {
+      return methodCoverageTargets;
+    }
+
+    /**
+     * Setter for property 'conditionalCoverageTargets'.
+     *
+     * @param targets Value to set for property 'conditionalCoverageTargets'.
+     */
+    @DataBoundSetter
+    public void setConditionalCoverageTargets(String targets) {
+      conditionalCoverageTargets = targets;
+    }
+
+    /**
+     * Getter for property 'conditionalCoverageTargets'.
+     *
+     * @return Value for property 'conditionalCoverageTargets'.
+     */
+    public String getConditionalCoverageTargets() {
+      return conditionalCoverageTargets;
+    }
+
+    /**
      * Getter for property 'healthyTarget'.
      *
      * @return Value for property 'healthyTarget'.
@@ -371,6 +498,9 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     @Override
     public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, final TaskListener listener)
             throws InterruptedException, IOException {
+
+        setAllCoverageTargets();
+
         Result threshold = onlyStable ? Result.SUCCESS : Result.UNSTABLE;
         Result buildResult = build.getResult();
         if (buildResult != null && buildResult.isWorseThan(threshold)) {
@@ -507,6 +637,93 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             throw new AbortException("No coverage results were successfully parsed.  Did you generate "
                     + "the XML report(s) for Cobertura?");
         }
+    }
+
+    /**
+     * Parses any coverage strings provided to the plugin and sets the
+     * coverage targets.
+     * 
+     * @throws AbortException
+     */
+    private void setAllCoverageTargets() throws AbortException {
+      if (lineCoverageTargets != null) {
+        try {
+          setCoverageTargets(CoverageMetric.LINE, lineCoverageTargets);
+        } catch (NumberFormatException e) {
+          throw new AbortException("Invalid value for lineCoverageTargets");
+        }
+      }
+
+      if (packageCoverageTargets != null) {
+        try {
+          setCoverageTargets(CoverageMetric.PACKAGES, packageCoverageTargets);
+        } catch (NumberFormatException e) {
+          throw new AbortException("Invalid value for packageCoverageTargets");
+        }
+      }
+
+      if (fileCoverageTargets != null) {
+        try {
+          setCoverageTargets(CoverageMetric.FILES, fileCoverageTargets);
+        } catch (NumberFormatException e) {
+          throw new AbortException("Invalid value for fileCoverageTargets");
+        }
+      }
+
+      if (classCoverageTargets != null) {
+        try {
+          setCoverageTargets(CoverageMetric.CLASSES, classCoverageTargets);
+        } catch (NumberFormatException e) {
+          throw new AbortException("Invalid value for classCoverageTargets");
+        }
+      }
+
+      if (methodCoverageTargets != null) {
+        try {
+          setCoverageTargets(CoverageMetric.METHOD, methodCoverageTargets);
+        } catch (NumberFormatException e) {
+          throw new AbortException("Invalid value for methodCoverageTargets");
+        }
+      }
+
+      if (conditionalCoverageTargets != null) {
+        try {
+          setCoverageTargets(CoverageMetric.CONDITIONAL, conditionalCoverageTargets);
+        } catch (NumberFormatException e) {
+          throw new AbortException("Invalid value for conditionalCoverageTargets");
+        }
+      }      
+    }
+
+    /**
+     * Parses a coverage string into the parts. A coverage string is of the 
+     * form <health y%>,<unhealthy %>,<unstable %>
+     * @param targets The coverage string
+     * @return an array[3] of floats with the coverage thresholds
+     */
+    private float[] parseCoverageTargets(String targets) {
+      String[] targetValues = targets.split(",");
+      float[] result = new float[3];
+
+      for (int i = 0; i < targetValues.length && i < result.length; i++) {
+        result[i] = Float.valueOf(targetValues[i]);
+      }
+      return result;
+    }
+
+
+    /**
+     * Sets the coverage for one metric from a coverage string
+     * @param metric The metric to set
+     * @param targets A coverage string containing healthy %, unhealthy %,
+     * unstable %
+     */
+    private void setCoverageTargets(CoverageMetric metric, String targets) {
+      float[] targetValues = parseCoverageTargets(targets);
+
+      healthyTarget.setTarget(metric, Math.round(targetValues[0] * 100000));
+      unhealthyTarget.setTarget(metric, Math.round(targetValues[1] * 100000));
+      failingTarget.setTarget(metric, Math.round(targetValues[2] * 100000));
     }
 
     /**
