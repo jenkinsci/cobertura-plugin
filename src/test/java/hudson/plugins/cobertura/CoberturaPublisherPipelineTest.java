@@ -148,7 +148,7 @@ public class CoberturaPublisherPipelineTest {
         Jenkins jenkins = jenkinsRule.jenkins;
         WorkflowJob project = jenkins.createProject(WorkflowJob.class, "cob-test");
 
-        project.setDefinition(new CpsFlowDefinition(new ScriptBuilder().setBuildResult("FAILED").setOnlyStable(true).getScript()));
+        project.setDefinition(new CpsFlowDefinition(new ScriptBuilder().setBuildResult("FAILURE").setOnlyStable(true).getScript()));
 
         copyCoverageFile("coverage-with-data.xml", "coverage.xml", project);
 
@@ -160,22 +160,22 @@ public class CoberturaPublisherPipelineTest {
     }
 
     /**
-     * Tests report is not published for failed build if onlyStable = true
+     * Tests report is published for failed build if onlyStable = false
      */
     @Test
     public void testFailedOnlyStableFalse()  throws Exception {
         Jenkins jenkins = jenkinsRule.jenkins;
         WorkflowJob project = jenkins.createProject(WorkflowJob.class, "cob-test");
 
-        project.setDefinition(new CpsFlowDefinition(new ScriptBuilder().setBuildResult("FAILED").setOnlyStable(false).getScript()));
+        project.setDefinition(new CpsFlowDefinition(new ScriptBuilder().setBuildResult("FAILURE").setOnlyStable(false).getScript()));
 
         copyCoverageFile("coverage-with-data.xml", "coverage.xml", project);
 
         WorkflowRun run = project.scheduleBuild2(0).get();
         jenkinsRule.waitForCompletion(run);
 
-        jenkinsRule.assertLogNotContains("Publishing Cobertura coverage report...", run);
-        jenkinsRule.assertLogContains("Skipping Cobertura coverage report as build was not UNSTABLE or better", run);
+        jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
+        jenkinsRule.assertLogContains("Cobertura coverage report found.", run);
     }
 
     /**
