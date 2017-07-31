@@ -501,7 +501,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
 
         setAllCoverageTargets();
 
-        Result threshold = onlyStable ? Result.SUCCESS : Result.UNSTABLE;
+        Result threshold = onlyStable ? Result.SUCCESS : Result.FAILURE;
         Result buildResult = build.getResult();
         if (buildResult != null && buildResult.isWorseThan(threshold)) {
             listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
