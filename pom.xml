@@ -38,6 +38,11 @@
       <name>Michael Barrientos</name>
       <email>mbarrien@gmail.com</email>
     </developer>
+    <developer>
+      <id>jeffpearce</id>
+      <name>Jeff Pearce</name>
+      <email>jxpearce@godaddy.com</email>
+    </developer>
   </developers>
 
   <dependencies>
