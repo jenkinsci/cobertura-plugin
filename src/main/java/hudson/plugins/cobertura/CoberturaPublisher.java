@@ -49,6 +49,7 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.jenkinsci.Symbol;
 
 /**
  * Cobertura {@link Publisher}.
@@ -764,15 +765,6 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         return BuildStepMonitor.NONE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BuildStepDescriptor<Publisher> getDescriptor() {
-        // see Descriptor javadoc for more about what a descriptor is.
-        return DESCRIPTOR;
-    }
-
     @DataBoundSetter
     public void setSourceEncoding(SourceEncoding sourceEncoding) {
         this.sourceEncoding = sourceEncoding;
@@ -782,11 +774,6 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         return sourceEncoding;
     }
 
-    /**
-     * Descriptor should be singleton.
-     */
-    @Extension
-    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static class ParseReportCallable extends MasterToSlaveFileCallable<FilePath[]> {
 
@@ -850,6 +837,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      * See <tt>views/hudson/plugins/cobertura/CoberturaPublisher/*.jelly</tt> for the actual HTML fragment for the
      * configuration screen.
      */
+    @Extension
+    @Symbol("cobertura")
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
         CoverageMetric[] metrics = {
@@ -859,13 +848,6 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             CoverageMetric.METHOD,
             CoverageMetric.LINE,
             CoverageMetric.CONDITIONAL,};
-
-        /**
-         * Constructs a new DescriptorImpl.
-         */
-        DescriptorImpl() {
-            super(CoberturaPublisher.class);
-        }
 
         /**
          * This human readable name is used in the configuration screen.
