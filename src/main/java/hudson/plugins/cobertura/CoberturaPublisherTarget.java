@@ -1,10 +1,11 @@
 package hudson.plugins.cobertura;
 
 import hudson.plugins.cobertura.targets.CoverageMetric;
+import java.text.MessageFormat;
 import org.apache.commons.beanutils.Converter;
 
 /**
- * TODO javadoc.
+ * Coverage targets for one type of metric
  *
  * @author Stephen Connolly
  * @since 28-Aug-2007 09:51:26
@@ -15,7 +16,10 @@ public final class CoberturaPublisherTarget {
     private Float unhealthy;
     private Float unstable;
     public static final Converter CONVERTER = new TargetConverter();
-
+    
+    public static final float DEFAULT_HEALTHY_TARGET = 80f;
+    public static final Float DEFAULT_UNHEALTHY_TARGET = 0f;
+    public static final Float DEFAULT_UNSTABLE_TARGET = 0f;
 
     /**
      * Constructs a new CoberturaPublisherTarget.
@@ -27,15 +31,15 @@ public final class CoberturaPublisherTarget {
      * Constructor
      *
      * @param metric Coverage metric
-     * @param healthy Healthy target
-     * @param unhealthy Unhealthy target
-     * @param unstable Unstable target
+     * @param healthyTarget Healthy target
+     * @param unhealthyTarget Unhealthy target
+     * @param unstableTarget Unstable target
      */
-    public CoberturaPublisherTarget(CoverageMetric metric, Float healthy, Float unhealthy, Float unstable) {
+    public CoberturaPublisherTarget(CoverageMetric metric, Float healthyTarget, Float unhealthyTarget, Float unstableTarget) {
         this.metric = metric;
-        this.healthy = healthy;
-        this.unhealthy = unhealthy;
-        this.unstable = unstable;
+        this.healthy = null != healthyTarget ? healthyTarget : DEFAULT_HEALTHY_TARGET;
+        this.unhealthy = null != unhealthyTarget ? unhealthyTarget : DEFAULT_UNHEALTHY_TARGET;
+        this.unstable = null != unstableTarget ? unstableTarget : DEFAULT_UNSTABLE_TARGET;
     }
 
     /**
@@ -175,12 +179,22 @@ public final class CoberturaPublisherTarget {
             this.unstable = (float)(Math.round(unstable*100f)/100f);
         }
     }
-
+    
+    /**
+     * Convert the metrics to string
+     * @return 
+     */
+    @Override
+    public String toString() {
+        return MessageFormat.format("{0}, {1}, {2}", healthy, unhealthy, unstable);
+    }
+    
     private static class TargetConverter implements Converter {
         /**
          * {@inheritDoc}
          */
         @SuppressWarnings("unchecked")
+        @Override
         public Object convert(Class type, Object value) {
             return CoverageMetric.valueOf(value.toString());
         }
