@@ -5,8 +5,6 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.Action;
-import hudson.model.AbstractItem;
 import hudson.model.AbstractProject;
 import hudson.model.Result;
 import hudson.model.Run;
@@ -28,7 +26,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.IOException;
-import java.lang.Float;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,13 +34,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import jdk.nashorn.internal.ir.BreakableNode;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.ConvertUtils;
@@ -178,7 +181,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      *
      * @param targets Value to set for property 'targets'.
      */
-    private void setTargets(List<CoberturaPublisherTarget> targets) {
+    private void setTargets(List<CoberturaPublisherTarget> targets) throws AbortException {
         healthyTarget.clear();
         unhealthyTarget.clear();
         failingTarget.clear();
@@ -199,6 +202,30 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                 rounded = roundDecimalFloat(rounded);
                 failingTarget.setTarget(target.getMetric(), (int) ((float) 100000f * rounded));
             }
+            setTargetString(target);
+        }
+    }
+    
+    private void setTargetString(CoberturaPublisherTarget target) throws AbortException {
+        switch (target.getMetric()) {
+            case PACKAGES:
+                setPackageCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case FILES:
+                setFileCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case CLASSES:
+                setClassCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case METHOD:
+                setMethodCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case LINE:
+                setLineCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case CONDITIONAL:
+                setConditionalCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
         }
     }
 
@@ -707,7 +734,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
       float[] result = new float[3];
 
       for (int i = 0; i < targetValues.length && i < result.length; i++) {
-        result[i] = Float.valueOf(targetValues[i]);
+        try {
+            result[i] = Float.valueOf(targetValues[i]);
+        } catch (NumberFormatException ex) {
+            result[i] = 0;
+        }
       }
       return result;
     }
@@ -872,8 +903,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
          */
         public List<CoberturaPublisherTarget> getDefaultTargets() {
             List<CoberturaPublisherTarget> result = new ArrayList<CoberturaPublisherTarget>();
-            result.add(new CoberturaPublisherTarget(CoverageMetric.METHOD, 80f, null, null));
-            result.add(new CoberturaPublisherTarget(CoverageMetric.LINE, 80f, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.METHOD, CoberturaPublisherTarget.DEFAULT_HEALTHY_TARGET, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.LINE, CoberturaPublisherTarget.DEFAULT_HEALTHY_TARGET, null, null));
             result.add(new CoberturaPublisherTarget(CoverageMetric.CONDITIONAL, 70f, null, null));
             return result;
         }
@@ -903,12 +934,19 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             // Null check because findbugs insists, despite the API guaranteeing this is never null.
             if (req == null) {
                 throw new FormException("req cannot be null", "");
-            }
+            }            
             CoberturaPublisher instance = req.bindJSON(CoberturaPublisher.class, formData);
             ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
             List<CoberturaPublisherTarget> targets = req
                     .bindParametersToList(CoberturaPublisherTarget.class, "cobertura.target.");
-            instance.setTargets(targets);
+            if (0 == targets.size()) {
+                targets = bindTargetsFromForm(formData);
+            }
+            try {
+                instance.setTargets(targets);
+            } catch (AbortException ex) {
+                Logger.getLogger(CoberturaPublisher.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return instance;
         }
 
@@ -917,6 +955,53 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;
         }
+    }
+    
+    private static List<CoberturaPublisherTarget> bindTargetsFromForm(JSONObject formData) {
+        ArrayList<CoberturaPublisherTarget> targets = new ArrayList<>();
+        
+        JSONArray coverageTargets = null;
+        Object coverageTargetsObject = formData.get("inst");
+
+        if (coverageTargetsObject instanceof JSONObject) {
+            CoberturaPublisherTarget target = targetFromJSONObject((JSONObject)coverageTargetsObject);
+            if (null != target) {                    
+                targets.add(target);
+            }
+        }            
+        else if (coverageTargetsObject instanceof JSONArray) {
+            coverageTargets = (JSONArray)coverageTargetsObject;
+            for (Object targetObject : coverageTargets) {
+                CoberturaPublisherTarget target = targetFromJSONObject((JSONObject)targetObject);
+                if (null != target) {                    
+                    targets.add(target);
+                }
+            }
+        }
+        return targets;
+    }
+    
+    private static Float getFloat(JSONObject object, String key) {
+        Float floatValue = new Float(object.optDouble(key));
+        
+        return floatValue.isNaN() ? null : floatValue;
+    }
+    
+    private static CoberturaPublisherTarget targetFromJSONObject(Object targetObject) {
+        if (targetObject != null && targetObject instanceof JSONObject) {
+            JSONObject targetJSONObject = (JSONObject)targetObject;
+            try {
+                CoverageMetric metric = CoverageMetric.valueOf(targetJSONObject.getString("metric"));
+                return new CoberturaPublisherTarget(metric, 
+                        getFloat(targetJSONObject, "healthy"), 
+                        getFloat(targetJSONObject, "unhealthy"), 
+                        getFloat(targetJSONObject, "unstable"));
+            } catch (JSONException ex) {
+                Logger.getLogger(CoberturaPublisher.class.getName()).log(Level.SEVERE, null, ex);
+            }            
+        }
+            
+        return null;
     }
 
     private static class CoberturaReportFilenameFilter implements FilenameFilter {
