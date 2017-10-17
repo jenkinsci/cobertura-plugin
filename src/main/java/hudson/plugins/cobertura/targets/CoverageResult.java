@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura.targets;
 
+import hudson.model.AbstractBuild;
 import hudson.model.Api;
 import hudson.model.Item;
 import hudson.model.Run;
@@ -425,6 +426,10 @@ public class CoverageResult implements Serializable, Chartable {
         if (paint != null) {
             aggregateResults.putAll(paint.getResults());
         }
+    }
+    
+    public void setOwner(AbstractBuild<?, ?> owner) {
+        setOwner((Run<?, ?>)owner);
     }
 
     /**
