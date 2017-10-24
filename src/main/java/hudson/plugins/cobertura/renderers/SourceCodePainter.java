@@ -99,7 +99,7 @@ public class SourceCodePainter extends MasterToSlaveFileCallable<Boolean> implem
                 output.write("</tr>\n");
             }
 
-            paint.setTotalLines(line)
+            paint.setTotalLines(line);
         } finally {
             closeQuietly(output);
             closeQuietly(bos);
