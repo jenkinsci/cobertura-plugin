@@ -149,7 +149,7 @@ public class CoveragePaint implements Serializable {
      * @param totalLines The total number of lines in this file
      **/
     public void setTotalLines(int totalLines) {
-        self.totalLines = totalLines;
+        this.totalLines = totalLines;
     }
 
     /**
