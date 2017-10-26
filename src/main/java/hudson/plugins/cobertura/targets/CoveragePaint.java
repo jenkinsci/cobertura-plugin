@@ -111,6 +111,8 @@ public class CoveragePaint implements Serializable {
 
     protected TIntObjectMap<CoveragePaintDetails> lines = new TIntObjectHashMap<CoveragePaintDetails>();
 
+    private int totalLines = 0;
+
     public CoveragePaint(CoverageElement source) {
 //		there were no getters against the source ...
 //      this.source = source;
@@ -139,6 +141,28 @@ public class CoveragePaint implements Serializable {
             it.advance();
             paint(it.key(), it.value());
         }
+    }
+
+    /**
+     * Setter for the property {@code totalLines}.
+     *
+     * @param totalLines The total number of lines in this file
+     **/
+    public void setTotalLines(int totalLines) {
+        this.totalLines = totalLines;
+    }
+
+    /**
+     * Returns the total number of lines in this painted file. Unlike the
+     * denominator in the ratio returned by {@link #getLineCoverage()},
+     * which only indicates the number of executable lines, this includes
+     * even non-executable lines, such as white space, comments, brackets,
+     * and more.
+     *
+     * @return value for the property {@code totalLines}.
+     **/
+    public int getTotalLines() {
+        return totalLines;
     }
 
     /**
