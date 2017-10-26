@@ -20,9 +20,19 @@ public class CoveragePaintTest extends TestCase {
         super(string);
     }
 
+    public void testTotalLines() {
+        CoveragePaint instance = new CoveragePaint(CoverageElement.JAVA_FILE);
+        assertEquals(0, instance.getTotalLines());
+        instance.setTotalLines(451);
+        assertEquals(451, instance.getTotalLines());
+        instance.setTotalLines(179);
+        assertEquals(179, instance.getTotalLines());
+    }
+
     public void testSerializable() throws Exception {
         CoveragePaint instance = new CoveragePaint(CoverageElement.JAVA_FILE);
         instance.paint(5, 7, 4, 5);
+        instance.setTotalLines(314);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos);
         oos.writeObject(instance);
@@ -32,5 +42,6 @@ public class CoveragePaintTest extends TestCase {
         CoveragePaint copy = (CoveragePaint) ois.readObject();
         assertEquals(instance.getLineCoverage(), copy.getLineCoverage());
         assertEquals(instance.getConditionalCoverage(), copy.getConditionalCoverage());
+        assertEquals(314, copy.getTotalLines());
     }
 }
