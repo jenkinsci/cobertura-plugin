@@ -313,7 +313,7 @@ public class CoberturaPublisherPipelineTest {
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Unhealthy for the following metrics:", run);
         jenkinsRule.assertLogContains("Lines's health is 90.0 and set minimum health is 91.0.", run);
-        jenkinsRule.assertLogContains("ERROR: Failing build because it is unhealthy.", run);
+        jenkinsRule.assertLogContains("ERROR: [Cobertura] Failing build because it is unhealthy.", run);
     }
     
     /**
@@ -356,7 +356,7 @@ public class CoberturaPublisherPipelineTest {
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Code coverage enforcement failed for the following metrics:", run);
         jenkinsRule.assertLogContains("Lines's stability is 90.0 and set mininum stability is 91.0.", run);
-        jenkinsRule.assertLogContains("ERROR: Failing build due to unstability.", run);
+        jenkinsRule.assertLogContains("ERROR: [Cobertura] Failing build due to unstability.", run);
     }
     
     /**
@@ -397,7 +397,7 @@ public class CoberturaPublisherPipelineTest {
         
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogNotContains("Unhealthy for the following metrics:", run);
-        jenkinsRule.assertLogNotContains("ERROR: Failing build because it is unhealthy.", run);
+        jenkinsRule.assertLogNotContains("ERROR:", run);
     }
     
     /**
@@ -418,7 +418,7 @@ public class CoberturaPublisherPipelineTest {
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Unhealthy for the following metrics:", run);
         jenkinsRule.assertLogContains("Conditionals's health is 75.0 and set minimum health is 76.0.", run);
-        jenkinsRule.assertLogContains("ERROR: Failing build because it is unhealthy.", run);
+        jenkinsRule.assertLogContains("ERROR: [Cobertura] Failing build because it is unhealthy.", run);
     }
     
     /**
@@ -439,7 +439,7 @@ public class CoberturaPublisherPipelineTest {
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Code coverage enforcement failed for the following metrics:", run);
         jenkinsRule.assertLogContains("Conditionals's stability is 75.0 and set mininum stability is 76.0.", run);
-        jenkinsRule.assertLogContains("ERROR: Failing build due to unstability.", run);
+        jenkinsRule.assertLogContains("ERROR: [Cobertura] Failing build due to unstability.", run);
     }
     
     /**
@@ -459,7 +459,7 @@ public class CoberturaPublisherPipelineTest {
         
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogNotContains("Unhealthy for the following metrics:", run);
-        jenkinsRule.assertLogNotContains("ERROR: Failing build because it is unhealthy.", run);
+        jenkinsRule.assertLogNotContains("ERROR:", run);
     }
     
     /**
@@ -481,7 +481,7 @@ public class CoberturaPublisherPipelineTest {
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Unhealthy for the following metrics:", run);
         jenkinsRule.assertLogContains("Files's health is 100.0 and set minimum health is 101.0.", run);
-        jenkinsRule.assertLogContains("ERROR: Failing build because it is unhealthy.", run);
+        jenkinsRule.assertLogContains("ERROR: [Cobertura] Failing build because it is unhealthy.", run);
         jenkinsRule.assertLogContains("Finished: FAILURE", run);
     }
     
@@ -504,7 +504,7 @@ public class CoberturaPublisherPipelineTest {
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Unhealthy for the following metrics:", run);
         jenkinsRule.assertLogContains("Packages's health is 100.0 and set minimum health is 101.0.", run);
-        jenkinsRule.assertLogContains("ERROR: Failing build because it is unhealthy.", run);
+        jenkinsRule.assertLogContains("ERROR: [Cobertura] Failing build because it is unhealthy.", run);
         jenkinsRule.assertLogContains("Finished: FAILURE", run);
     }	
     
@@ -527,7 +527,7 @@ public class CoberturaPublisherPipelineTest {
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Unhealthy for the following metrics:", run);
         jenkinsRule.assertLogContains("Classes's health is 100.0 and set minimum health is 101.0.", run);
-        jenkinsRule.assertLogContains("ERROR: Failing build because it is unhealthy.", run);
+        jenkinsRule.assertLogContains("ERROR: [Cobertura] Failing build because it is unhealthy.", run);
         jenkinsRule.assertLogContains("Finished: FAILURE", run);
     }		
     
@@ -550,7 +550,7 @@ public class CoberturaPublisherPipelineTest {
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Unhealthy for the following metrics:", run);
         jenkinsRule.assertLogContains("Methods's health is 100.0 and set minimum health is 101.0.", run);
-        jenkinsRule.assertLogContains("ERROR: Failing build because it is unhealthy.", run);
+        jenkinsRule.assertLogContains("ERROR: [Cobertura] Failing build because it is unhealthy.", run);
         jenkinsRule.assertLogContains("Finished: FAILURE", run);
     }	
     
