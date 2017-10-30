@@ -11,6 +11,12 @@
                 &amp;nbsp;
             </j:forEach>
             </div>
+            <j:set var="failMessage" value="${it.failMessage}" />
+            <j:if test="${failMessage != null}">
+            <div style="margin: 0 0 0 1ex">
+                ${failMessage}
+            </div>
+            </j:if>
         </j:if>
     </t:summary>
 </j:jelly>

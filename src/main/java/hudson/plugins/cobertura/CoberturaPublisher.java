@@ -42,7 +42,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import jdk.nashorn.internal.ir.BreakableNode;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -635,6 +634,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                     listener.getLogger().println("Setting Build to unstable.");
                     build.setResult(Result.UNSTABLE);
                 } else {
+                    action.setFailMessage(String.format("Build failed because following metrics did not meet stability target: %s.", failingMetrics.toString()));
                     throw new AbortException("Failing build due to unstability.");
                 }
             }
@@ -649,6 +649,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                         setHealthyPercent = unhealthyTarget.getSetPercent(result, metric);
                         listener.getLogger().println("    " + metric.getName() + "'s health is " + roundDecimalFloat(oldHealthyPercent * 100f) + " and set minimum health is " + roundDecimalFloat(setHealthyPercent * 100f) + ".");
                     }
+                    action.setFailMessage(String.format("Build failed because following metrics did not meet health target: %s.", unhealthyMetrics.toString()));
                     throw new AbortException("Failing build because it is unhealthy.");
                 }
             }
