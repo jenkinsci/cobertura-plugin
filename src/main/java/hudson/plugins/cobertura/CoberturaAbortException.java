@@ -7,11 +7,10 @@ import hudson.AbortException;
  * a common prefix to the abort message.
  */
 public class CoberturaAbortException extends AbortException {
-  /**
-   * CoberturaAbortException constructor
-   * @param  String message       the abort message
-   * @return        CoberturaAbortException 
-   */
+    /**
+     * CoberturaAbortException constructor
+     * @param  message   the abort message
+     */
     public CoberturaAbortException(String message) {
         super("[Cobertura] " + message);
     }
