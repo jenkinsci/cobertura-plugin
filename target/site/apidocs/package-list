@@ -1,0 +1,4 @@
+hudson.plugins.cobertura
+hudson.plugins.cobertura.dashboard
+hudson.plugins.cobertura.renderers
+hudson.plugins.cobertura.targets

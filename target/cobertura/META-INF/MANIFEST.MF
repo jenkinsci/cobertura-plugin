@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Built-By: max
+Created-By: Apache Maven
+Build-Jdk: 1.8.0_151
+Extension-Name: cobertura
+Specification-Title: The Jenkins Plugins Parent POM Project
+Implementation-Title: cobertura
+Implementation-Version: 1.13-SNAPSHOT
+Group-Id: org.jenkins-ci.plugins
+Short-Name: cobertura
+Long-Name: Jenkins Cobertura Plugin
+Url: http://wiki.jenkins-ci.org/display/JENKINS/Cobertura+Plugin
+Plugin-Version: 1.13-SNAPSHOT (private-29e9599a-max)
+Hudson-Version: 2.13
+Jenkins-Version: 2.13
+Plugin-Dependencies: structs:1.2,dashboard-view:2.9.9;resolution:=opti
+ onal
+Plugin-Developers: Steven Christou:schristou:schristou88@gmail.com,Mic
+ hael Barrientos:mbarrien:mbarrien@gmail.com,Jeff Pearce:jeffpearce:jx
+ pearce@godaddy.com
+

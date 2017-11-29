@@ -1,0 +1,3 @@
+hudson.plugins.cobertura.targets.CoverageResult
+hudson.plugins.cobertura.targets.CoverageTree
+hudson.plugins.cobertura.targets.CoverageTreeElement

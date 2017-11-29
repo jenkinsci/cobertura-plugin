@@ -1,0 +1,79 @@
+<!--
+The MIT License
+
+Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:dp="/hudson/plugins/view/dashboard" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" >
+  <dp:decorate portlet="${it}" width="1">
+    <j:set var="coverageRuns" value="${it.getCoverageRuns()}"/>
+      <j:choose>
+        <j:when test="${empty(coverageRuns)}">
+          <tr><td colspan="2">${%No Coverage Results}</td></tr>
+          </j:when>
+        <j:otherwise>
+        <tr>
+          <td>
+            <table class="pane sortable" id="warnings-table" style="margin-top: 0px;">
+              <tr>
+                <td width="40%" initialSortDir="down" class="pane-header">${%Job}</td>
+                <td width="10%" class="pane-header">${%Packages}</td>
+                <td width="10%" class="pane-header">${%Files}</td>
+                <td width="10%" class="pane-header">${%Classes}</td>
+                <td width="10%" class="pane-header">${%Methods}</td>
+                <td width="10%" class="pane-header">${%Lines}</td>
+                <td width="10%" class="pane-header">${%Conditionals}</td>
+              </tr>
+              <tbody>
+                <j:forEach var="r" items="${coverageRuns}">
+                  <j:set var="result" value="${it.getCoverageResult(r)}"/>
+                  <j:set var="metrics" value="${result.metrics}"/>
+                  <tr style="border-top: 0px; border: 1px #bbb solid;">
+                    <td><t:buildLink jobName="${r.parent.name}" job="${r.parent}" number="${r.number}" /></td>
+                    <j:choose>
+                      <j:when test="${empty(metrics)}">
+                        <td colspan="6">${%N/A}</td>
+                      </j:when>
+                      <j:otherwise>
+                        <j:forEach var="metric" items="${metrics}">
+                          <td style="text-align: right;" data="${result.getCoverage(metric)}"> ${result.getCoverage(metric).percentage}% ${result.getCoverage(metric)}</td>
+                        </j:forEach>
+                      </j:otherwise>
+                    </j:choose>
+                  </tr>
+                </j:forEach>
+                <tr class="sortbottom">
+                  <j:set var="result" value="${it.getCoverageResult(coverageRuns[0])}"/>
+                  <j:set var="metrics" value="${result.metrics}"/>
+                  <td class="pane-header"><b>${%Total}</b></td>
+                  <j:forEach var="metric" items="${metrics}">
+                    <td class="pane-header" style="text-align: right;"> ${it.getTotalCoverageRatio().get(metric).percentage}% ${it.getTotalCoverageRatio().get(metric)}</td>
+                  </j:forEach>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </j:otherwise>
+    </j:choose>
+  </dp:decorate>
+</j:jelly>

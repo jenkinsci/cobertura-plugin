@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Group-Id: org.jenkins-ci.plugins
+Short-Name: cobertura
+Long-Name: Jenkins Cobertura Plugin
+Url: http://wiki.jenkins-ci.org/display/JENKINS/Cobertura+Plugin
+Plugin-Version: 1.13-SNAPSHOT (private-29e9599a-max)
+Hudson-Version: 2.13
+Jenkins-Version: 2.13
+Plugin-Dependencies: dashboard-view:2.9.9;resolution:=optional,structs
+ :1.2
+Plugin-Developers: Steven Christou:schristou:schristou88@gmail.com,Mic
+ hael Barrientos:mbarrien:mbarrien@gmail.com,Jeff Pearce:jeffpearce:jx
+ pearce@godaddy.com
+Libraries: /home/max/cobertura-plugin/src/main/resources,/home/max/cob
+ ertura-plugin/target/classes,/home/max/.m2/repository/javax/annotatio
+ n/jsr250-api/1.0/jsr250-api-1.0.jar,/home/max/.m2/repository/org/ecli
+ pse/sisu/org.eclipse.sisu.inject/0.1.0/org.eclipse.sisu.inject-0.1.0.
+ jar,/home/max/.m2/repository/org/eclipse/sisu/org.eclipse.sisu.plexus
+ /0.1.0/org.eclipse.sisu.plexus-0.1.0.jar,/home/max/.m2/repository/org
+ /codehaus/plexus/plexus-utils/2.1/plexus-utils-2.1.jar,/home/max/.m2/
+ repository/org/codehaus/plexus/plexus-component-annotations/1.5.5/ple
+ xus-component-annotations-1.5.5.jar,/home/max/.m2/repository/org/ecli
+ pse/aether/aether-connector-wagon/0.9.0.M2/aether-connector-wagon-0.9
+ .0.M2.jar,/home/max/.m2/repository/org/jenkins-ci/lib/lib-jenkins-mav
+ en-embedder/3.11/lib-jenkins-maven-embedder-3.11.jar,/home/max/.m2/re
+ pository/javax/enterprise/cdi-api/1.0/cdi-api-1.0.jar,/home/max/.m2/r
+ epository/net/sf/trove4j/trove4j/3.0.3/trove4j-3.0.3.jar,/home/max/.m
+ 2/repository/org/apache/maven/maven-artifact/3.1.0/maven-artifact-3.1
+ .0.jar
+Resource-Path: /home/max/cobertura-plugin/src/main/webapp
+

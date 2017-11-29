@@ -1,0 +1,101 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry title="${%Cobertura xml report pattern}"
+             description="${%xml.report.pattern.description}">
+        <f:textbox name="cobertura.coberturaReportFile" value="${instance.coberturaReportFile}"/>
+    </f:entry>
+    <f:advanced>
+        <f:entry title="${%Consider only stable builds}"
+             description="${%only.stable.builds.description}" >
+            <f:checkbox name="cobertura.onlyStable" checked="${instance.onlyStable}" />
+        </f:entry>
+        <f:entry title="${%Fail builds if no reports}"
+             description="${%no.reorts.fail.builds.description}" >
+            <f:checkbox name="cobertura.failNoReports" checked="${instance.failNoReports}" default="true" />
+        </f:entry>
+        <f:entry title="${%Fail unhealthy builds}"
+             description="${%unhealthy.fail.builds.description}" >
+            <f:checkbox name="cobertura.failUnhealthy" checked="${instance.failUnhealthy}" />
+        </f:entry>
+        <f:entry title="${%Fail unstable builds}"
+             description="${%unstable.fail.builds.description}" >
+            <f:checkbox name="cobertura.failUnstable" checked="${instance.failUnstable}" />
+        </f:entry>
+        <f:entry title="${%Health auto update}"
+             description="${%auto.health.builds.description}" >
+            <f:checkbox name="cobertura.autoUpdateHealth" checked="${instance.autoUpdateHealth}" />
+        </f:entry>
+        <f:entry title="${%Stability auto update}"
+             description="${%auto.stability.builds.description}" >
+            <f:checkbox name="cobertura.autoUpdateStability" checked="${instance.autoUpdateStability}" />
+        </f:entry>
+        <f:entry title="${%Zoom coverage chart}"
+             description="${%zoom.coverage.chart.description}" >
+            <f:checkbox name="cobertura.zoomCoverageChart" checked="${instance.zoomCoverageChart}" />
+        </f:entry>
+        <f:entry title="${%Maximum number of builds}"
+             description="${%maxbuilds.coverage.chart.description}" >
+            <f:textbox name="cobertura.maxNumberOfBuilds" value="${instance.maxNumberOfBuilds}" />
+        </f:entry>
+        <f:entry title="${%Source Encoding}"
+             description="${%source.encoding.description}" field="sourceEncoding">
+            <f:enum>${it.encodingName}</f:enum>
+        </f:entry>
+
+        <f:entry title="${%Coverage Metric Targets}"
+             description="${%metric.targets.description(rootURL)}">
+            <f:repeatable var="inst" varStatus="instStatus" items="${descriptor.getTargets(instance)}">
+                <table width="100%">
+                    <col width="25%"/>
+                    <col/>
+                    <col width="24px"/>
+                    <col width="15%"/>
+                    <col width="24px"/>
+                    <col width="15%"/>
+                    <col width="24px"/>
+                    <col width="15%"/>
+
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select class="setting-input" name="cobertura.target.metric">
+                                    <j:forEach var="i" items="${descriptor.metrics}">
+                                        <f:option selected="${i==inst.metric}" value="${i}">${i.name}</f:option>
+                                    </j:forEach>
+                                </select>
+                            </td>
+                            <td>
+                                <f:repeatableDeleteButton/>
+                            </td>
+                            <th>
+                                <img src="${rootURL}/images/16x16/health-80plus.gif" alt="100%"
+                                 title="${%Report health as 100% when coverage is greater than}"/>
+                            </th>
+                            <td>
+                                <f:textbox name="cobertura.target.healthy"
+                                       value="${inst.healthy}"/>
+                            </td>
+                            <th>
+                                <img src="${rootURL}/images/16x16/health-00to19.gif" alt="0%"
+                                 title="${%Report health as 0% when coverage is less than}"/>
+                            </th>
+                            <td>
+                                <f:textbox name="cobertura.target.unhealthy"
+                                       value="${inst.unhealthy}"/>
+                            </td>
+                            <th>
+                                <img src="${rootURL}/images/16x16/yellow.gif" alt="0%"
+                                 title="${%Mark the build as unstable when coverage is less than}"/>
+                            </th>
+                            <td>
+                                <f:textbox name="cobertura.target.unstable"
+                                       value="${inst.unstable}"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </f:repeatable>
+        </f:entry>
+    </f:advanced>
+</j:jelly>
