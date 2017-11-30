@@ -1,4 +1,0 @@
-<?jelly escape-by-default='true'?>
-<div>
-  This plugin integrates <a href="http://cobertura.sf.net/">Cobertura coverage reports</a> to Jenkins.
-</div>
