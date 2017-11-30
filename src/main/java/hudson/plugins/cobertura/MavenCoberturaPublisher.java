@@ -237,7 +237,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
     /**
      * Descriptor should be singleton.
      */
-    @Extension
+    @Extension(optional = true)                   // fix issue: https://issues.jenkins-ci.org/browse/JENKINS-44200
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static final class DescriptorImpl extends MavenReporterDescriptor {

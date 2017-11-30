@@ -1,7 +1,9 @@
-# Cobertura Plugin
+# My build of Cobertura Plugin
 
 [![Build
-Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/cobertura-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/cobertura-plugin/)
+Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/cobertura-plugin)](https://github.com/MaxReinerFullStack/cobertura-plugin/tree/mybuild/target)
+This build is an 64 bit version (recompiled with 'optional true' switch to @Extension to fix issue: JENKINS-44200, https://issues.jenkins-ci.org/browse/JENKINS-44200).
+You can download .hpi file from target directory of this branch: https://github.com/MaxReinerFullStack/cobertura-plugin/tree/mybuild/target
 
 This plugin allows you to capture code coverage report from
 [Cobertura](https://github.com/cobertura/cobertura/).
