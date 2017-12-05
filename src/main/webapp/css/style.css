@@ -50,12 +50,7 @@ table.source tr.coverPart {
 }
 
 table.source tr.coverPart td.hits, table.source tr.coverNone td.hits {
-    background-color: #fdd;
     font-weight: bold;
-}
-
-table.source tr.coverPart td.code {
-    background-color: #fdd;
 }
 
 table.source tr.coverNone {
