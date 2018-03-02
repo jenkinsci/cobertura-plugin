@@ -21,4 +21,8 @@ public class RatioTest extends TestCase {
     public void testParseValue() throws Exception {
         assertRatio(Ratio.create(1,2), 1.0f, 2.0f);
     }
+
+    public void testGetPercentage() {
+        assertEquals(99,Ratio.create(249,250).getPercentage());
+    }
 }

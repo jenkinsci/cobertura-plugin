@@ -35,11 +35,19 @@ final public class Ratio implements Serializable {
 
     /**
      * Gets the percentage in integer.
+     * If float value is less than 100 and larger than 95.5, then return rounded down value,
+     * Else return rounded value
      *
      * @return percentage
      */
     public int getPercentage() {
-        return Math.round(getPercentageFloat());
+        float floatPercentage = getPercentageFloat();
+        int intPercentage = Math.round(floatPercentage);
+        if (intPercentage == 100 && (int) floatPercentage < 100) {
+            return (int) floatPercentage;
+        } else {
+            return intPercentage;
+        }
     }
 
     /**
@@ -61,7 +69,7 @@ final public class Ratio implements Serializable {
      * @return percentage
      */
     public String getPercentageString() {
-      return dataFormat.format(getPercentageFloat());
+        return dataFormat.format(getPercentageFloat());
     }
 
     /**
@@ -100,10 +108,8 @@ final public class Ratio implements Serializable {
      * Creates a new instance of {@link Ratio}.
      */
     /**
-     *
      * @param x numerator
      * @param y denominator
-     *
      * @return the ratio
      */
     public static Ratio create(float x, float y) {
