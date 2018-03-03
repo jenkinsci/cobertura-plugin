@@ -1,6 +1,7 @@
 package hudson.plugins.cobertura;
 
 import java.io.Serializable;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -35,8 +36,8 @@ final public class Ratio implements Serializable {
 
     /**
      * Gets the percentage in integer.
-     * If float value is less than 100 and larger than 95.5, then return rounded down value,
-     * Else return rounded value
+     * If float percentage is less than 100 and larger than 95.5, then return rounded down value,
+     * else return rounded off value
      *
      * @return percentage
      */
@@ -62,14 +63,28 @@ final public class Ratio implements Serializable {
     }
 
     static NumberFormat dataFormat = new DecimalFormat("000.00");
+    static NumberFormat roundDownDataFormat;
+
+    static {
+        roundDownDataFormat = new DecimalFormat("000.000");
+        roundDownDataFormat.setRoundingMode(RoundingMode.DOWN);
+    }
+
 
     /**
-     * Gets the percentage as a formatted string used for sorting the html table
+     * Gets the percentage as a formatted string used for sorting the html table.
+     * If float percentage is less than 100 and larger than 99.995, then return rounded down value,
+     * else return rounded off value.
      *
      * @return percentage
      */
     public String getPercentageString() {
-        return dataFormat.format(getPercentageFloat());
+        float floatPercentage = getPercentageFloat();
+        if (Float.compare(floatPercentage, 99.995f) >= 0) {
+            return roundDownDataFormat.format(floatPercentage);
+        } else {
+            return dataFormat.format(floatPercentage);
+        }
     }
 
     /**
@@ -106,8 +121,7 @@ final public class Ratio implements Serializable {
 
     /**
      * Creates a new instance of {@link Ratio}.
-     */
-    /**
+     *
      * @param x numerator
      * @param y denominator
      * @return the ratio
