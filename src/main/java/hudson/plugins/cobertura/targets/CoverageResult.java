@@ -1,14 +1,7 @@
 package hudson.plugins.cobertura.targets;
 
-import hudson.model.AbstractBuild;
-import hudson.model.Api;
-import hudson.model.Item;
-import hudson.model.Run;
-import hudson.plugins.cobertura.BuildUtils;
-import hudson.plugins.cobertura.Chartable;
-import hudson.plugins.cobertura.CoberturaBuildAction;
-import hudson.plugins.cobertura.CoverageChart;
-import hudson.plugins.cobertura.Ratio;
+import hudson.model.*;
+import hudson.plugins.cobertura.*;
 import hudson.util.Graph;
 import hudson.util.TextFile;
 
@@ -29,6 +22,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import jenkins.model.Jenkins;
 import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -46,6 +40,9 @@ import org.kohsuke.stapler.export.ExportedBean;
  */
 @ExportedBean(defaultVisibility = 2)
 public class CoverageResult implements Serializable, Chartable {
+
+    private static final String DEFAULT_CSS_FILE = "style.css";
+    private static final String COLOR_BLIND_CSS_FILE = "style-color-blind.css";
 
     /**
      * Generated
@@ -503,5 +500,20 @@ public class CoverageResult implements Serializable, Chartable {
 
     public Api getApi() {
         return new Api(this);
+    }
+
+    /**
+     *
+     * @return css file name according to the config of color blind mode
+     */
+    public String getCssFileName() {
+        Descriptor descriptor = Jenkins.getInstance().getDescriptor(CoberturaPublisher.class);
+        if(descriptor instanceof CoberturaPublisher.DescriptorImpl) {
+            CoberturaPublisher.DescriptorImpl d = (CoberturaPublisher.DescriptorImpl) descriptor;
+            if(d.getColorBlindMode()) {
+                return COLOR_BLIND_CSS_FILE;
+            }
+        }
+        return DEFAULT_CSS_FILE;
     }
 }
