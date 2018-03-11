@@ -504,16 +504,14 @@ public class CoverageResult implements Serializable, Chartable {
 
     /**
      *
-     * @return css file name according to the config of color blind mode
+     * @return whether enable color blind mode in global config
      */
-    public String getCssFileName() {
+    public boolean isEnableColorBlindMode() {
         Descriptor descriptor = Jenkins.getInstance().getDescriptor(CoberturaPublisher.class);
         if(descriptor instanceof CoberturaPublisher.DescriptorImpl) {
             CoberturaPublisher.DescriptorImpl d = (CoberturaPublisher.DescriptorImpl) descriptor;
-            if(d.getColorBlindMode()) {
-                return COLOR_BLIND_CSS_FILE;
-            }
+            return d.getColorBlindMode();
         }
-        return DEFAULT_CSS_FILE;
+        return false;
     }
 }

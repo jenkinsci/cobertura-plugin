@@ -1,7 +1,13 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags" css="/plugin/cobertura/css/${it.getCssFileName()}" norefresh="true">
+    <l:layout xmlns:cobertura="/hudson/plugins/cobertura/tags" norefresh="true">
+        <l:header>
+            <link rel="stylesheet" type="text/css" href="/plugin/cobertura/css/style.css"/>
+            <j:if test="${it.isEnableColorBlindMode()}">
+                <link rel="stylesheet" type="text/css" href="/plugin/cobertura/css/style-color-blind.css"/>
+            </j:if>
+        </l:header>
         <st:include it="${it.owner}" page="sidepanel.jelly"/>
         <l:main-panel>
             <h1>${%Code Coverage}</h1>
