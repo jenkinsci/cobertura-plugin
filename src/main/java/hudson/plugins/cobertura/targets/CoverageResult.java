@@ -1,7 +1,16 @@
 package hudson.plugins.cobertura.targets;
 
-import hudson.model.*;
-import hudson.plugins.cobertura.*;
+import hudson.model.AbstractBuild;
+import hudson.model.Api;
+import hudson.model.Descriptor;
+import hudson.model.Item;
+import hudson.model.Run;
+import hudson.plugins.cobertura.BuildUtils;
+import hudson.plugins.cobertura.Chartable;
+import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.cobertura.CoberturaPublisher;
+import hudson.plugins.cobertura.CoverageChart;
+import hudson.plugins.cobertura.Ratio;
 import hudson.util.Graph;
 import hudson.util.TextFile;
 
@@ -40,9 +49,6 @@ import org.kohsuke.stapler.export.ExportedBean;
  */
 @ExportedBean(defaultVisibility = 2)
 public class CoverageResult implements Serializable, Chartable {
-
-    private static final String DEFAULT_CSS_FILE = "style.css";
-    private static final String COLOR_BLIND_CSS_FILE = "style-color-blind.css";
 
     /**
      * Generated
@@ -503,6 +509,7 @@ public class CoverageResult implements Serializable, Chartable {
     }
 
     /**
+     * @Since TODO
      *
      * @return whether enable color blind mode in global config
      */
