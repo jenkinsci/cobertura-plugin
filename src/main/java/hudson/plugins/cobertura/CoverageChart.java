@@ -2,13 +2,12 @@ package hudson.plugins.cobertura;
 
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.util.ChartUtil;
-import hudson.util.ColorPalette;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.util.Map;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -29,6 +28,49 @@ public class CoverageChart
 	private CategoryDataset	dataset;
 	private int					lowerBound;
 	private int					upperBound;
+
+	private static final List<Color> customLineColor = Collections.unmodifiableList(Arrays.asList(
+			new Color(0xd65e00),
+			new Color(0x0072b2),
+			new Color(0x523105),
+			new Color(0x009e73),
+			new Color(0x56b4e9),
+			new Color(0xcc79a7)
+
+		));
+
+	private static final List<BasicStroke> customLineStroke = Collections.unmodifiableList(Arrays.asList(
+			new BasicStroke(
+					2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND
+			),
+			new BasicStroke(4.0f, // line width
+					BasicStroke.CAP_ROUND, // the decoration of ends of a BasicStroke
+					BasicStroke.JOIN_ROUND, // the decoration applied where path segement meet
+					1.0f,
+					new float[] {1.0f, 6.0f}, //the array representing the dashing pattern
+					0.0f //the offset to start the dashing pattern
+			),
+
+			new BasicStroke(
+					2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+					1.0f, new float[] {8.0f, 6.0f}, 0.0f
+			),
+			new BasicStroke(
+					2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND
+			),
+			new BasicStroke(
+					2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+					1.0f, new float[] {6.0f, 6.0f}, 0.0f
+			),
+			new BasicStroke(
+					2.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND,
+					1.0f, new float[] {2.0f, 6.0f}, 0.0f
+			)
+	));
+
+	private static final List<Boolean> customShapeVisible = Collections.unmodifiableList(Arrays.asList(
+			false, false, false, true, true, true
+	));
 
 	/**
 	 * Constructor
@@ -138,7 +180,7 @@ public class CoverageChart
 		plot.setBackgroundPaint( Color.WHITE );
 		plot.setOutlinePaint( null );
 		plot.setRangeGridlinesVisible( true );
-		plot.setRangeGridlinePaint( Color.black );
+		plot.setRangeGridlinePaint( Color.gray );
 
 		CategoryAxis domainAxis = new ShiftedCategoryAxis( null );
 		plot.setDomainAxis( domainAxis );
@@ -151,10 +193,17 @@ public class CoverageChart
 		rangeAxis.setStandardTickUnits( NumberAxis.createIntegerTickUnits() );
 		rangeAxis.setUpperBound( upperBound );
 		rangeAxis.setLowerBound( lowerBound );
-
 		final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-		renderer.setBaseStroke( new BasicStroke( 1.5f ) );
-		ColorPalette.apply( renderer );
+
+		for (int i = 0; i < customLineColor.size(); i++)
+		{
+			Color c = customLineColor.get(i);
+			renderer.setSeriesPaint(i, c);
+			Stroke s = customLineStroke.get(i);
+			renderer.setSeriesStroke(i, s);
+			renderer.setSeriesShapesVisible(i, customShapeVisible.get(i));
+		}
+
 
 		// crop extra space around the graph
 		plot.setInsets( new RectangleInsets( 5.0, 0, 0, 5.0 ) );

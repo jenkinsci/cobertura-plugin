@@ -10,3 +10,10 @@ div.percentgraph span.text {
     color: #000 !important;
 }
 
+table.source tr.coverFull {
+    background-color: #009e73 !important;
+}
+
+table.source tr.coverNone {
+    background-color: #cc79a7 !important;
+}
