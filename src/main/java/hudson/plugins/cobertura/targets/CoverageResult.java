@@ -509,7 +509,7 @@ public class CoverageResult implements Serializable, Chartable {
     }
 
     /**
-     * @Since TODO
+     * @since TODO
      *
      * @return whether enable color blind mode in global config
      */
