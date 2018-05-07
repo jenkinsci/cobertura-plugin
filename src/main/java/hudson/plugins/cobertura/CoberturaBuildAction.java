@@ -17,7 +17,6 @@ import jenkins.tasks.SimpleBuildStep;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -42,19 +41,21 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
     private transient Run<?, ?> owner;
     private CoverageTarget healthyTarget;
     private CoverageTarget unhealthyTarget;
-    private boolean failUnhealthy;
-    private boolean failUnstable;
-    private boolean autoUpdateHealth;
-    private boolean autoUpdateStability;
-    private boolean zoomCoverageChart;
-    private int maxNumberOfBuilds;
+    private final boolean failUnhealthy;
+    private final boolean failUnstable;
+    private final boolean autoUpdateHealth;
+    private final boolean autoUpdateStability;
+    private final boolean zoomCoverageChart;
+    private final int maxNumberOfBuilds;
     /**
      * Overall coverage result.
      */
     private Map<CoverageMetric, Ratio> result;
     private HealthReport health = null;
     private transient WeakReference<CoverageResult> report;
-    private boolean onlyStable;
+    private final boolean onlyStable;
+    
+    private String failMessage = null;
 
     /**
      * {@inheritDoc}
@@ -157,6 +158,25 @@ public class CoberturaBuildAction implements HealthReportingAction, StaplerProxy
             }
         }
     }
+
+    /**
+     * Getter for property 'failMessage'
+     * 
+     * @return Value for property 'failMessage'
+     */
+    public String getFailMessage() {
+        return failMessage;
+    }
+
+    /**
+     * Setter for property 'failMessage'
+     * 
+     * @param failMessage value to set for 'failMessage'
+     */
+    public void setFailMessage(String failMessage) {
+        this.failMessage = failMessage;
+    }
+
 
     public Map<CoverageMetric, Ratio> getResults() {
         return result;

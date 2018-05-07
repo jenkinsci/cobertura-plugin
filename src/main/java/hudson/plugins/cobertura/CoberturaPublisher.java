@@ -5,8 +5,6 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.Action;
-import hudson.model.AbstractItem;
 import hudson.model.AbstractProject;
 import hudson.model.Result;
 import hudson.model.Run;
@@ -28,7 +26,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.IOException;
-import java.lang.Float;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -43,6 +43,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.ConvertUtils;
@@ -178,7 +180,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      *
      * @param targets Value to set for property 'targets'.
      */
-    private void setTargets(List<CoberturaPublisherTarget> targets) {
+    private void setTargets(List<CoberturaPublisherTarget> targets) throws AbortException {
         healthyTarget.clear();
         unhealthyTarget.clear();
         failingTarget.clear();
@@ -199,6 +201,30 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                 rounded = roundDecimalFloat(rounded);
                 failingTarget.setTarget(target.getMetric(), (int) ((float) 100000f * rounded));
             }
+            setTargetString(target);
+        }
+    }
+    
+    private void setTargetString(CoberturaPublisherTarget target) throws AbortException {
+        switch (target.getMetric()) {
+            case PACKAGES:
+                setPackageCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case FILES:
+                setFileCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case CLASSES:
+                setClassCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case METHOD:
+                setMethodCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case LINE:
+                setLineCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
+            case CONDITIONAL:
+                setConditionalCoverageTargets(MessageFormat.format("{0}", target.toString()));
+                break;
         }
     }
 
@@ -505,11 +531,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         Result threshold = onlyStable ? Result.SUCCESS : Result.FAILURE;
         Result buildResult = build.getResult();
         if (buildResult != null && buildResult.isWorseThan(threshold)) {
-            listener.getLogger().println("Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
+            logMessage(listener, "Skipping Cobertura coverage report as build was not " + threshold.toString() + " or better ...");
             return;
         }
 
-        listener.getLogger().println("[Cobertura] Publishing Cobertura coverage report...");
+        logMessage(listener, "Publishing Cobertura coverage report...");
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
 
@@ -526,20 +552,20 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         } catch (IOException e) {
             Util.displayIOException(e, listener);
             e.printStackTrace(listener.fatalError("Unable to find coverage results"));
-            throw new AbortException("Unable to find coverage results");
+            throw new CoberturaAbortException("Unable to find coverage results");
         }
 
         if (reports.length == 0) {
-            String msg = "[Cobertura] No coverage results were found using the pattern '"
+            String msg = "No coverage results were found using the pattern '"
                     + coberturaReportFile + "' relative to '"
                     + workspace.getRemote() + "'."
                     + "  Did you enter a pattern relative to the correct directory?"
                     + "  Did you generate the XML report(s) for Cobertura?";
-            listener.getLogger().println(msg);
+            logMessage(listener, msg);
             if (failNoReports) {
-                throw new AbortException(msg);
+                throw new CoberturaAbortException(msg);
             } else {
-                listener.getLogger().println("[Cobertura] Skipped cobertura reports.");
+                logMessage(listener, "Skipped cobertura reports.");
             }
             return;
         }
@@ -552,11 +578,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                 Util.displayIOException(e, listener);
                 String msg = "Unable to copy coverage from " + reports[i] + " to " + buildTarget;
                 e.printStackTrace(listener.fatalError(msg));
-                throw new AbortException(msg);
+                throw new CoberturaAbortException(msg);
             }
         }
 
-        listener.getLogger().println("Publishing Cobertura coverage results...");
+        logMessage(listener, "Publishing Cobertura coverage results...");
         Set<String> sourcePaths = new HashSet<String>();
         CoverageResult result = null;
         for (File coberturaXmlReport : getCoberturaReports(build)) {
@@ -565,11 +591,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             } catch (IOException e) {
                 Util.displayIOException(e, listener);
                 e.printStackTrace(listener.fatalError("Unable to parse " + coberturaXmlReport));
-                throw new AbortException("Unable to parse " + coberturaXmlReport);
+                throw new CoberturaAbortException("Unable to parse " + coberturaXmlReport);
             }
         }
         if (result != null) {
-            listener.getLogger().println("Cobertura coverage report found.");
+            logMessage(listener, "Cobertura coverage report found.");
             result.setOwner(build);
             final FilePath paintedSourcesPath = new FilePath(new File(build.getParent().getRootDir(), "cobertura"));
             paintedSourcesPath.mkdirs();
@@ -596,25 +622,26 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             build.addAction(action);
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
             if (!failingMetrics.isEmpty()) {
-                listener.getLogger().println("Code coverage enforcement failed for the following metrics:");
+                logMessage(listener, "Code coverage enforcement failed for the following metrics:");
                 float oldStabilityPercent;
                 float setStabilityPercent;
                 for (CoverageMetric metric : failingMetrics) {
                     oldStabilityPercent = failingTarget.getObservedPercent(result, metric);
                     setStabilityPercent = failingTarget.getSetPercent(result, metric);
-                    listener.getLogger().println("    " + metric.getName() + "'s stability is " + roundDecimalFloat(oldStabilityPercent * 100f) + " and set mininum stability is " + roundDecimalFloat(setStabilityPercent * 100f) + ".");
+                    logMessage(listener, "    " + metric.getName() + "'s stability is " + roundDecimalFloat(oldStabilityPercent * 100f) + " and set mininum stability is " + roundDecimalFloat(setStabilityPercent * 100f) + ".");
                 }
                 if (!getFailUnstable()) {
-                    listener.getLogger().println("Setting Build to unstable.");
+                    logMessage(listener, "Setting Build to unstable.");
                     build.setResult(Result.UNSTABLE);
                 } else {
-                    throw new AbortException("Failing build due to unstability.");
+                    action.setFailMessage(String.format("Build failed because following metrics did not meet stability target: %s.", failingMetrics.toString()));
+                    throw new CoberturaAbortException("Failing build due to unstability.");
                 }
             }
             if (getFailUnhealthy()) {
                 Set<CoverageMetric> unhealthyMetrics = unhealthyTarget.getFailingMetrics(result);
                 if (!unhealthyMetrics.isEmpty()) {
-                    listener.getLogger().println("Unhealthy for the following metrics:");
+                    logMessage(listener, "Unhealthy for the following metrics:");
                     float oldHealthyPercent;
                     float setHealthyPercent;
                     for (CoverageMetric metric : unhealthyMetrics) {
@@ -622,7 +649,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                         setHealthyPercent = unhealthyTarget.getSetPercent(result, metric);
                         listener.getLogger().println("    " + metric.getName() + "'s health is " + roundDecimalFloat(oldHealthyPercent * 100f) + " and set minimum health is " + roundDecimalFloat(setHealthyPercent * 100f) + ".");
                     }
-                    throw new AbortException("Failing build because it is unhealthy.");
+                    action.setFailMessage(String.format("Build failed because following metrics did not meet health target: %s.", unhealthyMetrics.toString()));
+                    throw new CoberturaAbortException("Failing build because it is unhealthy.");
                 }
             }
             if (build.getResult() == null || build.getResult() == Result.SUCCESS) {
@@ -635,7 +663,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                 }
             }
         } else {
-            throw new AbortException("No coverage results were successfully parsed.  Did you generate "
+            throw new CoberturaAbortException("No coverage results were successfully parsed.  Did you generate "
                     + "the XML report(s) for Cobertura?");
         }
     }
@@ -644,14 +672,14 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      * Parses any coverage strings provided to the plugin and sets the
      * coverage targets.
      * 
-     * @throws AbortException
+     * @throws CoberturaAbortException
      */
-    private void setAllCoverageTargets() throws AbortException {
+    private void setAllCoverageTargets() throws CoberturaAbortException {
       if (lineCoverageTargets != null) {
         try {
           setCoverageTargets(CoverageMetric.LINE, lineCoverageTargets);
         } catch (NumberFormatException e) {
-          throw new AbortException("Invalid value for lineCoverageTargets");
+          throw new CoberturaAbortException("Invalid value for lineCoverageTargets");
         }
       }
 
@@ -659,7 +687,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         try {
           setCoverageTargets(CoverageMetric.PACKAGES, packageCoverageTargets);
         } catch (NumberFormatException e) {
-          throw new AbortException("Invalid value for packageCoverageTargets");
+          throw new CoberturaAbortException("Invalid value for packageCoverageTargets");
         }
       }
 
@@ -667,7 +695,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         try {
           setCoverageTargets(CoverageMetric.FILES, fileCoverageTargets);
         } catch (NumberFormatException e) {
-          throw new AbortException("Invalid value for fileCoverageTargets");
+          throw new CoberturaAbortException("Invalid value for fileCoverageTargets");
         }
       }
 
@@ -675,7 +703,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         try {
           setCoverageTargets(CoverageMetric.CLASSES, classCoverageTargets);
         } catch (NumberFormatException e) {
-          throw new AbortException("Invalid value for classCoverageTargets");
+          throw new CoberturaAbortException("Invalid value for classCoverageTargets");
         }
       }
 
@@ -683,7 +711,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         try {
           setCoverageTargets(CoverageMetric.METHOD, methodCoverageTargets);
         } catch (NumberFormatException e) {
-          throw new AbortException("Invalid value for methodCoverageTargets");
+          throw new CoberturaAbortException("Invalid value for methodCoverageTargets");
         }
       }
 
@@ -691,7 +719,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         try {
           setCoverageTargets(CoverageMetric.CONDITIONAL, conditionalCoverageTargets);
         } catch (NumberFormatException e) {
-          throw new AbortException("Invalid value for conditionalCoverageTargets");
+          throw new CoberturaAbortException("Invalid value for conditionalCoverageTargets");
         }
       }      
     }
@@ -707,7 +735,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
       float[] result = new float[3];
 
       for (int i = 0; i < targetValues.length && i < result.length; i++) {
-        result[i] = Float.valueOf(targetValues[i]);
+        try {
+            result[i] = Float.valueOf(targetValues[i]);
+        } catch (NumberFormatException ex) {
+            result[i] = 0;
+        }
       }
       return result;
     }
@@ -756,6 +788,14 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                 }
             }
         }
+    }
+    
+    static private void logMessage(TaskListener listener, String message) {
+        listener.getLogger().printf("%s%n", wrappedMessage(message));
+    }
+    
+    static private String wrappedMessage(String message) {
+        return String.format("[Cobertura] %s%n", message);
     }
 
     /**
@@ -872,8 +912,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
          */
         public List<CoberturaPublisherTarget> getDefaultTargets() {
             List<CoberturaPublisherTarget> result = new ArrayList<CoberturaPublisherTarget>();
-            result.add(new CoberturaPublisherTarget(CoverageMetric.METHOD, 80f, null, null));
-            result.add(new CoberturaPublisherTarget(CoverageMetric.LINE, 80f, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.METHOD, CoberturaPublisherTarget.DEFAULT_HEALTHY_TARGET, null, null));
+            result.add(new CoberturaPublisherTarget(CoverageMetric.LINE, CoberturaPublisherTarget.DEFAULT_HEALTHY_TARGET, null, null));
             result.add(new CoberturaPublisherTarget(CoverageMetric.CONDITIONAL, 70f, null, null));
             return result;
         }
@@ -903,12 +943,19 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             // Null check because findbugs insists, despite the API guaranteeing this is never null.
             if (req == null) {
                 throw new FormException("req cannot be null", "");
-            }
+            }            
             CoberturaPublisher instance = req.bindJSON(CoberturaPublisher.class, formData);
             ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
             List<CoberturaPublisherTarget> targets = req
                     .bindParametersToList(CoberturaPublisherTarget.class, "cobertura.target.");
-            instance.setTargets(targets);
+            if (0 == targets.size()) {
+                targets = bindTargetsFromForm(formData);
+            }
+            try {
+                instance.setTargets(targets);
+            } catch (AbortException ex) {
+                Logger.getLogger(CoberturaPublisher.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return instance;
         }
 
@@ -917,6 +964,53 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;
         }
+    }
+    
+    private static List<CoberturaPublisherTarget> bindTargetsFromForm(JSONObject formData) {
+        ArrayList<CoberturaPublisherTarget> targets = new ArrayList<>();
+        
+        JSONArray coverageTargets = null;
+        Object coverageTargetsObject = formData.get("inst");
+
+        if (coverageTargetsObject instanceof JSONObject) {
+            CoberturaPublisherTarget target = targetFromJSONObject((JSONObject)coverageTargetsObject);
+            if (null != target) {                    
+                targets.add(target);
+            }
+        }            
+        else if (coverageTargetsObject instanceof JSONArray) {
+            coverageTargets = (JSONArray)coverageTargetsObject;
+            for (Object targetObject : coverageTargets) {
+                CoberturaPublisherTarget target = targetFromJSONObject((JSONObject)targetObject);
+                if (null != target) {                    
+                    targets.add(target);
+                }
+            }
+        }
+        return targets;
+    }
+    
+    private static Float getFloat(JSONObject object, String key) {
+        Float floatValue = new Float(object.optDouble(key));
+        
+        return floatValue.isNaN() ? null : floatValue;
+    }
+    
+    private static CoberturaPublisherTarget targetFromJSONObject(Object targetObject) {
+        if (targetObject != null && targetObject instanceof JSONObject) {
+            JSONObject targetJSONObject = (JSONObject)targetObject;
+            try {
+                CoverageMetric metric = CoverageMetric.valueOf(targetJSONObject.getString("metric"));
+                return new CoberturaPublisherTarget(metric, 
+                        getFloat(targetJSONObject, "healthy"), 
+                        getFloat(targetJSONObject, "unhealthy"), 
+                        getFloat(targetJSONObject, "unstable"));
+            } catch (JSONException ex) {
+                Logger.getLogger(CoberturaPublisher.class.getName()).log(Level.SEVERE, null, ex);
+            }            
+        }
+            
+        return null;
     }
 
     private static class CoberturaReportFilenameFilter implements FilenameFilter {
