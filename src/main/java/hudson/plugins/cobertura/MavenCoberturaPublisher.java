@@ -237,7 +237,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
     /**
      * Descriptor should be singleton.
      */
-    @Extension
+    @Extension(optional = true)
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static final class DescriptorImpl extends MavenReporterDescriptor {

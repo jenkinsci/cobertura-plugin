@@ -10,8 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import org.jvnet.hudson.test.Bug;
 import org.netbeans.insane.scanner.CountingVisitor;
 import org.netbeans.insane.scanner.ScannerUtils;
