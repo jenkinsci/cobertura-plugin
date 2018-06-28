@@ -5,6 +5,10 @@
              description="${%xml.report.pattern.description}">
         <f:textbox name="cobertura.coberturaReportFile" value="${instance.coberturaReportFile}"/>
     </f:entry>
+
+    <f:optionalProperty title="Use New API" field="newApiAdapter">
+    </f:optionalProperty>
+
     <f:advanced>
         <f:entry title="${%Consider only stable builds}"
              description="${%only.stable.builds.description}" >

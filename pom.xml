@@ -16,7 +16,7 @@
 
   <properties>
     <jenkins.version>2.13</jenkins.version>
-    <java.level>7</java.level>
+    <java.level>8</java.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <workflow-jenkins-plugin.version>1.11</workflow-jenkins-plugin.version>
   </properties>
@@ -57,7 +57,12 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>structs</artifactId>
-      <version>1.2</version>
+      <version>1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins.plugins</groupId>
+      <artifactId>code-coverage-api</artifactId>
+      <version>1.0.0-alpha-2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.easymock</groupId>
