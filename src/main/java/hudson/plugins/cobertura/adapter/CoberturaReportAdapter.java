@@ -43,11 +43,6 @@ public final class CoberturaReportAdapter extends JavaXMLCoverageReportAdapter {
         return null;
     }
 
-    @Override
-    public Descriptor getCompatiblePluginDescriptor() {
-        return Jenkins.getInstance().getDescriptorOrDie(CoberturaPublisher.class);
-    }
-
     @Symbol("cobertura")
     @Extension
     public static final class CoverturaReportAdapterDescriptor
