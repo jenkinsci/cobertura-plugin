@@ -9,6 +9,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.plugins.cobertura.adapter.CoberturaReportAdapter;
 import hudson.plugins.cobertura.renderers.SourceCodePainter;
 import hudson.plugins.cobertura.renderers.SourceEncoding;
 import hudson.plugins.cobertura.targets.CoverageMetric;
@@ -99,6 +100,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     public static final CoberturaReportFilenameFilter COBERTURA_FILENAME_FILTER = new CoberturaReportFilenameFilter();
 
     private SourceEncoding sourceEncoding = SourceEncoding.UTF_8;
+
+    private boolean enableNewApi;
 
     @Deprecated
     public CoberturaPublisher(String coberturaReportFile, boolean onlyStable, boolean failUnhealthy, boolean failUnstable,
@@ -620,6 +623,12 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                     getZoomCoverageChart(), getMaxNumberOfBuilds());
 
             build.addAction(action);
+
+            if(enableNewApi) {
+                CoberturaReportAdapter newApiAdapter = new CoberturaReportAdapter(coberturaReportFile);
+                newApiAdapter.performCoveragePlugin(build, workspace, launcher, listener);
+            }
+
             Set<CoverageMetric> failingMetrics = failingTarget.getFailingMetrics(result);
             if (!failingMetrics.isEmpty()) {
                 logMessage(listener, "Code coverage enforcement failed for the following metrics:");
@@ -814,6 +823,14 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         return sourceEncoding;
     }
 
+    public boolean isEnableNewApi() {
+        return enableNewApi;
+    }
+
+    @DataBoundSetter
+    public void setEnableNewApi(boolean enableNewApi) {
+        this.enableNewApi = enableNewApi;
+    }
 
     public static class ParseReportCallable extends MasterToSlaveFileCallable<FilePath[]> {
 

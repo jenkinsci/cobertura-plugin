@@ -6,8 +6,9 @@
         <f:textbox name="cobertura.coberturaReportFile" value="${instance.coberturaReportFile}"/>
     </f:entry>
 
-    <f:optionalProperty title="Use New API" field="newApiAdapter">
-    </f:optionalProperty>
+    <f:entry title="Enable New API">
+        <f:checkbox name="cobertura.enableNewApi" checked="${instance.enableNewApi}"/>
+    </f:entry>
 
     <f:advanced>
         <f:entry title="${%Consider only stable builds}"
