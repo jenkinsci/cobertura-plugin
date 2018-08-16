@@ -1,13 +1,10 @@
 package hudson.plugins.cobertura.adapter;
 
 import hudson.Extension;
-import hudson.model.Descriptor;
-import hudson.plugins.cobertura.CoberturaPublisher;
-import io.jenkins.plugins.coverage.adapter.CoverageReportAdapterDescriptor;
+import io.jenkins.plugins.coverage.adapter.JavaCoverageReportAdapterDescriptor;
 import io.jenkins.plugins.coverage.adapter.JavaXMLCoverageReportAdapter;
 import io.jenkins.plugins.coverage.adapter.util.XMLUtils;
 import io.jenkins.plugins.coverage.detector.Detectable;
-import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.w3c.dom.Document;
@@ -46,7 +43,7 @@ public final class CoberturaReportAdapter extends JavaXMLCoverageReportAdapter {
     @Symbol("cobertura")
     @Extension
     public static final class CoberturaReportAdapterDescriptor
-            extends CoverageReportAdapterDescriptor<CoberturaReportAdapter>
+            extends JavaCoverageReportAdapterDescriptor
             implements Detectable {
 
         public CoberturaReportAdapterDescriptor() {
