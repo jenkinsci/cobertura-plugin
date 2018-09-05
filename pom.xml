@@ -15,7 +15,7 @@
   <url>https://wiki.jenkins.io/display/JENKINS/Cobertura+Plugin</url>
 
   <properties>
-    <jenkins.version>2.13</jenkins.version>
+    <jenkins.version>2.19.4</jenkins.version>
     <java.level>7</java.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <workflow-jenkins-plugin.version>1.11</workflow-jenkins-plugin.version>
@@ -54,6 +54,12 @@
   </developers>
 
   <dependencies>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>annotations</artifactId>
+      <version>3.0.1</version>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>structs</artifactId>
