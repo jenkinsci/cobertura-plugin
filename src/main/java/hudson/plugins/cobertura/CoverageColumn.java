@@ -88,8 +88,15 @@ public class CoverageColumn extends ListViewColumn {
         if (action != null) {
             CoberturaBuildAction lastResult = action.getLastResult();
             if (lastResult != null) {
-                int line = lastResult.getResult().getCoverage(CoverageMetric.LINE).getPercentage();
-                int branch = lastResult.getResult().getCoverage(CoverageMetric.CONDITIONAL).getPercentage();
+                int line = 0;
+                int branch = 0;
+                if (lastResult.getResult().getCoverage(CoverageMetric.LINE) != null) {
+                    line = lastResult.getResult().getCoverage(CoverageMetric.LINE).getPercentage();
+                }
+                if (lastResult.getResult().getCoverage(CoverageMetric.CONDITIONAL) != null) {
+                    branch = lastResult.getResult().getCoverage(CoverageMetric.CONDITIONAL).getPercentage();
+                }
+
                 if ("both".equals(type)) {
                     return Messages.CoverageColumn_both(line, branch);
                 }
