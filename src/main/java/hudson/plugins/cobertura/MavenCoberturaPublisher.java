@@ -226,27 +226,8 @@ public class MavenCoberturaPublisher extends MavenReporter {
         return Collections.singleton(new CoberturaProjectAction(project.getLastBuild()));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public MavenReporterDescriptor getDescriptor() {
-        return DESCRIPTOR;
-    }
-
-    /**
-     * Descriptor should be singleton.
-     */
     @Extension(optional = true)
-    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
-
     public static final class DescriptorImpl extends MavenReporterDescriptor {
-        /**
-         * Do not instantiate DescriptorImpl.
-         */
-        private DescriptorImpl() {
-            super(MavenCoberturaPublisher.class);
-        }
 
         /**
          * {@inheritDoc}
