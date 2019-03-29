@@ -10,9 +10,18 @@
             <group>
                 <xsl:apply-templates select="coverage/packages/package"/>
             </group>
+            <xsl:apply-templates select="coverage/sources/source"/>
         </report>
     </xsl:template>
 
+
+    <xsl:template match="coverage/sources/source">
+        <additionalProperty name="source-file-path">
+            <xsl:attribute name="value">
+                <xsl:value-of select="text()"/>
+            </xsl:attribute>
+        </additionalProperty>
+    </xsl:template>
 
     <xsl:template match="coverage/packages/package">
         <package>
