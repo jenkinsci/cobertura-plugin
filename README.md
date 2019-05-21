@@ -1,7 +1,7 @@
 # Cobertura Plugin
 
 [![Build
-Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/cobertura-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/cobertura-plugin/)
+Status](https://ci.jenkins.io/job/Plugins/job/cobertura-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/cobertura-plugin/job/master/)
 
 This plugin allows you to capture code coverage report from
 [Cobertura](https://github.com/cobertura/cobertura/).
