@@ -10,7 +10,7 @@
 
   <artifactId>cobertura</artifactId>
   <packaging>hpi</packaging>
-  <version>1.14-SNAPSHOT</version>
+  <version>1.14</version>
   <name>Jenkins Cobertura Plugin</name>
   <url>https://wiki.jenkins.io/display/JENKINS/Cobertura+Plugin</url>
 
@@ -32,7 +32,7 @@
    <connection>scm:git:git://github.com/jenkinsci/cobertura-plugin.git</connection>
    <developerConnection>scm:git:git@github.com:jenkinsci/cobertura-plugin.git</developerConnection>
    <url>https://github.com/jenkinsci/cobertura-plugin</url>
-    <tag>HEAD</tag>
+    <tag>cobertura-1.14</tag>
   </scm>
 
   <developers>
