@@ -207,7 +207,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             setTargetString(target);
         }
     }
-    
+
     private void setTargetString(CoberturaPublisherTarget target) throws AbortException {
         switch (target.getMetric()) {
             case PACKAGES:
@@ -530,6 +530,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             throws InterruptedException, IOException {
 
         setAllCoverageTargets();
+        recoverAutoUpdatedTargets(build);
 
         Result threshold = onlyStable ? Result.SUCCESS : Result.FAILURE;
         Result buildResult = build.getResult();
@@ -677,10 +678,59 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         }
     }
 
+    private void recoverAutoUpdatedTargets(Run<?, ?> build) {
+        CoberturaCoverageRecordAction currentRecordAction = new CoberturaCoverageRecordAction();
+        currentRecordAction.setAutoUpdateHealth(getAutoUpdateHealth());
+        currentRecordAction.setAutoUpdateStability(getAutoUpdateStability());
+
+        CoverageTarget currentSetUnhealthyTarget = new CoverageTarget();
+        for (CoverageMetric target : unhealthyTarget.getTargets()) {
+            currentSetUnhealthyTarget.setTarget(target, unhealthyTarget.getTarget(target));
+        }
+        CoverageTarget currentSetFailingTarget = new CoverageTarget();
+        for (CoverageMetric target : failingTarget.getTargets()) {
+            currentSetFailingTarget.setTarget(target, failingTarget.getTarget(target));
+        }
+
+        currentRecordAction.setLastUnhealthyTarget(currentSetUnhealthyTarget);
+        currentRecordAction.setLastFailingTarget(currentSetFailingTarget);
+
+        Run lastBuild = BuildUtils.getPreviousNotFailedCompletedBuild(build);
+        CoberturaCoverageRecordAction lastRecordAction;
+        if (lastBuild != null && (lastRecordAction = lastBuild.getAction(CoberturaCoverageRecordAction.class)) != null) {
+            if (getAutoUpdateHealth() && lastRecordAction.isAutoUpdateHealth()) {
+                CoverageTarget lastSetUnhealthyTarget = lastRecordAction.getLastUnhealthyTarget();
+                CoverageTarget lastUpdatedUnhealthyTarget = lastRecordAction.getLastUpdatedUnhealthyTarget();
+                for (CoverageMetric target : unhealthyTarget.getTargets()) {
+                    // if the unhealthy target hasn't updated, we will use the auto-updated value from the last build
+                    if (unhealthyTarget.getTarget(target).equals(lastSetUnhealthyTarget.getTarget(target))) {
+                        unhealthyTarget.setTarget(target, lastUpdatedUnhealthyTarget.getTarget(target));
+                    }
+                }
+            }
+
+            if (getAutoUpdateStability() && lastRecordAction.isAutoUpdateStability()) {
+                CoverageTarget lastFailingTarget = lastRecordAction.getLastFailingTarget();
+                CoverageTarget lastUpdatedFailingTarget = lastRecordAction.getLastUpdatedFailingTarget();
+                for (CoverageMetric target : failingTarget.getTargets()) {
+                    // if the failing target hasn't updated, we will use the auto-updated value from the last build
+                    if (failingTarget.getTarget(target).equals(lastFailingTarget.getTarget(target))) {
+                        failingTarget.setTarget(target, lastUpdatedFailingTarget.getTarget(target));
+                    }
+                }
+            }
+        }
+
+        currentRecordAction.setLastUpdatedUnhealthyTarget(unhealthyTarget);
+        currentRecordAction.setLastUpdatedFailingTarget(failingTarget);
+
+        build.addAction(currentRecordAction);
+    }
+
     /**
      * Parses any coverage strings provided to the plugin and sets the
      * coverage targets.
-     * 
+     *
      * @throws CoberturaAbortException
      */
     private void setAllCoverageTargets() throws CoberturaAbortException {
@@ -730,11 +780,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         } catch (NumberFormatException e) {
           throw new CoberturaAbortException("Invalid value for conditionalCoverageTargets");
         }
-      }      
+      }
     }
 
     /**
-     * Parses a coverage string into the parts. A coverage string is of the 
+     * Parses a coverage string into the parts. A coverage string is of the
      * form <health y%>,<unhealthy %>,<unstable %>
      * @param targets The coverage string
      * @return an array[3] of floats with the coverage thresholds
@@ -798,11 +848,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             }
         }
     }
-    
+
     static private void logMessage(TaskListener listener, String message) {
         listener.getLogger().printf("%s%n", wrappedMessage(message));
     }
-    
+
     static private String wrappedMessage(String message) {
         return String.format("[Cobertura] %s%n", message);
     }
@@ -960,7 +1010,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             // Null check because findbugs insists, despite the API guaranteeing this is never null.
             if (req == null) {
                 throw new FormException("req cannot be null", "");
-            }            
+            }
             CoberturaPublisher instance = req.bindJSON(CoberturaPublisher.class, formData);
             ConvertUtils.register(CoberturaPublisherTarget.CONVERTER, CoverageMetric.class);
             List<CoberturaPublisherTarget> targets = req
@@ -982,51 +1032,51 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             return true;
         }
     }
-    
+
     private static List<CoberturaPublisherTarget> bindTargetsFromForm(JSONObject formData) {
         ArrayList<CoberturaPublisherTarget> targets = new ArrayList<>();
-        
+
         JSONArray coverageTargets = null;
         Object coverageTargetsObject = formData.get("inst");
 
         if (coverageTargetsObject instanceof JSONObject) {
             CoberturaPublisherTarget target = targetFromJSONObject((JSONObject)coverageTargetsObject);
-            if (null != target) {                    
+            if (null != target) {
                 targets.add(target);
             }
-        }            
+        }
         else if (coverageTargetsObject instanceof JSONArray) {
             coverageTargets = (JSONArray)coverageTargetsObject;
             for (Object targetObject : coverageTargets) {
                 CoberturaPublisherTarget target = targetFromJSONObject((JSONObject)targetObject);
-                if (null != target) {                    
+                if (null != target) {
                     targets.add(target);
                 }
             }
         }
         return targets;
     }
-    
+
     private static Float getFloat(JSONObject object, String key) {
         Float floatValue = new Float(object.optDouble(key));
-        
+
         return floatValue.isNaN() ? null : floatValue;
     }
-    
+
     private static CoberturaPublisherTarget targetFromJSONObject(Object targetObject) {
         if (targetObject != null && targetObject instanceof JSONObject) {
             JSONObject targetJSONObject = (JSONObject)targetObject;
             try {
                 CoverageMetric metric = CoverageMetric.valueOf(targetJSONObject.getString("metric"));
-                return new CoberturaPublisherTarget(metric, 
-                        getFloat(targetJSONObject, "healthy"), 
-                        getFloat(targetJSONObject, "unhealthy"), 
+                return new CoberturaPublisherTarget(metric,
+                        getFloat(targetJSONObject, "healthy"),
+                        getFloat(targetJSONObject, "unhealthy"),
                         getFloat(targetJSONObject, "unstable"));
             } catch (JSONException ex) {
                 Logger.getLogger(CoberturaPublisher.class.getName()).log(Level.SEVERE, null, ex);
-            }            
+            }
         }
-            
+
         return null;
     }
 
