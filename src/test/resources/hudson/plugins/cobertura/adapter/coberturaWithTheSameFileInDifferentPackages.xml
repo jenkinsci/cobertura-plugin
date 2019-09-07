@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-03.dtd">
+
+<coverage line-rate="0.9" branch-rate="0.75" version="1.9" timestamp="1187350905008">
+    <sources>
+        <source></source>
+    </sources>
+    <packages>
+        <package name="MyAssemblyOne" line-rate="0.6" branch-rate="0.6" complexity="3.0">
+            <classes>
+                <class name="TestClass" filename="C:\Repos\testrepo.git\TestClass.cs" line-rate="0.2" branch-rate="0.2" complexity="3.0">
+                    <methods>
+                        <method name="ProcessAction" signature="()" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line number="4" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="CheckCodeCoverage" signature="()" line-rate="1.0" branch-rate="1.0">
+                            <lines>
+                                <line number="5" hits="0" branch="false"/>
+                                <line number="6" hits="0" branch="false"/>
+                                <line number="7" hits="0" branch="false"/>
+                                <line number="8" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="4" hits="1" branch="false"/>
+                        <line number="5" hits="0" branch="false"/>
+                        <line number="6" hits="0" branch="false"/>
+                        <line number="7" hits="0" branch="false"/>
+                        <line number="8" hits="0" branch="false"/>
+                    </lines>
+                </class>
+                <class name="AdditionalClass" filename="C:\Repos\testrepo.git\AdditionalClass.cs" line-rate="1.0" branch-rate="1.0" complexity="3.0">
+                    <methods>
+                        <method name="ProcessAction" signature="()" line-rate="1.0" branch-rate="1.0">
+                            <lines>
+                                <line number="4" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="4" hits="1" branch="false"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+        <package name="MyAssemblyTwo" line-rate="0.8" branch-rate="0.8" complexity="3.5">
+            <classes>
+                <class name="TestClass" filename="C:\Repos\testrepo.git\TestClass.cs" line-rate="0.8" branch-rate="0.8" complexity="3.5">
+                    <methods>
+                        <method name="ProcessAction" signature="()" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line number="4" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="CheckCodeCoverage" signature="()" line-rate="1.0" branch-rate="1.0">
+                            <lines>
+                                <line number="5" hits="1" branch="false"/>
+                                <line number="6" hits="1" branch="false"/>
+                                <line number="7" hits="1" branch="false"/>
+                                <line number="8" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="4" hits="0" branch="false"/>
+                        <line number="5" hits="1" branch="false"/>
+                        <line number="6" hits="1" branch="false"/>
+                        <line number="7" hits="1" branch="false"/>
+                        <line number="8" hits="1" branch="false"/>
+                    </lines>
+                </class>
+        </classes>
+        </package>
+    </packages>
+</coverage>
