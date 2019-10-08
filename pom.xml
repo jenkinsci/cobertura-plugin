@@ -29,9 +29,9 @@
   </licenses>
 
   <scm>
-   <connection>scm:git:git://github.com/jenkinsci/cobertura-plugin.git</connection>
-   <developerConnection>scm:git:git@github.com:jenkinsci/cobertura-plugin.git</developerConnection>
-   <url>https://github.com/jenkinsci/cobertura-plugin</url>
+    <connection>scm:git:git://github.com/jenkinsci/cobertura-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/cobertura-plugin.git</developerConnection>
+    <url>https://github.com/jenkinsci/cobertura-plugin</url>
     <tag>HEAD</tag>
   </scm>
 
