@@ -896,7 +896,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             FilePath[] r = new FilePath(f).list(reportFilePath);
 
             XMLInputFactory factory = XMLInputFactory.newInstance();
-            factory.setProperty("javax.xml.stream.supportDTD", false);
+            factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            factory.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
 
             for (FilePath filePath : r) {
                 InputStream is = null;
