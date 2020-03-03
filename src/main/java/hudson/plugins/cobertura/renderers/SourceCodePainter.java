@@ -4,6 +4,7 @@ import static hudson.plugins.cobertura.IOUtils.closeQuietly;
 
 import hudson.FilePath;
 import hudson.model.TaskListener;
+import hudson.plugins.cobertura.IOUtils;
 import hudson.plugins.cobertura.targets.CoveragePaint;
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
@@ -114,7 +115,7 @@ public class SourceCodePainter extends MasterToSlaveFileCallable<Boolean> implem
      * {@inheritDoc}
      */
     public Boolean invoke(File workspaceDir, VirtualChannel channel) throws IOException {
-        final List<File> trialPaths = new ArrayList<File>(sourcePaths.size());
+        final List<File> trialPaths = new ArrayList<>(sourcePaths.size());
         for (String sourcePath : sourcePaths) {
             final File trialPath = new File(sourcePath);
             if (trialPath.exists()) {
@@ -134,7 +135,9 @@ public class SourceCodePainter extends MasterToSlaveFileCallable<Boolean> implem
             }
             if (source.isFile()) {
                 try {
-                    paintSourceCode(source, entry.getValue(), destination.child(entry.getKey()));
+                    // sanitizing file name to avoid arbitrarily write
+                    String sanitizedName = IOUtils.sanitizeFilename(entry.getKey());
+                    paintSourceCode(source, entry.getValue(), destination.child(sanitizedName));
                 } catch (IOException e) {
                     // We made our best shot at generating painted source code,
                     // but alas, we failed. Log the error and continue. We

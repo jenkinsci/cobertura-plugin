@@ -8,6 +8,7 @@ import hudson.plugins.cobertura.BuildUtils;
 import hudson.plugins.cobertura.Chartable;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.CoverageChart;
+import hudson.plugins.cobertura.IOUtils;
 import hudson.plugins.cobertura.Ratio;
 import hudson.util.Graph;
 import hudson.util.TextFile;
@@ -29,6 +30,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.annotation.Nullable;
 import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -171,9 +173,16 @@ public class CoverageResult implements Serializable, Chartable {
      *
      * @return The file where the source file should be (if it exists)
      */
+    @Nullable
     private File getSourceFile() {
         if (hasPermission()) {
-            return new File(owner.getParent().getRootDir(), "cobertura/" + relativeSourcePath);
+            File sourceFile = new File(owner.getParent().getRootDir(), "cobertura/" + IOUtils.sanitizeFilename(relativeSourcePath));
+            if (sourceFile.exists()) {
+                return sourceFile;
+            } else {
+                // keep compatibility
+                return new File(owner.getParent().getRootDir(), "cobertura/" + relativeSourcePath);
+            }
         }
         return null;
     }
@@ -185,7 +194,8 @@ public class CoverageResult implements Serializable, Chartable {
      */
     public boolean isSourceFileAvailable() {
         if (hasPermission()) {
-            return owner == owner.getParent().getLastSuccessfulBuild() && getSourceFile().exists();
+            File sourceFile = getSourceFile();
+            return owner == owner.getParent().getLastSuccessfulBuild() && sourceFile != null && sourceFile.exists();
         }
         return false;
     }
@@ -202,7 +212,11 @@ public class CoverageResult implements Serializable, Chartable {
     public String getSourceFileContent() {
         if (hasPermission()) {
             try {
-                return new TextFile(getSourceFile()).read();
+                File sourceFile = getSourceFile();
+                if (sourceFile == null) {
+                    return null;
+                }
+                return new TextFile(sourceFile).read();
             } catch (IOException e) {
                 return null;
             }
