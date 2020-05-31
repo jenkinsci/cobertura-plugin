@@ -5,9 +5,6 @@ Status](https://ci.jenkins.io/job/Plugins/job/cobertura-plugin/job/master/badge/
 
 [![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/cobertura.svg)](https://plugins.jenkins.io/cobertura)
 
-<!-- Commenting out the changelog badge as >
-<!-- [![GitHub release](https://img.shields.io/github/release/jenkinsci/cobertura.svg?label=changelog)](https://github.com/jenkinsci/cobertura-plugin/releases/latest) -->
-
 [![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/cobertura.svg?color=blue)](https://plugins.jenkins.io/cobertura)
 
 This plugin allows you to capture code coverage report from
@@ -18,7 +15,7 @@ here](http://updates.jenkins-ci.org/download/plugins/cobertura/).
 ## Version History
 
 - Version history can be found below: [CHANGELOG](#changelog)
-- Tagged releases can be found on the following page: [Releases](https://github.com/dduportal/cobertura-plugin/releases)
+- Tagged releases can be found on the following page: [Releases](https://github.com/jenkinsci/cobertura-plugin/releases)
 
 ⚠️ Older versions of this plugin may not be safe to use. Please review the
 following warnings before using an older version:|
