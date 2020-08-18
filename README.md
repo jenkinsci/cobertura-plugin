@@ -211,7 +211,7 @@ The following excerpt from the *parent* shows how to do so:
 ```
 
 Now that your parent is only using the plugin management section if it is running
-from within Jenkins, you need the childern poms adapted as well:
+from within Jenkins, you need the children poms adapted as well:
 
 ```xml
 <project ...>
