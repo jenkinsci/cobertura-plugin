@@ -1,6 +1,7 @@
 package hudson.plugins.cobertura;
 
 import hudson.AbortException;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -542,10 +543,11 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         logMessage(listener, "Publishing Cobertura coverage report...");
         final File buildCoberturaDir = build.getRootDir();
         FilePath buildTarget = new FilePath(buildCoberturaDir);
+        EnvVars env = build.getEnvironment(listener);
 
         FilePath[] reports = null;
         try {
-            reports = workspace.act(new ParseReportCallable(coberturaReportFile));
+            reports = workspace.act(new ParseReportCallable(env.expand(coberturaReportFile)));
 
             // if the build has failed, then there's not
             // much point in reporting an error
@@ -626,7 +628,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             build.addAction(action);
 
             if(enableNewApi) {
-                CoberturaReportAdapter newApiAdapter = new CoberturaReportAdapter(coberturaReportFile);
+                CoberturaReportAdapter newApiAdapter = new CoberturaReportAdapter(env.expand(coberturaReportFile));
                 newApiAdapter.performCoveragePlugin(build, workspace, launcher, listener);
             }
 
