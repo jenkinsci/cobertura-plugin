@@ -5,14 +5,12 @@ import hudson.plugins.cobertura.targets.CoverageResult;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import org.jvnet.hudson.test.Bug;
-import org.netbeans.insane.scanner.CountingVisitor;
-import org.netbeans.insane.scanner.ScannerUtils;
+import org.jvnet.hudson.test.MemoryAssert;
 
 /**
  * Unit tests for {@link CoberturaCoverageParser}.
@@ -140,29 +138,8 @@ public class CoberturaCoverageParserTest extends TestCase {
             InputStream in = getClass().getResourceAsStream(fileName);
             CoverageResult result = CoberturaCoverageParser.parse(in, null, null);
             result.setOwner(null);
-            assertMaxMemoryUsage(fileName + " results", result, e.getValue());
+            MemoryAssert.assertHeapUsage(result, e.getValue());
         }
-    }
-
-    /**
-     * Tests the memory usage of a specified object.
-     * The memory usage is then compared with the specified
-     * maximum desired memory usage.  If the average memory usage is greater
-     * than the specified number, it will be reported as a failed assertion.
-     *
-     * @param description a plain-text description, to be used
-     *          in diagnostic messages
-     * @param o the object to measure
-     * @param maxMemoryUsage the maximum desired memory usage for the Callable,
-     *          in bytes
-     */
-    private static void assertMaxMemoryUsage(String description, Object o, int maxMemoryUsage) throws Exception {
-        CountingVisitor v = new CountingVisitor();
-        ScannerUtils.scan(null, v, Collections.singleton(o), false);
-        long memoryUsage = v.getTotalSize();
-        String message = description + " consume " + memoryUsage + " bytes of memory on average, " + (memoryUsage - maxMemoryUsage) + " bytes more than the specified limit of " + maxMemoryUsage + " bytes";
-        assertTrue(message, memoryUsage <= maxMemoryUsage);
-        System.out.println(description + " consume " + memoryUsage + "/" + maxMemoryUsage + " bytes of memory");
     }
 
 }

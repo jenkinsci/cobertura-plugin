@@ -89,12 +89,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.netbeans.modules</groupId>
-      <artifactId>org-netbeans-insane</artifactId>
-      <version>RELEASE72</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>net.sf.trove4j</groupId>
       <artifactId>trove4j</artifactId>
       <version>3.0.3</version>
