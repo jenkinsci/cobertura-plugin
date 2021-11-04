@@ -9,15 +9,14 @@ import hudson.plugins.cobertura.targets.CoveragePaint;
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,45 +28,46 @@ import java.util.Set;
  * @author Stephen Connolly
  * @since 31-Aug-2007 16:52:25
  */
-public class SourceCodePainter extends MasterToSlaveFileCallable<Boolean> implements Serializable {
+public class SourceCodePainter extends MasterToSlaveFileCallable<Map<String, String>> implements Serializable {
 
     private final Set<String> sourcePaths;
 
     private final Map<String, CoveragePaint> paint;
 
-    private final FilePath destination;
-
     private final TaskListener listener;
 
     private final SourceEncoding sourceEncoding;
 
-    public SourceCodePainter(FilePath destination, Set<String> sourcePaths, Map<String, CoveragePaint> paint, TaskListener listener,
+    public SourceCodePainter(Set<String> sourcePaths, Map<String, CoveragePaint> paint, TaskListener listener,
             SourceEncoding sourceEncoding) {
-        this.destination = destination;
         this.sourcePaths = sourcePaths;
         this.paint = paint;
         this.listener = listener;
         this.sourceEncoding = sourceEncoding;
     }
 
-    public void paintSourceCode(File source, CoveragePaint paint, FilePath canvas) throws IOException, InterruptedException {
-        OutputStream os = null;
+    public void paint(FilePath workspace, FilePath paintedSourcesPath) throws IOException, InterruptedException {
+        Map<String, String> result = workspace.act(this);
+        for (String key : paint.keySet()) {
+            String content = result.get(key);
+            if (content != null) {
+                FilePath canvas = paintedSourcesPath.child(IOUtils.sanitizeFilename(key));
+                canvas.getParent().mkdirs();
+                canvas.write(content, "UTF-8");
+            }
+        }
+    }
 
+    private String paintSourceCode(File source, CoveragePaint paint) throws IOException {
         FileInputStream is = null;
         InputStreamReader reader = null;
         BufferedReader input = null;
-        OutputStreamWriter bos = null;
-
-        BufferedWriter output = null;
+        StringWriter output = new StringWriter();
         int line = 0;
         try {
-            canvas.getParent().mkdirs();
-            os = canvas.write();
             is = new FileInputStream(source);
             reader = new InputStreamReader(is, getSourceEncoding().getEncodingName());
             input = new BufferedReader(reader);
-            bos = new OutputStreamWriter(os, "UTF-8");
-            output = new BufferedWriter(bos);
             String content;
             while ((content = input.readLine()) != null) {
                 line++;
@@ -103,18 +103,18 @@ public class SourceCodePainter extends MasterToSlaveFileCallable<Boolean> implem
             paint.setTotalLines(line);
         } finally {
             closeQuietly(output);
-            closeQuietly(bos);
             closeQuietly(input);
             closeQuietly(is);
-            closeQuietly(os);
             closeQuietly(reader);
         }
+        return output.toString();
     }
 
     /**
      * {@inheritDoc}
      */
-    public Boolean invoke(File workspaceDir, VirtualChannel channel) throws IOException {
+    public Map<String, String> invoke(File workspaceDir, VirtualChannel channel) throws IOException {
+        Map<String, String> r = new HashMap<>();
         final List<File> trialPaths = new ArrayList<>(sourcePaths.size());
         for (String sourcePath : sourcePaths) {
             final File trialPath = new File(sourcePath);
@@ -135,21 +135,20 @@ public class SourceCodePainter extends MasterToSlaveFileCallable<Boolean> implem
             }
             if (source.isFile()) {
                 try {
-                    // sanitizing file name to avoid arbitrarily write
-                    String sanitizedName = IOUtils.sanitizeFilename(entry.getKey());
-                    paintSourceCode(source, entry.getValue(), destination.child(sanitizedName));
+                    r.put(entry.getKey(), paintSourceCode(source, entry.getValue()));
                 } catch (IOException e) {
                     // We made our best shot at generating painted source code,
                     // but alas, we failed. Log the error and continue. We
                     // should not fail the build just because we cannot paint
                     // one file.
-                    e.printStackTrace(listener.error("ERROR: Failure to paint " + source + " to " + destination));
-                } catch (InterruptedException e) {
-                    return Boolean.FALSE;
+                    e.printStackTrace(listener.error("ERROR: Failure to paint " + source));
                 }
+            } else {
+                listener.getLogger().println("Source file mentioned in coverage report not found: " + source);
             }
         }
-        return Boolean.TRUE;
+        listener.getLogger().flush();
+        return r;
     }
 
     public SourceEncoding getSourceEncoding() {

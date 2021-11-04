@@ -602,7 +602,6 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             logMessage(listener, "Cobertura coverage report found.");
             result.setOwner(build);
             final FilePath paintedSourcesPath = new FilePath(new File(build.getParent().getRootDir(), "cobertura"));
-            paintedSourcesPath.mkdirs();
 
             if (sourcePaths.contains(".")) {
                 sourcePaths.remove(".");
@@ -614,10 +613,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
                 }
             }
 
-            SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths,
-                    result.getPaintedSources(), listener, getSourceEncoding());
-
-            workspace.act(painter);
+            new SourceCodePainter(sourcePaths, result.getPaintedSources(), listener, getSourceEncoding()).paint(workspace, paintedSourcesPath);
 
             final CoberturaBuildAction action = CoberturaBuildAction.load(result, healthyTarget,
                     unhealthyTarget, getOnlyStable(), getFailUnhealthy(), getFailUnstable(), getAutoUpdateHealth(), getAutoUpdateStability(),
@@ -795,7 +791,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
 
       for (int i = 0; i < targetValues.length && i < result.length; i++) {
         try {
-            result[i] = Float.valueOf(targetValues[i]);
+            result[i] = Float.parseFloat(targetValues[i]);
         } catch (NumberFormatException ex) {
             result[i] = 0;
         }

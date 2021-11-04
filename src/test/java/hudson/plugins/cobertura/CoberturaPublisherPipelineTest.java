@@ -1,9 +1,7 @@
 package hudson.plugins.cobertura;
 
-import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -12,7 +10,15 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import hudson.FilePath;
+import hudson.slaves.DumbSlave;
+import java.io.File;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import jenkins.model.Jenkins;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.jvnet.hudson.test.BuildWatcher;
 
 public class CoberturaPublisherPipelineTest {
 
@@ -145,9 +151,9 @@ public class CoberturaPublisherPipelineTest {
          * Gets the script as a string
          * @return The script
          */
-        String getScript() {
+        String getScript() throws Exception {
             StringBuilder script = new StringBuilder();
-            script.append("node {\n");
+            script.append("node('" + remote.getNodeName() + "') {\n");
             script.append(String.format("currentBuild.result = '%s'\n", this.result));
             script.append("step ([$class: 'CoberturaPublisher', ");
             script.append("coberturaReportFile: '**/coverage.xml', ");
@@ -181,6 +187,16 @@ public class CoberturaPublisherPipelineTest {
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
 
+    @ClassRule
+    public static BuildWatcher bw = new BuildWatcher();
+
+    @Before
+    public void makeSlave() throws Exception {
+        remote = jenkinsRule.createOnlineSlave();
+    }
+
+    private DumbSlave remote;
+
     /**
      * Tests that a run with a report file publishes
      */
@@ -192,12 +208,18 @@ public class CoberturaPublisherPipelineTest {
         project.setDefinition(new CpsFlowDefinition(new ScriptBuilder().getScript()));
 
         copyCoverageFile("coverage-with-data.xml", "coverage.xml", project);
+        try (OutputStream os = ensureWorkspaceExists(project).child("Main.java").write(); PrintWriter pw = new PrintWriter(os)) {
+            for (int i = 1; i <= 40; i++) {
+                pw.println("line #" + i);
+            }
+        }
 
-        WorkflowRun run = project.scheduleBuild2(0).get();
-        jenkinsRule.waitForCompletion(run);
+        WorkflowRun run = jenkinsRule.buildAndAssertSuccess(project);
 
         jenkinsRule.assertLogContains("Publishing Cobertura coverage report...", run);
         jenkinsRule.assertLogContains("Cobertura coverage report found.", run);
+
+        assertTrue(new File(project.getRootDir(), "cobertura/Main_2ejava").isFile());
     }
 
     /**
@@ -559,12 +581,10 @@ public class CoberturaPublisherPipelineTest {
      * @param job The job for the workspace
      * @return File representing workspace directory
      */
-    private File ensureWorkspaceExists(WorkflowJob job) {
-        FilePath path = jenkinsRule.jenkins.getWorkspaceFor(job);
-        File directory = new File(path.getRemote());
-        directory.mkdirs();
-
-        return directory;
+    private FilePath ensureWorkspaceExists(WorkflowJob job) throws Exception {
+        FilePath path = remote.getWorkspaceFor(job);
+        path.mkdirs();
+        return path;
     }
 
     /**
@@ -574,12 +594,10 @@ public class CoberturaPublisherPipelineTest {
      * @param job The job to copy the file to
      * @throws IOException
      */
-    private void copyCoverageFile(String sourceResourceName, String targetFileName, WorkflowJob job) throws IOException {
-        File directory = ensureWorkspaceExists(job);
+    private void copyCoverageFile(String sourceResourceName, String targetFileName, WorkflowJob job) throws Exception {
+        FilePath directory = ensureWorkspaceExists(job);
 
-        File dest = new File(directory, targetFileName);
-        File src = new File(getClass().getResource(sourceResourceName).getPath());
-
-        FileUtils.copyFile(src, dest);
+        FilePath dest = directory.child(targetFileName);
+        org.apache.commons.io.IOUtils.copy(getClass().getResourceAsStream(sourceResourceName), dest.write());
     };
 }
