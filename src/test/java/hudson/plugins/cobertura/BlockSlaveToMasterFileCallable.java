@@ -34,7 +34,7 @@ import jenkins.util.JenkinsJVM;
 import org.jenkinsci.remoting.CallableDecorator;
 
 /**
- * Prevents {@link FilePath#act} (or {@link FilePath#actAsync}) from running in a controller → agent direction during tests, to make sure we do not rely on them.
+ * Prevents {@link FilePath#act} (or {@link FilePath#actAsync}) from running in an agent → controller direction during tests, to make sure we do not rely on them.
  */
 public class BlockSlaveToMasterFileCallable extends CallableDecorator {
 
