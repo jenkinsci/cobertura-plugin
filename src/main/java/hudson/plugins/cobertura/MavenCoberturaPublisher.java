@@ -2,7 +2,6 @@ package hudson.plugins.cobertura;
 
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.Util;
 import hudson.maven.MavenBuild;
 import hudson.maven.MavenBuildProxy;
 import hudson.maven.MavenModule;
@@ -23,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.project.MavenProject;
@@ -157,49 +157,9 @@ public class MavenCoberturaPublisher extends MavenReporter {
             return true;
         }
 
-        FilePath reportFilePath = new FilePath(reportFile);
-
-        FilePath target = build.getRootDir();
-
-        try {
-            target.mkdirs();
-            listener.getLogger().println("[JENKINS] Recording coverage results");
-            reportFilePath.copyTo(target.child("coverage.xml"));
-        } catch (IOException e) {
-            Util.displayIOException(e, listener);
-            e.printStackTrace(listener.fatalError("Unable to copy " + reportFilePath + " to " + target));
-            build.setResult(Result.FAILURE);
-        }
-
-        CoverageResult result = null;
-        Set<String> sourcePaths = new HashSet<String>();
-
-        try {
-            result = CoberturaCoverageParser.parse(reportFile, null, sourcePaths);
-        } catch (IOException e) {
-            Util.displayIOException(e, listener);
-            e.printStackTrace(listener.fatalError("Unable to parse " + reportFilePath));
-            build.setResult(Result.FAILURE);
-        }
-
-        if (result != null) {
-            result.setOwner(null);
-            final FilePath paintedSourcesPath = build.getProjectRootDir().child("cobertura");
-            paintedSourcesPath.mkdirs();
-            // Get System default encoding;
-            SourceEncoding encoding = SourceEncoding.getEncoding(System.getProperty("file.encoding"));
-            SourceCodePainter painter = new SourceCodePainter(paintedSourcesPath, sourcePaths, result.getPaintedSources(), listener,
-                    encoding);
-
-            new FilePath(pom.getBasedir()).act(painter);
-            if (!build.execute(new MavenCoberturaActionAdder(listener))) {
-                listener.getLogger().println("[JENKINS] Unable to add link to cobertura results");
-                build.setResult(Result.FAILURE);
-                return true;
-            }
-
-        } else {
-            listener.getLogger().println("[JENKINS] Unable to parse coverage results.");
+        String coverageXml = FileUtils.readFileToString(reportFile);
+        if (!build.execute(new MavenCoberturaActionAdder(listener, coverageXml, pom.getBasedir().getAbsolutePath()))) {
+            listener.getLogger().println("[JENKINS] Unable to add link to cobertura results");
             build.setResult(Result.FAILURE);
             return true;
         }
@@ -210,7 +170,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
     }
 
     private boolean isCoberturaReport(MojoInfo mojo) {
-        if (!mojo.pluginName.matches("org.codehaus.mojo", "cobertura-maven-plugin") || !mojo.pluginName.matches("org.codehaus.mojo", "cobertura-it-maven-plugin"))
+        if (!mojo.pluginName.matches("org.codehaus.mojo", "cobertura-maven-plugin") && !mojo.pluginName.matches("org.codehaus.mojo", "cobertura-it-maven-plugin"))
             return false;
 
         if (!mojo.getGoal().equals("cobertura"))
@@ -243,6 +203,7 @@ public class MavenCoberturaPublisher extends MavenReporter {
         public MavenReporter newAutoInstance(MavenModule mavenModule) {
             return new MavenCoberturaPublisher();
         }
+
     }
 
     private static final long serialVersionUID = 1L;
@@ -251,26 +212,39 @@ public class MavenCoberturaPublisher extends MavenReporter {
         private static final long serialVersionUID = -5470450037371279762L;
         @SuppressWarnings("unused")
         private final BuildListener listener;
+        private final String coverageXml;
+        private final String workspace;
 
-        public MavenCoberturaActionAdder(BuildListener listener) {
+        MavenCoberturaActionAdder(BuildListener listener, String coverageXml, String workspace) {
             this.listener = listener;
+            this.coverageXml = coverageXml;
+            this.workspace = workspace;
         }
 
         public Boolean call(MavenBuild build) throws IOException {
+            final FilePath paintedSourcesPath = new FilePath(build.getParent().getRootDir()).child("cobertura");
             try {
                 CoberturaBuildAction cba = build.getAction(CoberturaBuildAction.class);
                 if (cba == null) {
                     File cvgxml = new File(build.getRootDir(), "coverage.xml");
-                    CoverageResult result = CoberturaCoverageParser.parse(cvgxml, null, new HashSet<String>());
+                    FileUtils.write(cvgxml, coverageXml);
+                    Set<String> sourcePaths = new HashSet<>();
+                    CoverageResult result = CoberturaCoverageParser.parse(cvgxml, null, sourcePaths);
                     result.setOwner(build);
 
                     CoberturaBuildAction o = CoberturaBuildAction.load(result, null, null, false, false, false, false, false, false, 0);
                     build.addAction(o);
+
+                    // Get System default encoding;
+                    SourceEncoding encoding = SourceEncoding.getEncoding(System.getProperty("file.encoding"));
+                    new SourceCodePainter(sourcePaths, result.getPaintedSources(), listener, encoding).paint(new FilePath(build.getWorkspace().getChannel(), workspace), paintedSourcesPath);
                 } else {
                     return false;
                 }
             } catch (NullPointerException e) {
                 return false;
+            } catch (InterruptedException x) {
+                throw new IOException(x);
             }
             return true;
         }
