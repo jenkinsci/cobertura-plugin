@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import hudson.Extension;
@@ -121,6 +122,7 @@ public class CoverageColumn extends ListViewColumn {
             return false;
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.CoverageColumn_columnName();

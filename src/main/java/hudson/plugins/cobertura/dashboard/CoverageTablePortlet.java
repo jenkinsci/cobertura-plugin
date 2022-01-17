@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura.dashboard;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
@@ -96,6 +97,7 @@ public class CoverageTablePortlet extends DashboardPortlet {
             }
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "Code Coverages(Cobertura)";

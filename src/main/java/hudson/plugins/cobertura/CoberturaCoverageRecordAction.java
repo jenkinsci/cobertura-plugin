@@ -1,10 +1,9 @@
 package hudson.plugins.cobertura;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.model.Run;
 import hudson.plugins.cobertura.targets.CoverageTarget;
 import jenkins.model.RunAction2;
-
-import javax.annotation.CheckForNull;
 
 public class CoberturaCoverageRecordAction implements RunAction2 {
     private transient Run<?, ?> owner;

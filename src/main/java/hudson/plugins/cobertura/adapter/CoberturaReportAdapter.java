@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura.adapter;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import io.jenkins.plugins.coverage.adapter.JavaCoverageReportAdapterDescriptor;
 import io.jenkins.plugins.coverage.adapter.JavaXMLCoverageReportAdapter;
@@ -10,7 +11,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.annotation.Nonnull;
 import javax.xml.transform.TransformerException;
 import java.io.File;
 
@@ -75,7 +75,7 @@ public final class CoberturaReportAdapter extends JavaXMLCoverageReportAdapter {
             return "coverage".equals(e.getLocalName());
         }
 
-        @Nonnull
+        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.CoberturaReportAdapter_displayName();

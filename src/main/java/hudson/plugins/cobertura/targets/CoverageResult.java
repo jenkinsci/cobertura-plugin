@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura.targets;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.model.AbstractBuild;
 import hudson.model.Api;
 import hudson.model.Item;
@@ -30,7 +31,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.annotation.Nullable;
 import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;

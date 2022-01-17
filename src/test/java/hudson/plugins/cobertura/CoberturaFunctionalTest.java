@@ -23,6 +23,7 @@
  */
 package hudson.plugins.cobertura;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.FreeStyleProject;
@@ -77,7 +78,7 @@ public class CoberturaFunctionalTest {
         }
 
         @Override
-        public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
+        public void perform(@NonNull Run<?, ?> build, @NonNull FilePath workspace, @NonNull Launcher launcher, @NonNull TaskListener listener) throws InterruptedException, IOException {
             firstRunning.signal();
             firstBlocked.block();
             return;
