@@ -1,5 +1,6 @@
 package hudson.plugins.cobertura;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -527,7 +528,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
      * {@inheritDoc}
      */
     @Override
-    public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, final TaskListener listener)
+    public void perform(@NonNull Run<?, ?> build, @NonNull FilePath workspace, @NonNull Launcher launcher, @NonNull final TaskListener listener)
             throws InterruptedException, IOException {
 
         setAllCoverageTargets();
@@ -958,6 +959,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         /**
          * This human readable name is used in the configuration screen.
          */
+        @NonNull
         public String getDisplayName() {
             return Messages.CoberturaPublisher_displayName();
         }
@@ -1005,7 +1007,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
          * Creates a new instance of {@link CoberturaPublisher} from a submitted form.
          */
         @Override
-        public CoberturaPublisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public CoberturaPublisher newInstance(StaplerRequest req, @NonNull JSONObject formData) throws FormException {
             // Null check because findbugs insists, despite the API guaranteeing this is never null.
             if (req == null) {
                 throw new FormException("req cannot be null", "");
