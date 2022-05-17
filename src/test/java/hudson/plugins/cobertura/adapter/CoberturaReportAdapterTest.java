@@ -49,6 +49,6 @@ public class CoberturaReportAdapterTest {
         CoverageAction coverageAction = r.getAction(CoverageAction.class);
         Assert.assertNotNull(r);
         Ratio lineCoverage = coverageAction.getResult().getCoverage(CoverageElement.LINE);
-        Assert.assertEquals(lineCoverage.toString(),"6/11");
+        Assert.assertEquals(lineCoverage.toString(),"054.55 (6/11)");
     }
 }
