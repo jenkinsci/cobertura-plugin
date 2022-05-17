@@ -170,7 +170,7 @@
           <plugin>
             <groupId>org.maven.ide.eclipse</groupId>
             <artifactId>lifecycle-mapping</artifactId>
-            <version>0.10.0</version>
+            <version>1.10.0</version>
             <configuration>
               <mappingId>customizable</mappingId>
               <configurators>
