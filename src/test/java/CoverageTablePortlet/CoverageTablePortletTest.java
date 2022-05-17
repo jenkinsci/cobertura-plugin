@@ -58,7 +58,7 @@ public class CoverageTablePortletTest {
         folder.addView(view);
         view.add(p);
         final CoverageTablePortlet portlet = new CoverageTablePortlet("coverage portlet");
-        String portletId = portlet.getId();
+        String portletId = "0";
         view.getTopPortlets().add(portlet);
 
         WebClient wc = j.createWebClient();
@@ -68,7 +68,7 @@ public class CoverageTablePortletTest {
         HtmlPage page = wc.getPage(view);
         page.getAnchorByText("project #1").click();
 
-        page = wc.getPage(view, "portlet/" + portletId);
+        page = wc.getPage(view, "topPortlets/" + portletId);
         page.getAnchorByText("project #1").click();
     }
 }
