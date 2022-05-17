@@ -52,7 +52,7 @@ public class SourceCodePainter extends MasterToSlaveFileCallable<Map<String, Str
             String content = result.get(key);
             if (content != null) {
                 FilePath canvas = paintedSourcesPath.child(IOUtils.sanitizeFilename(key));
-                if (canvas != null) {
+                if (canvas != null && canvas.getParent() != null) {
                     canvas.getParent().mkdirs();
                     canvas.write(content, "UTF-8");
                 }
