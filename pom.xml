@@ -81,7 +81,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>dashboard-view</artifactId>
-      <version>2.432.va_712ce35862d</version>
+      <version>2.447.vda_124dd35f11</version>
       <optional>true</optional>
     </dependency>
     <dependency>
