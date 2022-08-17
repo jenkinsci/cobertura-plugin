@@ -3,7 +3,9 @@ package hudson.plugins.cobertura;
 import java.io.Serializable;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Represents <tt>x/y</tt> where x={@link #numerator} and y={@link #denominator}.
@@ -62,11 +64,12 @@ final public class Ratio implements Serializable {
         return denominator == 0 ? (numerator == 0 ? 100.0f : 0.0f) : (100 * numerator / denominator);
     }
 
-    static NumberFormat dataFormat = new DecimalFormat("000.00");
+    private static final DecimalFormatSymbols localeSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
+    static NumberFormat dataFormat = new DecimalFormat("000.00", localeSymbols);
     static NumberFormat roundDownDataFormat;
 
     static {
-        roundDownDataFormat = new DecimalFormat("000.000");
+        roundDownDataFormat = new DecimalFormat("000.000", localeSymbols);
         roundDownDataFormat.setRoundingMode(RoundingMode.DOWN);
     }
 
