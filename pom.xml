@@ -1,23 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.40</version>
+    <version>4.50</version>
     <relativePath />
   </parent>
 
   <artifactId>cobertura</artifactId>
   <packaging>hpi</packaging>
-  <version>1.18-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <name>Jenkins Cobertura Plugin</name>
-  <url>https://github.com/jenkinsci/cobertura-plugin</url>
+  <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
   <properties>
+    <revision>1.18</revision>
+    <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.289.3</jenkins.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <workflow-jenkins-plugin.version>2.93</workflow-jenkins-plugin.version>
+    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
   </properties>
 
   <licenses>
@@ -28,10 +30,10 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/cobertura-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/cobertura-plugin.git</developerConnection>
-    <url>https://github.com/jenkinsci/cobertura-plugin</url>
-    <tag>HEAD</tag>
+    <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <url>https://github.com/${gitHubRepo}</url>
+    <tag>${scmTag}</tag>
   </scm>
 
   <developers>
@@ -54,10 +56,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>structs</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>code-coverage-api</artifactId>
       <version>2.0.4</version>
@@ -65,7 +63,6 @@
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>echarts-api</artifactId>
-      <version>5.2.1-2</version>
      </dependency>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
@@ -80,14 +77,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>dashboard-view</artifactId>
-      <version>2.432.va_712ce35862d</version>
       <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.trove4j</groupId>
-      <artifactId>trove4j</artifactId>
-      <version>3.0.3</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -120,7 +110,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.289.x</artifactId>
-        <version>1340.vb_085767387d2</version>
+        <version>1500.ve4d05cd32975</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
