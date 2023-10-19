@@ -948,6 +948,8 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
     @Symbol("cobertura")
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
+        private boolean colorBlindMode;
+
         CoverageMetric[] metrics = {
             CoverageMetric.PACKAGES,
             CoverageMetric.FILES,
@@ -955,6 +957,23 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
             CoverageMetric.METHOD,
             CoverageMetric.LINE,
             CoverageMetric.CONDITIONAL,};
+
+        /**
+         * load global config from disk
+         */
+        public DescriptorImpl(Class<? extends Publisher> clazz) {
+            super(clazz);
+            load();
+        }
+
+        /**
+         * load global config from disk
+         */
+        public DescriptorImpl() {
+            super();
+            load();
+        }
+
 
         /**
          * This human readable name is used in the configuration screen.
@@ -998,7 +1017,7 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
          */
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            req.bindParameters(this, "cobertura.");
+            req.bindJSON(this, formData);
             save();
             return super.configure(req, formData);
         }
@@ -1031,6 +1050,25 @@ public class CoberturaPublisher extends Recorder implements SimpleBuildStep {
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;
+        }
+
+        /**
+         * Setter for property 'colorBlindMode'.
+         *
+         * @param colorBlindMode Value to set for property 'colorBlindMode'.
+         */
+        @DataBoundSetter
+        public void setColorBlindMode(boolean colorBlindMode) {
+            this.colorBlindMode = colorBlindMode;
+        }
+
+        /**
+         * Getter for property 'colorBlindMode'.
+         *
+         * @return Value for property 'colorBlindMode'.
+         */
+        public boolean getColorBlindMode() {
+            return colorBlindMode;
         }
     }
 

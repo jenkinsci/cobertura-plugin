@@ -3,11 +3,13 @@ package hudson.plugins.cobertura.targets;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.model.AbstractBuild;
 import hudson.model.Api;
+import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.Run;
 import hudson.plugins.cobertura.BuildUtils;
 import hudson.plugins.cobertura.Chartable;
 import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.cobertura.CoberturaPublisher;
 import hudson.plugins.cobertura.CoverageChart;
 import hudson.plugins.cobertura.IOUtils;
 import hudson.plugins.cobertura.Ratio;
@@ -31,6 +33,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import jenkins.model.Jenkins;
 import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -517,5 +520,19 @@ public class CoverageResult implements Serializable, Chartable {
 
     public Api getApi() {
         return new Api(this);
+    }
+
+    /**
+     * @since TODO
+     *
+     * @return whether enable color blind mode in global config
+     */
+    public boolean isEnableColorBlindMode() {
+        Descriptor descriptor = Jenkins.getInstance().getDescriptor(CoberturaPublisher.class);
+        if(descriptor instanceof CoberturaPublisher.DescriptorImpl) {
+            CoberturaPublisher.DescriptorImpl d = (CoberturaPublisher.DescriptorImpl) descriptor;
+            return d.getColorBlindMode();
+        }
+        return false;
     }
 }

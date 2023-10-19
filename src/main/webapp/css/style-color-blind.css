@@ -1,0 +1,19 @@
+div.percentgraph {
+    background-color: #f0e442 !important;
+}
+
+div.percentgraph div.greenbar {
+    background-color: #0072b2 !important;
+}
+
+div.percentgraph span.text {
+    color: #000 !important;
+}
+
+table.source tr.coverFull {
+    background-color: #009e73 !important;
+}
+
+table.source tr.coverNone {
+    background-color: #cc79a7 !important;
+}
