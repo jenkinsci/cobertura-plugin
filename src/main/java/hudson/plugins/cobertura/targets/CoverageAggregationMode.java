@@ -4,7 +4,7 @@ import hudson.plugins.cobertura.Ratio;
 
 /**
  * Different ways of aggregating data series {x_1,x_2,x_3,...}, which can be represented as
- * <tt>f(...f(f(ZERO,x_1),x_2)...,x_n)</tt>
+ * {@code f(...f(f(ZERO,x_1),x_2)...,x_n)}
  *
  * @author Stephen Connolly
  * @since 22-Aug-2007 18:07:35
