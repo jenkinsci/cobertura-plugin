@@ -58,7 +58,7 @@
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>code-coverage-api</artifactId>
-      <version>3.5.0</version>
+      <version>4.10.0</version>
       <exclusions>
         <exclusion>
           <groupId>commons-codec</groupId>
