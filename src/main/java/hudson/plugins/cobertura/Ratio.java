@@ -8,7 +8,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- * Represents <tt>x/y</tt> where x={@link #numerator} and y={@link #denominator}.
+ * Represents {@code x/y} where x={@link #numerator} and y={@link #denominator}.
  *
  * @author Kohsuke Kawaguchi
  */
