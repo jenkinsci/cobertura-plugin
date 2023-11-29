@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 /**
- * Represents <tt>x/y</tt> where x={@link #numerator} and y={@link #denominator}.
+ * Represents {@code x/y} where x={@link #numerator} and y={@link #denominator}.
  *
  * @author Kohsuke Kawaguchi
  */
