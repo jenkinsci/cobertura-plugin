@@ -57,8 +57,8 @@
   <dependencies>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
-      <artifactId>code-coverage-api</artifactId>
-      <version>3.5.0</version>
+      <artifactId>coverage</artifactId>
+      <version>1.13.0</version>
       <exclusions>
         <exclusion>
           <groupId>commons-codec</groupId>
@@ -115,8 +115,8 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.361.x</artifactId>
-        <version>2102.v854b_fec19c92</version>
+        <artifactId>bom-2.440.x</artifactId>
+        <version>2884.vc36b_64ce114a_</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>

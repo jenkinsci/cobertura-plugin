@@ -28,11 +28,10 @@ public class CoberturaReportAdapterTest {
         String coberturaReport = "coberturaWithTheSameFileInDifferentPackages.xml";
         StringBuilder sb = new StringBuilder();
         sb.append("node {")
-                .append("publishCoverage(");
+                .append("recordCoverage(");
 
-        sb.append("adapters:[");
+        sb.append(String.format("tools:[[ parser: 'COBERTURA', pattern:'%s' ]], sourceCodeRetention: 'NEVER_STORE'", coberturaReport));
 
-        sb.append(String.format("coberturaAdapter(path: '%s')], sourceFileResolver: sourceFiles('NEVER_STORE')", coberturaReport));
         sb.append(")").append("}");
 
         WorkflowJob project = j.createProject(WorkflowJob.class, "coverage-pipeline-test");
